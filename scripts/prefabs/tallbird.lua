@@ -77,7 +77,7 @@ local function OnGetItemFromPlayer(inst, giver, item)
             inst.components.combat:SetTarget(nil)
         end
         if giver.components.leader and giver:HasTag("bird_family") then
-            if inst.components.bird_cultivate then
+            if inst.components.bird_cultivate and inst.components.follower and not inst.components.follower.leader then
                 giver:PushEvent("makefriend")
                 giver.components.leader:AddFollower(inst)
                 inst.components.bird_cultivate.follow=true
@@ -223,6 +223,24 @@ local function OnRefuseRider(inst, data)
         inst.components.sleeper:WakeUp()
       end
 end
+local function OnRefuseGiver(inst, giver, item)
+    local talker = giver.components.talker
+    if item and item.prefab=="twigs" then
+        if talker then
+            if inst.components.follower and inst.components.follower.leader==giver then
+                return
+            end
+            giver.components.talker:Say(GetString(giver,"ANNOUNCE_TALLBIRD_NOTWIGS"))
+        end
+    elseif item and item.prefab=="cutgrass"  then
+        if inst.components.follower and inst.components.follower.leader~=giver then
+            return
+        end
+        if talker then
+            giver.components.talker:Say(GetString(giver,"ANNOUNCE_TALLBIRD_NOCUTGRASS"))
+        end
+    end
+end
 
 -- local function PotentialRiderTest(inst, potential_rider)
 --     local talker = potential_rider.components.talker
@@ -312,6 +330,7 @@ local function fn()
     inst:AddComponent("trader")
     inst.components.trader:SetAcceptTest(ShouldAcceptItem)
     inst.components.trader.onaccept = OnGetItemFromPlayer
+    inst.components.trader:SetOnRefuse(OnRefuseGiver)
 
     MakeLargeBurnableCharacter(inst, "head")
     MakeLargeFreezableCharacter(inst, "head")

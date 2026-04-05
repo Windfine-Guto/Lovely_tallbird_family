@@ -193,7 +193,7 @@ local LANGS = {
                 {'9.0',9},
                 {'10.0',10}
             }},
-            {modid..'_tallbirdprotect','高脚鸟血线保护','血量不会低于10%，且低于20%不参与战斗，血量恢复50%以上时恢复正常',true,{
+            {modid..'_tallbirdprotect','高脚鸟血线保护','血量不会低于10%，且低于20%不参与战斗，血量恢复50%以上时恢复正常',false,{
                 {'开启',true},
                 {'关闭',false}
             }},
@@ -201,7 +201,7 @@ local LANGS = {
                 {'开启',true},
                 {'关闭',false}
             }},
-            {modid..'_tallbirdwaterwalk','高脚鸟水上行走','出海也能跟着你',true,{
+            {modid..'_tallbirdwaterwalk','高脚鸟水上行走','出海也能跟着你',false,{
                 {'开启',true},
                 {'关闭',false}
             }},
@@ -388,7 +388,7 @@ local LANGS = {
                 {'9.0',9},
                 {'10.0',10}
             }},
-            {modid..'_tallbirdprotect','Tallbird Health Protection','Health will not drop below 10%, and will not engage in combat when below 20%. Returns to normal when health recovers above 50%',true,{
+            {modid..'_tallbirdprotect','Tallbird Health Protection','Health will not drop below 10%, and will not engage in combat when below 20%. Returns to normal when health recovers above 50%',false,{
                 {'Enable',true},
                 {'Disable',false}
             }},
@@ -396,7 +396,7 @@ local LANGS = {
                 {'Enable',true},
                 {'Disable',false}
             }},
-            {modid..'_tallbirdwaterwalk','Tallbird Water Walking','Can follow you on water',true,{
+            {modid..'_tallbirdwaterwalk','Tallbird Water Walking','Can follow you on water',false,{
                 {'Enable',true},
                 {'Disable',false}
             }},
