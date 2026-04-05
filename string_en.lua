@@ -166,3 +166,77 @@ STRINGS.CHARACTERS.WURT.ANNOUNCE_TALLBIRD_ISWILD= "Bird no trust merm. Flurp."
 STRINGS.CHARACTERS.WX78.ANNOUNCE_TALLBIRD_ISWILD= "Warning: potential threat detected."
 ---沃拓克斯
 STRINGS.CHARACTERS.WORTOX.ANNOUNCE_TALLBIRD_ISWILD= "It is not an easy target to bully."
+
+
+---切换攻击方式回旋踢的台词
+---威尔逊
+STRINGS.CHARACTERS.GENERIC.ANNOUNCE_TALLBIRD_ATKLEG = "Big bird, use your legs!"
+---温蒂
+STRINGS.CHARACTERS.WENDY.ANNOUNCE_TALLBIRD_ATKLEG = "Scatter these annoying things with your kicks."
+---薇诺娜
+STRINGS.CHARACTERS.WINONA.ANNOUNCE_TALLBIRD_ATKLEG= "Big bird, let's kick 'em away!"
+---沃尔夫冈
+STRINGS.CHARACTERS.WOLFGANG.ANNOUNCE_TALLBIRD_ATKLEG= "Smash the enemies with your mighty big feet!"
+---薇克巴顿
+STRINGS.CHARACTERS.WICKERBOTTOM.ANNOUNCE_TALLBIRD_ATKLEG= "Make use of your long, towering legs!"
+---旺达
+STRINGS.CHARACTERS.WANDA.ANNOUNCE_TALLBIRD_ATKLEG= "Now come on—trample our path clear while you're at it."
+---伍迪
+STRINGS.CHARACTERS.WOODIE.ANNOUNCE_TALLBIRD_ATKLEG= "Kick those foes right into the woods!"
+---沃利
+STRINGS.CHARACTERS.WARLY.ANNOUNCE_TALLBIRD_ATKLEG= "Big bird! Grind them into patties!"
+---薇格弗德
+STRINGS.CHARACTERS.WATHGRITHR.ANNOUNCE_TALLBIRD_ATKLEG= "Lay waste to all nearby fiends with a spinning kick!"
+---薇洛
+STRINGS.CHARACTERS.WILLOW.ANNOUNCE_TALLBIRD_ATKLEG= "Kick those baddies' butts good!"
+---沃姆伍德
+STRINGS.CHARACTERS.WORMWOOD.ANNOUNCE_TALLBIRD_ATKLEG= "Make legs spinny!"
+---麦斯威尔
+STRINGS.CHARACTERS.WAXWELL.ANNOUNCE_TALLBIRD_ATKLEG= "Trample the enemies beneath you."
+---韦伯
+STRINGS.CHARACTERS.WEBBER.ANNOUNCE_TALLBIRD_ATKLEG= "Big bird's legs will protect us!"
+---沃尔特
+STRINGS.CHARACTERS.WALTER.ANNOUNCE_TALLBIRD_ATKLEG= "Get ready to dance, big bird!"
+---沃特
+STRINGS.CHARACTERS.WURT.ANNOUNCE_TALLBIRD_ATKLEG= "Legs good! Flurp!"
+---WX-78
+STRINGS.CHARACTERS.WX78.ANNOUNCE_TALLBIRD_ATKLEG= "Initiate area strike protocol."
+---沃拓克斯
+STRINGS.CHARACTERS.WORTOX.ANNOUNCE_TALLBIRD_ATKLEG= "Kicking them away is far more amusing!"
+
+
+---切换攻击方式非回旋踢的台词
+---威尔逊
+STRINGS.CHARACTERS.GENERIC.ANNOUNCE_TALLBIRD_NOTATKLEG = "Big bird! Use your clever beak"
+---温蒂
+STRINGS.CHARACTERS.WENDY.ANNOUNCE_TALLBIRD_NOTATKLEG = "Pierce them with your sharp beak."
+---薇诺娜
+STRINGS.CHARACTERS.WINONA.ANNOUNCE_TALLBIRD_NOTATKLEG= "C'mon! Let's peck 'em to bits"
+---沃尔夫冈
+STRINGS.CHARACTERS.WOLFGANG.ANNOUNCE_TALLBIRD_NOTATKLEG= "Wolfgang approves of your iron beak charge!"
+---薇克巴顿
+STRINGS.CHARACTERS.WICKERBOTTOM.ANNOUNCE_TALLBIRD_NOTATKLEG= "My old body can't stand all this jostling"
+---旺达
+STRINGS.CHARACTERS.WANDA.ANNOUNCE_TALLBIRD_NOTATKLEG= "Quit the swaying, I'm getting dizzy."
+---伍迪
+STRINGS.CHARACTERS.WOODIE.ANNOUNCE_TALLBIRD_NOTATKLEG= "I knew this bird was tryin' to mess with me!"
+---沃利
+STRINGS.CHARACTERS.WARLY.ANNOUNCE_TALLBIRD_NOTATKLEG= "I think my brains are being shaken to a pulp!"
+---薇格弗德
+STRINGS.CHARACTERS.WATHGRITHR.ANNOUNCE_TALLBIRD_NOTATKLEG= "Thöugh dizziness plagues me, I shall pierce the foe with my beak!"
+---薇洛
+STRINGS.CHARACTERS.WILLOW.ANNOUNCE_TALLBIRD_NOTATKLEG= "Either the baddies fall… or I do"
+---沃姆伍德
+STRINGS.CHARACTERS.WORMWOOD.ANNOUNCE_TALLBIRD_NOTATKLEG= "Use mouth to hit bad guys!"
+---麦斯威尔
+STRINGS.CHARACTERS.WAXWELL.ANNOUNCE_TALLBIRD_NOTATKLEG= "Do not forget there is someone on your head!"
+---韦伯
+STRINGS.CHARACTERS.WEBBER.ANNOUNCE_TALLBIRD_NOTATKLEG= "I better hold on tight to big bird's head."
+---沃尔特
+STRINGS.CHARACTERS.WALTER.ANNOUNCE_TALLBIRD_NOTATKLEG= "Time for some pilot anti-dizziness training!"
+---沃特
+STRINGS.CHARACTERS.WURT.ANNOUNCE_TALLBIRD_NOTATKLEG= "Too dizzy! Flurp!"
+---WX-78
+STRINGS.CHARACTERS.WX78.ANNOUNCE_TALLBIRD_NOTATKLEG= "WARNING: Stability module malfunction."
+---沃拓克斯
+STRINGS.CHARACTERS.WORTOX.ANNOUNCE_TALLBIRD_NOTATKLEG= "You peck so fiercely, my soul's all shaken loose!"

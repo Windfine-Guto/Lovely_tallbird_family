@@ -25,10 +25,6 @@ local LANGS = {
         name = '可爱鸟家族',
         description = '放心的养鸟，遛鸟，鸟绝不会让你失望的',
         config = {
-            {modid..'language','语言','',true,{
-                {'中文',true},
-                {'英文',false}
-            }},
             {'高脚鸟蛋'},
             {modid..'_egghatch','高脚鸟蛋孵化时间','原版是3天',1,{
                 {'1分钟',1/24},
@@ -224,11 +220,6 @@ local LANGS = {
         name = 'Lovely Tallbird Family',
         description = 'Raise and walk your birds with peace of mind — they\'ll never let you down!',
         config = {
-            {'Language'},
-            {modid..'language','Language','',false,{
-                {'Chinese', true},
-                {'English', false}
-            }},
             {'Tallbird Egg'},
             {modid..'_egghatch','Morsel Egg Incubation Time','Vanilla: 3 days',1,{
                 {'1 minute',1/24},

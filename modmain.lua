@@ -1,7 +1,7 @@
 GLOBAL.setmetatable(env,{__index=function(t,k) return GLOBAL.rawget(GLOBAL,k) end})
 
 Assets = {
-
+	Asset("ANIM", "anim/spell_icons_tallbird.zip"),
 }
 
 PrefabFiles = {
@@ -54,8 +54,8 @@ TUNING.TEENBIRD_HUNGER=TUNING.TEENBIRD_HUNGER*GetModConfigData(config_name15)
 TUNING.SMALLBIRD_GROW_TIME=TUNING.SMALLBIRD_GROW_TIME/GetModConfigData(config_name23)
 TUNING.TEENBIRD_GROW_TIME=TUNING.TEENBIRD_GROW_TIME/GetModConfigData(config_name24)
 
-
-if GetModConfigData(modid..'language') then
+local locale = GLOBAL.LOC.GetLocaleCode()
+if locale == "zh" or locale == "zht" or locale=="zhr" then
     modimport("string_zh")
 else
     modimport("string_en")
@@ -114,9 +114,7 @@ end
 
 function AnimState:PlayAnimation(anim, loop)
     local inst = GetEntityFromAnimState(self)
-    print("PlayAnimation", anim, "inst=", inst, "_tallbird_leg=", inst and inst._tallbird_mount_aoe_leg)
     local new_anim = ReplaceAttackAnim(inst, anim)
-    print("new_anim=", new_anim)
     return NativePlayAnimation(self, new_anim, loop)
 end
 
@@ -300,6 +298,43 @@ ACTIONS.SADDLE.fn = function(act)
 
     return SADDLE_fn(act)
 end
+
+local CastSelect = require("widgets/castselect")
+AddClassPostConstruct("widgets/controls", function(self)
+    if not self.owner then
+        return
+    end
+    self.tallbird_atk_select = self:AddChild(CastSelect(self.owner))
+    self.tallbird_atk_select:Hide()
+end)
+
+AddComponentPostInit("playercontroller", function(self)
+    local fn_name = self.TryAOECharging and "TryAOECharging" or "TryAOETargeting"
+    local old_fn = self[fn_name]
+    self[fn_name] = function(self, ...)
+        if old_fn(self, ...) then
+            return true
+        end
+
+        local player = self.inst
+        if not player or not player.HUD then
+            return
+        end
+
+        -- 检查是否骑乘高脚鸟（有 tallbird 标签）
+        local rider = player.replica.rider
+        local mount = rider and rider:GetMount()
+        if not mount or not mount:HasTag("tallbird") then
+            return
+        end
+        if player.HUD.controls.tallbird_atk_select and player.HUD.controls.tallbird_atk_select.open == false then
+            player.HUD.controls.tallbird_atk_select:Show()
+        elseif player.HUD.controls.tallbird_atk_select and player.HUD.controls.tallbird_atk_select.open == true then
+            player.HUD.controls.tallbird_atk_select:Hide()
+        end
+        return true
+    end
+end)
 
 AddComponentPostInit("rider", function(self)
     local original_Mount = self.Mount
@@ -1364,12 +1399,12 @@ AddModRPCHandler(attack_mode..'attack', attack_mode..'attack', function(inst,mod
     if inst and inst:IsValid() and not inst:HasTag("playerghost") and inst:HasTag("tallbird_mount") then
         if mode==true then
             if inst and inst.components.talker then
-                inst.components.talker:Say("开启")
+                inst.components.talker:Say(GetString(inst,"ANNOUNCE_TALLBIRD_ATKLEG"))
             end
             inst._tallbird_mount_aoe_leg = mode
         else
             if inst and inst.components.talker then
-                inst.components.talker:Say("关闭")
+                inst.components.talker:Say(GetString(inst,"ANNOUNCE_TALLBIRD_NOTATKLEG"))
             end
             inst._tallbird_mount_aoe_leg = mode
         end
