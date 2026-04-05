@@ -8,7 +8,7 @@ local CastSelect = {
         pos = { 0, 150 },
         animbank = "spell_icons_tallbird",
         animbuild = "spell_icons_tallbird",
-        animdis = "switch_disabled",
+        animdis = "switch",
         animfoc = "switch_focus"
     },
 }

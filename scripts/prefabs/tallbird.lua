@@ -78,6 +78,7 @@ local function OnGetItemFromPlayer(inst, giver, item)
         end
         if giver.components.leader and giver:HasTag("bird_family") then
             if inst.components.bird_cultivate then
+                giver:PushEvent("makefriend")
                 giver.components.leader:AddFollower(inst)
                 inst.components.bird_cultivate.follow=true
                 inst.components.bird_cultivate.wild=false

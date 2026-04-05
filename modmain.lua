@@ -2,6 +2,7 @@ GLOBAL.setmetatable(env,{__index=function(t,k) return GLOBAL.rawget(GLOBAL,k) en
 
 Assets = {
 	Asset("ANIM", "anim/spell_icons_tallbird.zip"),
+    Asset("ANIM", "anim/status_meter_tallbird.zip"),
 }
 
 PrefabFiles = {
