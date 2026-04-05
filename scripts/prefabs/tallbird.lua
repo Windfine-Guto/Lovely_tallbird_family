@@ -65,6 +65,7 @@ local function ShouldAcceptItem(inst, item)
         if inst.components.health then
             inst.components.health:DoDelta(inst.components.health.maxhealth*.2,nil,item)
         end
+        inst.sg:GoToState("eat")
         return inst.components.eater:CanEat(item)
     end
 end

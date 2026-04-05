@@ -430,7 +430,7 @@ AddPrefabPostInit("smallbird", function(inst)
             if old_eatfn then
                 old_eatfn(inst,food,feeder)
             end
-            inst.AnimState:PlayAnimation("eat")
+            inst.sg:GoToState("eat")
         end)
     end
 local function ShouldAcceptItem(inst, item)
@@ -500,6 +500,15 @@ AddPrefabPostInit("teenbird", function(inst)
     inst:AddComponent("drownable")
     inst:AddComponent("sanityaura")
     inst.components.sanityaura.aurafn = CalcSanityAura
+    if inst.components.eater then
+        local old_eatfn = inst.components.eater.oneatfn
+        inst.components.eater:SetOnEatFn(function (inst,food,feeder)
+            if old_eatfn then
+                old_eatfn(inst,food,feeder)
+            end
+            inst.sg:GoToState("eat")
+        end)
+    end
 local function ShouldAcceptItem(inst, item)
     if item.components.edible and inst.components.hunger and inst.components.eater and not item:HasTag("tallbirdegg") then
         return inst.components.eater:CanEat(item)
