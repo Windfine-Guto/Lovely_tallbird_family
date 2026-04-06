@@ -381,21 +381,21 @@ AddComponentPostInit("rider", function(self)
         end
     end
 end)
-AddComponentPostInit("locomotor", function(self)
-    local original_ScanForPlatform = self.ScanForPlatform
-    function self:ScanForPlatform(...)
-        local can_hop, hop_x, hop_z, target_platform, blocked = original_ScanForPlatform(self, ...)
+-- AddComponentPostInit("locomotor", function(self)
+--     local original_ScanForPlatform = self.ScanForPlatform
+--     function self:ScanForPlatform(...)
+--         local can_hop, hop_x, hop_z, target_platform, blocked = original_ScanForPlatform(self, ...)
 
-        local rider = self.inst.replica and self.inst.replica.rider
-        local mount = rider and rider:GetMount()
-        if mount and mount:HasTag("tallbird") then
-            can_hop = false
-            blocked = true
-        end
+--         local rider = self.inst.replica and self.inst.replica.rider
+--         local mount = rider and rider:GetMount()
+--         if mount and mount:HasTag("tallbird") then
+--             can_hop = false
+--             blocked = true
+--         end
 
-        return can_hop, hop_x, hop_z, target_platform, blocked
-    end
-end)
+--         return can_hop, hop_x, hop_z, target_platform, blocked
+--     end
+-- end)
 AddComponentPostInit("rideable", function(self)
     function self:OnSave()
         if self.inst:HasTag("tallbird") then
