@@ -65,7 +65,6 @@ local function ShouldAcceptItem(inst, item)
         if inst.components.health then
             inst.components.health:DoDelta(inst.components.health.maxhealth*.2,nil,item)
         end
-        inst.sg:GoToState("eat")
         return inst.components.eater:CanEat(item)
     end
 end
@@ -86,6 +85,7 @@ local function OnGetItemFromPlayer(inst, giver, item)
                 inst.components.bird_cultivate:Updata()
             end
         end
+        inst.sg:GoToState("eat")
     end
 end
 
@@ -231,18 +231,25 @@ local function OnRefuseGiver(inst, giver, item)
             if inst.components.follower and inst.components.follower.leader==giver then
                 return
             end
-            giver.components.talker:Say(GetString(giver,"ANNOUNCE_TALLBIRD_NOTWIGS"))
+            giver.components.talker:Say(GetString(giver,"ANNOUNCE_TALLBIRD_NOFAMILY"))
         end
     elseif item and item.prefab=="cutgrass"  then
         if inst.components.follower and inst.components.follower.leader~=giver then
             return
         end
         if talker then
-            giver.components.talker:Say(GetString(giver,"ANNOUNCE_TALLBIRD_NOCUTGRASS"))
+            giver.components.talker:Say(GetString(giver,"ANNOUNCE_TALLBIRD_NOFAMILY"))
         end
     end
 end
 
+local function OnRiderChanged(inst, data)
+    if data.newrider == nil and inst.components.health:IsDead() then
+        if inst.sg and inst.sg.currentstate.name ~= "death" then
+            inst.sg:GoToState("death")
+        end
+    end
+end
 -- local function PotentialRiderTest(inst, potential_rider)
 --     local talker = potential_rider.components.talker
 
@@ -307,6 +314,11 @@ local function fn()
     inst:AddComponent("locomotor")
     inst.components.locomotor.walkspeed = 10
     inst.components.locomotor.runspeed = 10
+    -- inst.components.locomotor:SetAllowPlatformHopping(true)
+
+    -- inst:AddComponent("embarker")
+
+    inst:AddComponent("drownable")
 
     inst:SetStateGraph("SGtallbird")
 
@@ -341,7 +353,6 @@ local function fn()
     inst:AddComponent("knownlocations")
 
     inst:AddComponent("bird_cultivate")
-    inst:AddComponent("drownable")
     inst:AddComponent("planardamage")
 
     inst:AddComponent("leader")
@@ -369,6 +380,7 @@ local function fn()
     inst.components.rideable:SetSaddleable(true)
     -- inst.components.rideable:SetCustomRiderTest(PotentialRiderTest)
     inst:ListenForEvent("refusedrider", OnRefuseRider)
+    inst:ListenForEvent("riderchanged", OnRiderChanged)
 
     inst:ListenForEvent("leaderchanged", function(inst, data)
     if inst.components.follower then

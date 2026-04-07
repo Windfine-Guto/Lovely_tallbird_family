@@ -1255,7 +1255,7 @@ AddStategraphState("tallbird",State{
             end),
         },
 })
-
+-- require("stategraphs/commonstates")
 AddStategraphPostInit("tallbird", function(sg)
     local death_fn = sg.events.death.fn
     sg.events.death.fn = function(inst, ...)
@@ -1263,6 +1263,8 @@ AddStategraphPostInit("tallbird", function(sg)
             return death_fn(inst, ...)
         end
     end
+    -- table.insert(sg.events, CommonHandlers.OnHop())
+    -- CommonStates.AddHopStates(sg.states, true, { pre = "boat_jump_pre", loop = "boat_jump", pst = "boat_jump_pst"})
 end)
 
 AddStategraphPostInit("wilson", function(sg)

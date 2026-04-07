@@ -243,75 +243,38 @@ STRINGS.CHARACTERS.WORTOX.ANNOUNCE_TALLBIRD_NOTATKLEG= "You peck so fiercely, my
 
 
 
----给高脚鸟树枝 不熟不跟随
+---给高脚鸟树枝/采下的草 不熟
 ---威尔逊
-STRINGS.CHARACTERS.GENERIC.ANNOUNCE_TALLBIRD_NOTWIGS = "I think I need to raise more of their chicks."
+STRINGS.CHARACTERS.GENERIC.ANNOUNCE_TALLBIRD_NOFAMILY = "I think I need to raise more of their chicks."
 ---温蒂
-STRINGS.CHARACTERS.WENDY.ANNOUNCE_TALLBIRD_NOTWIGS = "Their flock does not yet accept me…"
+STRINGS.CHARACTERS.WENDY.ANNOUNCE_TALLBIRD_NOFAMILY = "Their flock does not yet accept me…"
 ---薇诺娜
-STRINGS.CHARACTERS.WINONA.ANNOUNCE_TALLBIRD_NOTWIGS= "Need to raise more birds."
+STRINGS.CHARACTERS.WINONA.ANNOUNCE_TALLBIRD_NOFAMILY= "Need to raise more birds."
 ---沃尔夫冈
-STRINGS.CHARACTERS.WOLFGANG.ANNOUNCE_TALLBIRD_NOTWIGS= "Wolfgang should hatch more little birdies."
+STRINGS.CHARACTERS.WOLFGANG.ANNOUNCE_TALLBIRD_NOFAMILY= "Wolfgang should hatch more little birdies."
 ---薇克巴顿
-STRINGS.CHARACTERS.WICKERBOTTOM.ANNOUNCE_TALLBIRD_NOTWIGS= "One must raise a sufficient number of their kin to earn their acceptance."
+STRINGS.CHARACTERS.WICKERBOTTOM.ANNOUNCE_TALLBIRD_NOFAMILY= "One must raise a sufficient number of their kin to earn their acceptance."
 ---旺达
-STRINGS.CHARACTERS.WANDA.ANNOUNCE_TALLBIRD_NOTWIGS= "How much longer must I spend raising these birds…?"
+STRINGS.CHARACTERS.WANDA.ANNOUNCE_TALLBIRD_NOFAMILY= "How much longer must I spend raising these birds…?"
 ---伍迪
-STRINGS.CHARACTERS.WOODIE.ANNOUNCE_TALLBIRD_NOTWIGS= "Ugh… Gotta raise more stinky birds first."
+STRINGS.CHARACTERS.WOODIE.ANNOUNCE_TALLBIRD_NOFAMILY= "Ugh… Gotta raise more stinky birds first."
 ---沃利
-STRINGS.CHARACTERS.WARLY.ANNOUNCE_TALLBIRD_NOTWIGS= "I suppose I must raise more birds to fit in with them."
+STRINGS.CHARACTERS.WARLY.ANNOUNCE_TALLBIRD_NOFAMILY= "I suppose I must raise more birds to fit in with them."
 ---薇格弗德
-STRINGS.CHARACTERS.WATHGRITHR.ANNOUNCE_TALLBIRD_NOTWIGS= "Önly by raising more chicks shall I command their trail."
+STRINGS.CHARACTERS.WATHGRITHR.ANNOUNCE_TALLBIRD_NOFAMILY= "Önly by raising more chicks shall I command their trail."
 ---薇洛
-STRINGS.CHARACTERS.WILLOW.ANNOUNCE_TALLBIRD_NOTWIGS= "What? Gotta raise more stinky little dumb birds?"
+STRINGS.CHARACTERS.WILLOW.ANNOUNCE_TALLBIRD_NOFAMILY= "What? Gotta raise more stinky little dumb birds?"
 ---沃姆伍德
-STRINGS.CHARACTERS.WORMWOOD.ANNOUNCE_TALLBIRD_NOTWIGS= "grow more small Peep-peep."
+STRINGS.CHARACTERS.WORMWOOD.ANNOUNCE_TALLBIRD_NOFAMILY= "grow more small Peep-peep."
 ---麦斯威尔
-STRINGS.CHARACTERS.WAXWELL.ANNOUNCE_TALLBIRD_NOTWIGS= "Raise more of you lot? Am I to be your servant?"
+STRINGS.CHARACTERS.WAXWELL.ANNOUNCE_TALLBIRD_NOFAMILY= "Raise more of you lot? Am I to be your servant?"
 ---韦伯
-STRINGS.CHARACTERS.WEBBER.ANNOUNCE_TALLBIRD_NOTWIGS= "We need to make more little birds grow big and tall!"
+STRINGS.CHARACTERS.WEBBER.ANNOUNCE_TALLBIRD_NOFAMILY= "We need to make more little birds grow big and tall!"
 ---沃尔特
-STRINGS.CHARACTERS.WALTER.ANNOUNCE_TALLBIRD_NOTWIGS= "Woby! We gotta hatch more tallbirds!"
+STRINGS.CHARACTERS.WALTER.ANNOUNCE_TALLBIRD_NOFAMILY= "Woby! We gotta hatch more tallbirds!"
 ---沃特
-STRINGS.CHARACTERS.WURT.ANNOUNCE_TALLBIRD_NOTWIGS= "Gotta raise more birds! Flurp!"
+STRINGS.CHARACTERS.WURT.ANNOUNCE_TALLBIRD_NOFAMILY= "Gotta raise more birds! Flurp!"
 ---WX-78
-STRINGS.CHARACTERS.WX78.ANNOUNCE_TALLBIRD_NOTWIGS= "MORE BIRD UNITS REQUIRED FOR MATURATION."
+STRINGS.CHARACTERS.WX78.ANNOUNCE_TALLBIRD_NOFAMILY= "MORE BIRD UNITS REQUIRED FOR MATURATION."
 ---沃拓克斯
-STRINGS.CHARACTERS.WORTOX.ANNOUNCE_TALLBIRD_NOTWIGS= "Must raise more of you little rascals! "
-
-
----给高脚鸟采下的草 不能取消跟随
----威尔逊
-STRINGS.CHARACTERS.GENERIC.ANNOUNCE_TALLBIRD_NOCUTGRASS = "I think I need to raise more of their chicks."
----温蒂
-STRINGS.CHARACTERS.WENDY.ANNOUNCE_TALLBIRD_NOCUTGRASS = "Their flock does not yet accept me…"
----薇诺娜
-STRINGS.CHARACTERS.WINONA.ANNOUNCE_TALLBIRD_NOCUTGRASS= "Need to raise more birds."
----沃尔夫冈
-STRINGS.CHARACTERS.WOLFGANG.ANNOUNCE_TALLBIRD_NOCUTGRASS= "Wolfgang should hatch more little birdies."
----薇克巴顿
-STRINGS.CHARACTERS.WICKERBOTTOM.ANNOUNCE_TALLBIRD_NOCUTGRASS= "One must raise a sufficient number of their kin to earn their acceptance."
----旺达
-STRINGS.CHARACTERS.WANDA.ANNOUNCE_TALLBIRD_NOCUTGRASS= "How much longer must I spend raising these birds…?"
----伍迪
-STRINGS.CHARACTERS.WOODIE.ANNOUNCE_TALLBIRD_NOCUTGRASS= "Ugh… Gotta raise more stinky birds first."
----沃利
-STRINGS.CHARACTERS.WARLY.ANNOUNCE_TALLBIRD_NOCUTGRASS= "I suppose I must raise more birds to fit in with them."
----薇格弗德
-STRINGS.CHARACTERS.WATHGRITHR.ANNOUNCE_TALLBIRD_NOCUTGRASS= "Önly by raising more chicks shall I command their trail."
----薇洛
-STRINGS.CHARACTERS.WILLOW.ANNOUNCE_TALLBIRD_NOCUTGRASS= "What? Gotta raise more stinky little dumb birds?"
----沃姆伍德
-STRINGS.CHARACTERS.WORMWOOD.ANNOUNCE_TALLBIRD_NOCUTGRASS= "grow more small Peep-peep."
----麦斯威尔
-STRINGS.CHARACTERS.WAXWELL.ANNOUNCE_TALLBIRD_NOCUTGRASS= "Raise more of you lot? Am I to be your servant?"
----韦伯
-STRINGS.CHARACTERS.WEBBER.ANNOUNCE_TALLBIRD_NOCUTGRASS= "We need to make more little birds grow big and tall!"
----沃尔特
-STRINGS.CHARACTERS.WALTER.ANNOUNCE_TALLBIRD_NOCUTGRASS= "Woby! We gotta hatch more tallbirds!"
----沃特
-STRINGS.CHARACTERS.WURT.ANNOUNCE_TALLBIRD_NOCUTGRASS= "Gotta raise more birds! Flurp!"
----WX-78
-STRINGS.CHARACTERS.WX78.ANNOUNCE_TALLBIRD_NOCUTGRASS= "MORE BIRD UNITS REQUIRED FOR MATURATION."
----沃拓克斯
-STRINGS.CHARACTERS.WORTOX.ANNOUNCE_TALLBIRD_NOCUTGRASS= "Must raise more of you little rascals! "
+STRINGS.CHARACTERS.WORTOX.ANNOUNCE_TALLBIRD_NOFAMILY= "Must raise more of you little rascals! "
