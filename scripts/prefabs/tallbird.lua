@@ -85,6 +85,9 @@ local function OnGetItemFromPlayer(inst, giver, item)
                 inst.components.bird_cultivate:Updata()
             end
         end
+        if inst.components.rideable:IsBeingRidden() then
+            return
+        end
         inst.sg:GoToState("eat")
     end
 end
@@ -104,7 +107,11 @@ local function KeepTarget(inst, target)
 end
 
 local function ShouldSleep(inst)
-    return DefaultSleepTest(inst) and inst.components.follower:IsNearLeader(7)
+    if inst.components.follower and inst.components.follower.leader then
+        return DefaultSleepTest(inst) and inst.components.follower:IsNearLeader(7)
+    else
+        return DefaultSleepTest(inst)
+    end
 end
 
 local function ShouldWake(inst)
@@ -313,7 +320,7 @@ local function fn()
 
     inst:AddComponent("locomotor")
     inst.components.locomotor.walkspeed = 10
-    inst.components.locomotor.runspeed = 10
+    inst.components.locomotor.runspeed = 8
     inst.components.locomotor:SetAllowPlatformHopping(true)
 
     inst:AddComponent("embarker")

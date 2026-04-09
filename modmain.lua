@@ -347,6 +347,7 @@ AddComponentPostInit("rider", function(self)
             if self.riding and self.inst and self.inst.DynamicShadow then
                 self.inst.DynamicShadow:SetSize(2.75, 1)
             end
+            self.inst.components.locomotor:SetExternalSpeedMultiplier(self.inst,"tallbird_speed",1.25)
             self.inst:ListenForEvent("onhitother",playerdamage)
             if GetModConfigData(config_name21) then
                 self.inst.Physics:SetCollisionMask(
@@ -364,6 +365,7 @@ AddComponentPostInit("rider", function(self)
         original_ActualDismount(self,...)
         if self.inst:HasTag("tallbird_mount") then
             self.inst:RemoveEventCallback("onhitother",playerdamage)
+            self.inst.components.locomotor:RemoveExternalSpeedMultiplier(self.inst,"tallbird_speed")
             if GetModConfigData(config_name21) then
             self.inst.Physics:SetCollisionMask(
 					COLLISION.WORLD,
@@ -746,6 +748,9 @@ end
 AddBrainPostInit("smallbirdbrain",function(self)
 local FIND_FOOD_HUNGER_PERCENT = 0.75
 local SEE_FOOD_DIST = 15
+local MIN_FOLLOW_TARGET_DIST     = 5
+local DEFAULT_FOLLOW_TARGET_DIST = 8
+local MAX_FOLLOW_TARGET_DIST     = 15
 local EATFOOD_CANT_TAGS = { "INLIMBO", "outofreach" }
 local function IsStarving(inst)
     return inst.components.hunger and inst.components.hunger:IsStarving()
@@ -768,34 +773,59 @@ local function FindFoodAction(inst)
         return BufferedAction(inst, target, ACTIONS.EAT)
     end
 end
-    table.remove(self.bt.root.children[4].children,1)
-    table.insert(self.bt.root.children[4].children,1,ConditionNode(function() 
+
+local function ShouldWaitForHelp(inst)
+    if inst.components.combat.target == nil then
+        return false
+    end
+    local leader = inst.components.follower:GetLeader()
+    return leader ~= nil and inst.components.health:GetPercent() <= 0.3
+end
+local function TargetFollowTargetDistFn(inst)
+    local target = inst.components.combat.target
+
+    if target == nil or target.components.combat == nil then
+        return DEFAULT_FOLLOW_TARGET_DIST
+    end
+
+    return math.max(math.sqrt(target.components.combat:CalcAttackRangeSq(inst)) + MIN_FOLLOW_TARGET_DIST, DEFAULT_FOLLOW_TARGET_DIST)
+end
+
+    table.insert(self.bt.root.children,4,WhileNode(function() return ShouldWaitForHelp(self.inst) end, "WaitingForHelp",
+            PriorityNode({
+                Follow(self.inst, function() return self.inst.components.combat.target end, MIN_FOLLOW_TARGET_DIST, TargetFollowTargetDistFn, MAX_FOLLOW_TARGET_DIST),
+                StandStill(self.inst)
+            }, .25)
+        )
+        )
+    table.remove(self.bt.root.children[5].children,1)
+    table.insert(self.bt.root.children[5].children,1,ConditionNode(function() 
         return IsStarving(self.inst) and CanSeeFood(self.inst) end, "SeesFoodToEat"))
-    table.remove(self.bt.root.children[4].children,3)
-    table.insert(self.bt.root.children[4].children,3,DoAction(self.inst, function() 
+    table.remove(self.bt.root.children[5].children,3)
+    table.insert(self.bt.root.children[5].children,3,DoAction(self.inst, function() 
         return FindFoodAction(self.inst) end))
-    table.remove(self.bt.root.children[7].children,1)
-    table.insert(self.bt.root.children[7].children,1,ConditionNode(function()
+    table.remove(self.bt.root.children[8].children,1)
+    table.insert(self.bt.root.children[8].children,1,ConditionNode(function()
         return IsHungry(self.inst) and CanSeeFood(self.inst) end, "SeesFoodToEat"))
-    table.remove(self.bt.root.children[7].children,3)
-    table.insert(self.bt.root.children[7].children,3,DoAction(self.inst, function() 
+    table.remove(self.bt.root.children[8].children,3)
+    table.insert(self.bt.root.children[8].children,3,DoAction(self.inst, function() 
         return FindFoodAction(self.inst) end))
-    table.insert(self.bt.root.children,8,BrainCommon.NodeAssistLeaderDoAction(self, {
+    table.insert(self.bt.root.children,9,BrainCommon.NodeAssistLeaderDoAction(self, {
                 action = "DIG", 
                 starter = dig_clump_starter,
                 keepgoing = dig_clump_keepgoing,
                 finder = dig_clump_finder,
         }))
-    table.insert(self.bt.root.children,9,BrainCommon.NodeAssistLeaderDoAction(self, {
+    table.insert(self.bt.root.children,10,BrainCommon.NodeAssistLeaderDoAction(self, {
                 action = "CHOP",
                 starter = dig_stump_starter,
                 keepgoing = dig_stump_keepgoing,
                 finder = dig_stump_finder,
             }))
-    table.insert(self.bt.root.children,10,BrainCommon.NodeAssistLeaderDoAction(self, {
+    table.insert(self.bt.root.children,11,BrainCommon.NodeAssistLeaderDoAction(self, {
             action = "CHOP", 
         }))
-    table.insert(self.bt.root.children,11,BrainCommon.NodeAssistLeaderDoAction(self, {
+    table.insert(self.bt.root.children,12,BrainCommon.NodeAssistLeaderDoAction(self, {
             action = "MINE", 
         }))
 end)

@@ -156,7 +156,7 @@ local LANGS = {
                 {'半天',36},
                 {'18秒',480},
             }},
-            {modid..'_teenbirdprotect','青年高脚鸟血线保护','血量不会低于10%，且低于20%不参与战斗，血量恢复50%以上时恢复正常',true,{
+            {modid..'_teenbirdprotect','青年高脚鸟血线保护','血量不会低于10%，且低于20%不参与战斗，血量恢复50%以上时恢复正常',false,{
                 {'开启',true},
                 {'关闭',false}
             }},
@@ -351,7 +351,7 @@ local LANGS = {
                 {'Half Day',36},
                 {'18 Seconds',480},
             }},
-            {modid..'_teenbirdprotect','Teenbird Health Threshold Protection','Health never drops below 10%; stops fighting below 20% and resumes when above 50% health',true,{
+            {modid..'_teenbirdprotect','Teenbird Health Threshold Protection','Health never drops below 10%; stops fighting below 20% and resumes when above 50% health',false,{
                 {'Enable',true},
                 {'Disable',false}
             }},
