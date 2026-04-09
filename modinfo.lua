@@ -98,7 +98,7 @@ local LANGS = {
                 {'开启',true},
                 {'关闭',false}
             }},
-            {modid..'_smallbirdwaterwalk','小鸟水上行走','出海也能跟着你',true,{
+            {modid..'_smallbirdwaterwalk','小鸟水上行走','出海也能跟着你',false,{
                 {'开启',true},
                 {'关闭',false}
             }},
@@ -164,7 +164,7 @@ local LANGS = {
                 {'开启',true},
                 {'关闭',false}
             }},
-            {modid..'_teenbirdwaterwalk','青年高脚鸟水上行走','出海也能跟着你',true,{
+            {modid..'_teenbirdwaterwalk','青年高脚鸟水上行走','出海也能跟着你',false,{
                 {'开启',true},
                 {'关闭',false}
             }},
@@ -293,7 +293,7 @@ local LANGS = {
                 {'Enable',true},
                 {'Disable',false}
             }},
-            {modid..'_smallbirdwaterwalk','Smallbird Water Walking','Follows you even across the ocean',true,{
+            {modid..'_smallbirdwaterwalk','Smallbird Water Walking','Follows you even across the ocean',false,{
                 {'Enable',true},
                 {'Disable',false}
             }},
@@ -359,7 +359,7 @@ local LANGS = {
                 {'Enable',true},
                 {'Disable',false}
             }},
-            {modid..'_teenbirdwaterwalk','Teenbird Water Walking','Follows you even across the ocean',true,{
+            {modid..'_teenbirdwaterwalk','Teenbird Water Walking','Follows you even across the ocean',false,{
                 {'Enable',true},
                 {'Disable',false}
             }},

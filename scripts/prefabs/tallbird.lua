@@ -314,9 +314,9 @@ local function fn()
     inst:AddComponent("locomotor")
     inst.components.locomotor.walkspeed = 10
     inst.components.locomotor.runspeed = 10
-    -- inst.components.locomotor:SetAllowPlatformHopping(true)
+    inst.components.locomotor:SetAllowPlatformHopping(true)
 
-    -- inst:AddComponent("embarker")
+    inst:AddComponent("embarker")
 
     inst:AddComponent("drownable")
 
@@ -411,7 +411,6 @@ local function fn()
 
     inst:ListenForEvent("entitysleep", OnEntitySleep)
     inst:ListenForEvent("entitywake", OnEntityWake)
-
     return inst
 end
 
