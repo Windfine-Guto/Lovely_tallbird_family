@@ -122,7 +122,9 @@ function Bird_cultivate:Updata()
             self.inst:AddComponent("planardamage")
         end
         self.inst.components.planardamage:SetBaseDamage(20)
-        self.inst:AddTag("bird_plannared")
+        if not self.inst:HasTag("bird_plannared") then
+            self.inst:AddTag("bird_plannared")
+        end
     end
     if self.wild==true then
         return
@@ -144,7 +146,10 @@ function Bird_cultivate:Updata()
         end
         self.inst:RemoveTag("bird_follower")
     end
-    self.inst:AddTag("lovely_bird")
+    if not self.inst:HasTag("lovely_bird") then
+        self.inst:AddTag("lovely_bird")
+    end
+    
     if self.inst.components.combat then
         self.inst.components.combat:SetNoAggroTags({"bird_friend","bird_family", "smallbird","teenbird","tallbird"})
     end

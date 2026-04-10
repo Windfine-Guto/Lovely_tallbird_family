@@ -2,7 +2,7 @@ GLOBAL.setmetatable(env,{__index=function(t,k) return GLOBAL.rawget(GLOBAL,k) en
 
 Assets = {
 	Asset("ANIM", "anim/spell_icons_tallbird.zip"),
-    Asset("ANIM", "anim/status_meter_tallbird.zip"),
+    Asset("ANIM","anim/tallbird_health.zip"),
 }
 
 PrefabFiles = {
@@ -300,13 +300,56 @@ ACTIONS.SADDLE.fn = function(act)
     return SADDLE_fn(act)
 end
 
+local function OnTallbirdMount(rider, data)
+    local mount = data.target
+    if mount and mount.prefab == "tallbird" then
+        local mountData = {
+            health = mount.replica.health:GetCurrent(),
+            maxHealth = mount.replica.health:Max(),
+        }
+        rider.player_classified.tallbirdData:set(GLOBAL.json.encode(mountData))
+        rider.player_classified.tallbirdHealth:set_local(mountData.health)
+        rider:ListenForEvent("healthdelta", rider.player_classified.OnTallbirdHealthDelta, mount)
+    end
+end
+
+local function OnTallbirdDismount(rider, data)
+    local mount = data.target
+    if mount and mount.prefab == "tallbird" then
+        rider.player_classified.tallbirdData:set("dismount")
+        rider:RemoveEventCallback("healthdelta", rider.player_classified.OnTallbirdHealthDelta, mount)
+    end
+end
+
+-- 在 player_classified 上注册网络变量
+AddPrefabPostInit("player_classified", function(inst)
+    inst.tallbirdData = GLOBAL.net_string(inst.GUID, "tallbirdData", "tallbirdDataDirty")
+    inst.tallbirdHealth = GLOBAL.net_ushortint(inst.GUID, "tallbirdHealth", "tallbirdHealthDirty")
+
+    if GLOBAL.TheWorld.ismastersim then
+        inst.OnTallbirdHealthDelta = function(mount, data)
+            inst.tallbirdHealth:set(mount.replica.health:GetCurrent())
+        end
+
+        inst:DoTaskInTime(0.1, function()
+            local parent = inst.entity:GetParent()
+            inst:ListenForEvent("mounted", OnTallbirdMount, parent)
+            inst:ListenForEvent("dismounted", OnTallbirdDismount, parent)
+        end)
+    end
+end)
+
 local CastSelect = require("widgets/castselect")
+local TallbirdMountHealth = require "widgets/tallbird_mount_health"
 AddClassPostConstruct("widgets/controls", function(self)
     if not self.owner then
         return
     end
     self.tallbird_atk_select = self:AddChild(CastSelect(self.owner))
     self.tallbird_atk_select:Hide()
+
+    self.TallbirdMountHealth = self.bottom_root:AddChild(TallbirdMountHealth(self.owner))
+    self.TallbirdMountHealth:MoveToBack()
 end)
 
 AddComponentPostInit("playercontroller", function(self)
@@ -361,12 +404,15 @@ AddComponentPostInit("rider", function(self)
             end
             local inst = self.inst
             if inst.components.worker == nil then
-            inst:AddComponent("worker")
-            inst.components.worker:SetAction(ACTIONS.CHOP,  1 )
-            inst.components.worker:SetAction(ACTIONS.MINE,  1 )
-            inst.components.worker:SetAction(ACTIONS.DIG,    1)
-            inst.components.worker:SetAction(ACTIONS.HAMMER, 1)
-        end
+                inst:AddComponent("worker")
+                inst.components.worker:SetAction(ACTIONS.CHOP,  1 )
+                inst.components.worker:SetAction(ACTIONS.MINE,  1 )
+                inst.components.worker:SetAction(ACTIONS.DIG,    1)
+                inst.components.worker:SetAction(ACTIONS.HAMMER, 1)
+            end
+            if target:HasTag("bird_plannared") and not target:HasTag("toughworker") then
+                inst:AddTag("toughworker")
+            end
         end
     end
     function self:ActualDismount(...)
@@ -390,6 +436,7 @@ AddComponentPostInit("rider", function(self)
             if self.inst.components.worker ~= nil then
                 self.inst:RemoveComponent("worker")
             end
+            self.inst:RemoveTag("toughworker")
             self.inst:RemoveTag("tallbird_mount")
         end
     end
