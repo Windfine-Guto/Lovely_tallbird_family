@@ -803,6 +803,34 @@ local function dig_stump_finder(inst, leaderdist, finddist)
         return BufferedAction(inst, target, ACTIONS.DIG)
     end
 end
+
+local oldMineStarter = BrainCommon.AssistLeaderDefaults.MINE.Starter
+BrainCommon.AssistLeaderDefaults.MINE.Starter = function(inst, leaderdist, finddist)
+    if oldMineStarter(inst, leaderdist, finddist) then
+        return true
+    end
+    local leader = inst.components.follower and inst.components.follower:GetLeader()
+    if leader and leader:GetBufferedAction() then
+        local action = leader:GetBufferedAction().action
+        return action == ACTIONS.BIRD_MINE or action == ACTIONS.MINE
+    end
+    return false
+end
+
+-- 扩展 CHOP 的 Starter
+local oldChopStarter = BrainCommon.AssistLeaderDefaults.CHOP.Starter
+BrainCommon.AssistLeaderDefaults.CHOP.Starter = function(inst, leaderdist, finddist)
+    if oldChopStarter(inst, leaderdist, finddist) then
+        return true
+    end
+    local leader = inst.components.follower and inst.components.follower:GetLeader()
+    if leader and leader:GetBufferedAction() then
+        local action = leader:GetBufferedAction().action
+        return action == ACTIONS.BIRD_CHOP or action == ACTIONS.CHOP
+    end
+    return false
+end
+
 AddBrainPostInit("smallbirdbrain",function(self)
 local FIND_FOOD_HUNGER_PERCENT = 0.75
 local SEE_FOOD_DIST = 15
