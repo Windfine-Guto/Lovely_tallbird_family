@@ -359,6 +359,14 @@ AddComponentPostInit("rider", function(self)
                     self.inst.components.drownable.enabled = false
                 end
             end
+            local inst = self.inst
+            if inst.components.worker == nil then
+            inst:AddComponent("worker")
+            inst.components.worker:SetAction(ACTIONS.CHOP,  1 )
+            inst.components.worker:SetAction(ACTIONS.MINE,  1 )
+            inst.components.worker:SetAction(ACTIONS.DIG,    1)
+            inst.components.worker:SetAction(ACTIONS.HAMMER, 1)
+        end
         end
     end
     function self:ActualDismount(...)
@@ -378,6 +386,9 @@ AddComponentPostInit("rider", function(self)
                 if self.inst.components.drownable then
                     self.inst.components.drownable.enabled = true
                 end
+            end
+            if self.inst.components.worker ~= nil then
+                self.inst:RemoveComponent("worker")
             end
             self.inst:RemoveTag("tallbird_mount")
         end
@@ -1913,6 +1924,318 @@ AddStategraphActionHandler("wilson_client", ActionHandler(ACTIONS.BIRD_FOLLOW, "
 AddComponentAction("USEITEM", "bird_follow", function(inst, doer, target, actions, right)
     if inst:HasTag("bird_follow") and doer:HasTag("bird_family") and not target:HasTag("bird_follower") and target:HasTag("tallbird") then
         table.insert(actions, ACTIONS.BIRD_FOLLOW)
+    end
+end)
+
+local function PlayMiningFX(inst, target, nosound)
+    if target ~= nil and target:IsValid() then
+        local frozen = target:HasTag("frozen")
+        local moonglass = target:HasAnyTag("moonglass", "LunarBuildup")
+        local crystal = target:HasTag("crystal")
+        if target.Transform ~= nil then
+            SpawnPrefab(
+                (frozen and "mining_ice_fx") or
+                (moonglass and "mining_moonglass_fx") or
+                (crystal and "mining_crystal_fx") or
+                "mining_fx"
+            ).Transform:SetPosition(target.Transform:GetWorldPosition())
+        end
+        if not nosound and inst.SoundEmitter ~= nil then
+            inst.SoundEmitter:PlaySound(
+                (frozen and "dontstarve_DLC001/common/iceboulder_hit") or
+                ((moonglass or crystal) and "turnoftides/common/together/moon_glass/mine") or
+                "dontstarve/wilson/use_pick_rock"
+            )
+        end
+    end
+end
+
+local function HarvestPickable( ent, doer)
+        if ent.components.pickable.picksound ~= nil then
+            doer.SoundEmitter:PlaySound(ent.components.pickable.picksound)
+        end
+
+        local success, loot = ent.components.pickable:Pick(TheWorld)
+
+        if loot ~= nil then
+            for i, item in ipairs(loot) do
+                Launch(item, doer, 1.5)
+            end
+        end
+    end
+
+local function IsEntityInFront( entity, doer_rotation, doer_pos)
+        local facing = Vector3(math.cos(-doer_rotation / RADIANS), 0 , math.sin(-doer_rotation / RADIANS))
+        return IsWithinAngle(doer_pos, facing, TUNING.VOIDCLOTH_SCYTHE_HARVEST_ANGLE_WIDTH, entity:GetPosition())
+    end
+
+    local HARVEST_MUSTTAGS  = {"pickable"}
+    local HARVEST_CANTTAGS  = {"INLIMBO", "FX"}
+    local HARVEST_ONEOFTAGS = {"plant", "lichen", "oceanvine", "kelp"}
+
+    local function DoScythe( target, doer)
+        if target.components.pickable ~= nil and target.components.pickable:CanBePicked() and not doer._tallbird_mount_aoe_leg then
+            HarvestPickable(target, doer)
+            return
+        end
+        if target.components.pickable ~= nil then
+            local doer_pos = doer:GetPosition()
+            local x, y, z = doer_pos:Get()
+
+            local doer_rotation = doer.Transform:GetRotation()
+
+            local ents = TheSim:FindEntities(x, y, z, TUNING.VOIDCLOTH_SCYTHE_HARVEST_RADIUS, HARVEST_MUSTTAGS, HARVEST_CANTTAGS, HARVEST_ONEOFTAGS)
+            for _, ent in pairs(ents) do
+                if ent:IsValid() and ent.components.pickable ~= nil then
+                    if IsEntityInFront(ent, doer_rotation, doer_pos) then
+                        HarvestPickable(ent, doer)
+                    end
+                end
+            end
+        end
+    end
+
+local function DoMountedToolWork(act, workaction)
+    local target = act.target
+    local doer = act.doer
+    if target == nil or doer == nil then return false end
+
+    if target.components.workable == nil or
+       not target.components.workable:CanBeWorked() or
+       target.components.workable:GetWorkAction() ~= workaction then
+        return false
+    end
+
+    local rider = doer.replica.rider
+    local mount = rider and rider:GetMount()
+    if mount == nil or not mount:HasTag("tallbird") then
+        return false
+    end
+
+    local numworks_bird =
+        (doer.components.worker ~= nil and doer.components.worker:GetEffectiveness(workaction))
+        or 1
+    local numworks = 0
+    local tool = doer.components.inventory and doer.components.inventory:GetEquippedItem(EQUIPSLOTS.HANDS) or nil
+    if tool and tool.components.tool then
+        numworks = tool.components.tool:CanDoAction(workaction) and
+        tool.components.tool:GetEffectiveness(workaction)
+    end
+    if tool and not tool.components.tool then
+        numworks = 0.5
+        if tool.components.finiteuses and not doer._tallbird_mount_aoe_leg then
+            tool.components.finiteuses:Use(1)
+        end
+        tool = nil
+    elseif tool and tool.components.finiteuses and not doer._tallbird_mount_aoe_leg and tool.components.tool:CanDoAction(workaction) then
+        tool.components.finiteuses:OnUsedAsItem(workaction, doer, target)
+    elseif tool and not tool.components.tool:CanDoAction(workaction) then
+        numworks = 0.5
+        if tool.components.finiteuses and not doer._tallbird_mount_aoe_leg then
+            tool.components.finiteuses:Use(1)
+        end
+        tool = nil
+    end
+
+    if doer.components.workmultiplier ~= nil then
+        numworks = numworks * doer.components.workmultiplier:GetMultiplier(workaction)
+    end
+
+    local recoil
+    if not doer._tallbird_mount_aoe_leg then
+        recoil, numworks = target.components.workable:ShouldRecoil(doer, tool, numworks)
+    end
+
+    if doer.components.workmultiplier ~= nil then
+        numworks = doer.components.workmultiplier:ResolveSpecialWorkAmount(workaction, target, nil, numworks, recoil)
+    end
+
+    -- 触发反冲相关事件
+    -- if recoil and doer.sg ~= nil and doer.sg.statemem.recoilstate ~= nil then
+    --     doer:PushEventImmediate("recoil_off", { target = target })
+    --     if numworks == 0 then
+    --         doer:PushEvent("tooltooweak", { workaction = workaction })
+    --     end
+    -- end
+    
+    if target.components.workable.action == ACTIONS.MINE then
+        PlayMiningFX(doer,target)
+    end
+    if target.components.workable.action == ACTIONS.DIG then
+        doer.SoundEmitter:PlaySound("dontstarve/wilson/dig")
+    end
+    if target.components.workable.action == ACTIONS.HAMMER then
+       doer.SoundEmitter:PlaySound(doer.sg.statemem.action ~= nil and doer.sg.statemem.action.invobject ~= nil and doer.sg.statemem.action.invobject.hit_skin_sound or "dontstarve/wilson/hit") 
+    end
+    if not doer._tallbird_mount_aoe_leg then
+        numworks_bird = numworks + numworks_bird
+    end
+    
+    target.components.workable:WorkedBy_Internal(doer, numworks_bird)
+    return true
+end
+
+local BIRD_CHOP = Action()
+BIRD_CHOP.id = "BIRD_CHOP"
+BIRD_CHOP.strfn = function (act)
+    return "BIRD_CHOP"
+end
+-- BIRD_CHOP.priority = 20
+BIRD_CHOP.mount_valid =true
+BIRD_CHOP.fn = function (act)
+    return DoMountedToolWork(act, ACTIONS.CHOP)
+end
+AddAction(BIRD_CHOP)
+STRINGS.ACTIONS.BIRD_CHOP = {
+    BIRD_CHOP = "砍"
+}
+
+local BIRD_MINE = Action()
+BIRD_MINE.id = "BIRD_MINE"
+BIRD_MINE.strfn = function (act)
+    return "BIRD_MINE"
+end
+-- BIRD_MINE.priority = 20
+BIRD_MINE.mount_valid =true
+BIRD_MINE.fn = function (act)
+    return DoMountedToolWork(act, ACTIONS.MINE)
+end
+AddAction(BIRD_MINE)
+STRINGS.ACTIONS.BIRD_MINE = {
+    BIRD_MINE = "开采"
+}
+
+local BIRD_DIG = Action()
+BIRD_DIG.id = "BIRD_DIG"
+BIRD_DIG.strfn = function (act)
+    return "BIRD_DIG"
+end
+-- BIRD_DIG.priority = 20
+BIRD_DIG.mount_valid =true
+BIRD_DIG.fn = function (act)
+    return DoMountedToolWork(act, ACTIONS.DIG)
+end
+AddAction(BIRD_DIG)
+STRINGS.ACTIONS.BIRD_DIG = {
+    BIRD_DIG = "挖"
+}
+
+local BIRD_HAMMER = Action()
+BIRD_HAMMER.id = "BIRD_HAMMER"
+BIRD_HAMMER.strfn = function (act)
+    return "BIRD_HAMMER"
+end
+-- BIRD_HAMMER.priority = 20
+BIRD_HAMMER.mount_valid =true
+BIRD_HAMMER.fn = function (act)
+    return DoMountedToolWork(act, ACTIONS.HAMMER)
+end
+AddAction(BIRD_HAMMER)
+STRINGS.ACTIONS.BIRD_HAMMER = {
+    BIRD_HAMMER = "敲"
+}
+
+local BIRD_SCYTHE = Action()
+BIRD_SCYTHE.id = "BIRD_SCYTHE"
+BIRD_SCYTHE.strfn = function (act)
+    return "BIRD_SCYTHE"
+end
+BIRD_SCYTHE.priority = 20
+BIRD_SCYTHE.mount_valid =true
+BIRD_SCYTHE.fn = function (act)
+    local target = act.target
+    local doer = act.doer
+    if target == nil or doer == nil then return false end
+
+    local rider = doer.replica.rider
+    local mount = rider and rider:GetMount()
+    if mount == nil or not mount:HasTag("tallbird") then
+        return false
+    end
+
+    if target.components.pickable == nil or not target.components.pickable:CanBePicked() then
+        return false
+    end
+
+    DoScythe(target, doer)
+    return true
+end
+AddAction(BIRD_SCYTHE)
+STRINGS.ACTIONS.BIRD_SCYTHE = {
+    BIRD_SCYTHE = "收割"
+}
+
+AddStategraphActionHandler("wilson", ActionHandler(ACTIONS.BIRD_CHOP, "attack"))
+AddStategraphActionHandler("wilson_client", ActionHandler(ACTIONS.BIRD_CHOP, "attack"))
+AddStategraphActionHandler("wilson", ActionHandler(ACTIONS.BIRD_MINE, "attack"))
+AddStategraphActionHandler("wilson_client", ActionHandler(ACTIONS.BIRD_MINE, "attack"))
+AddStategraphActionHandler("wilson", ActionHandler(ACTIONS.BIRD_DIG, "attack"))
+AddStategraphActionHandler("wilson_client", ActionHandler(ACTIONS.BIRD_DIG, "attack"))
+AddStategraphActionHandler("wilson", ActionHandler(ACTIONS.BIRD_HAMMER, "attack"))
+AddStategraphActionHandler("wilson_client", ActionHandler(ACTIONS.BIRD_HAMMER, "attack"))
+AddStategraphActionHandler("wilson", ActionHandler(ACTIONS.BIRD_SCYTHE, "attack"))
+AddStategraphActionHandler("wilson_client", ActionHandler(ACTIONS.BIRD_SCYTHE, "attack"))
+
+AddComponentAction("SCENE", "workable", function(inst, doer, actions, right)
+    local tallbird = doer.replica.rider:IsRiding() and doer.replica.rider:GetMount()
+    if inst:HasTag("CHOP_workable") and doer:HasTag("player") and tallbird and tallbird:HasTag("tallbird") then
+        table.insert(actions, ACTIONS.BIRD_CHOP)
+    end
+	if inst:HasTag("MINE_workable") and doer:HasTag("player") and tallbird and tallbird:HasTag("tallbird") then
+        table.insert(actions, ACTIONS.BIRD_MINE)
+    end
+    if right and inst:HasTag("DIG_workable") and doer:HasTag("player") and tallbird and tallbird:HasTag("tallbird") then
+        table.insert(actions, ACTIONS.BIRD_DIG)
+    end
+    if right and inst:HasTag("HAMMER_workable") and doer:HasTag("player") and tallbird and tallbird:HasTag("tallbird") then
+        table.insert(actions, ACTIONS.BIRD_HAMMER)
+    end
+end)
+
+local SCYTHE_ONEOFTAGS = {"plant", "lichen", "oceanvine", "kelp"}
+
+local function IsValidScytheTarget(target)
+    return target:HasOneOfTags(SCYTHE_ONEOFTAGS)
+end
+
+AddComponentAction("SCENE", "pickable", function(inst, doer, actions, right)
+    local tallbird = doer.replica.rider:IsRiding() and doer.replica.rider:GetMount()
+    if right and IsValidScytheTarget(inst) and tallbird and tallbird:HasTag("tallbird") and inst:HasTag("pickable") then
+        table.insert(actions, ACTIONS.BIRD_SCYTHE)
+    end
+end)
+
+local PICKUP_TARGET_EXCLUDE_TAGS = { "catchable", "mineactive", "intense" }
+AddComponentPostInit("playercontroller",function(self)
+    local action = nil
+    local old_GetActionButtonAction = self.GetActionButtonAction
+    self.GetActionButtonAction = function(self, force_target)
+		if self.inst.replica.rider ~= nil and self.inst.replica.rider:IsRiding() then
+			local mount = self.inst.replica.rider:GetMount()
+			if mount:HasTag("tallbird") then
+		        local pickup_tags =
+		        {
+				"CHOP_workable",
+				"MINE_workable",
+		        }
+		        local x, y, z = self.inst.Transform:GetWorldPosition()
+		        local ents = TheSim:FindEntities(x, y, z, self.directwalking and 3 or 6, nil, PICKUP_TARGET_EXCLUDE_TAGS, pickup_tags)
+		        for i, v in ipairs(ents) do
+		            if v ~= self.inst and v.entity:IsVisible() and CanEntitySeeTarget(self.inst, v) then
+		            	if v:HasTag("CHOP_workable") then
+							action=ACTIONS.BIRD_CHOP
+						end
+						if v:HasTag("MINE_workable") then
+							action=ACTIONS.BIRD_MINE
+						end
+		                if action ~= nil then
+		                    return BufferedAction(self.inst, v, action)
+		                end
+		            end
+		        end
+		    end
+		end
+		return old_GetActionButtonAction(self,force_target)
     end
 end)
 

@@ -86,6 +86,7 @@ local function OnGetItemFromPlayer(inst, giver, item)
             end
         end
         if inst.components.rideable:IsBeingRidden() then
+            giver.AnimState:PlayAnimation("graze_loop")
             return
         end
         inst.sg:GoToState("eat")
