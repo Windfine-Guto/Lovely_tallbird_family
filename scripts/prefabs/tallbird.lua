@@ -314,7 +314,6 @@ local function fn()
     if not TheWorld.ismastersim then
         return inst
     end
-
 	inst.override_combat_fx_height = "high"
     inst._last_attacker = nil
     inst._last_attacked_time = nil
@@ -378,6 +377,17 @@ local function fn()
     inst.components.sleeper:SetSleepTest(ShouldSleep)
     inst.components.sleeper:SetWakeTest(ShouldWake)
     ------------------
+
+    inst:AddComponent("named")
+    inst:AddComponent("writeable")
+    inst.components.writeable:SetDefaultWriteable(false)
+    inst.components.writeable:SetAutomaticDescriptionEnabled(false)
+    inst.components.writeable:SetWriteableDistance(TUNING.BEEFALO_NAMING_DIST)
+    inst.components.writeable:SetOnWrittenFn(function(inst, new_name, writer)
+        if inst.components.named ~= nil then
+            inst.components.named:SetName(new_name, writer ~= nil and writer.userid or nil)
+        end
+    end)
 
     inst:AddComponent("inspectable")
 

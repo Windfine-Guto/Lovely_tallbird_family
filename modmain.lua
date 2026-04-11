@@ -7,8 +7,46 @@ Assets = {
 
 PrefabFiles = {
     "tallbird",
-    "tallbird_saddle"
+    "tallbird_saddle",
+    "tallbird_eggshell"
 }
+
+local writeables = require("writeables")
+
+-- 公共基础配置
+local base_layout = {
+    prompt = "给你的鸟起个名字",
+    animbank = "ui_board_5x3",
+    animbuild = "ui_board_5x3",
+    menuoffset = Vector3(6, -70, 0),
+    maxcharacters = TUNING.BEEFALO_NAMING_MAX_LENGTH or 80,
+    defaulttext = function(inst, doer)
+        local name = (doer and doer.name) or "无名氏"
+        return name.."的鸟" end,
+    cancelbtn = { text = "取消", control = CONTROL_CANCEL },
+    acceptbtn = { text = "确定", control = CONTROL_ACCEPT },
+}
+
+if not TheNet:IsDedicated() then
+    local BIRD_NAMES = {
+        "小短腿", "飞毛腿", "尖嘴巴", "长睫毛",
+        "跳跳","大眼睛","黑汤圆","乒乓球","炸弹","哈基鸟","小鸡","坤坤","大长腿","活珠子",
+        "蛋蛋","咕咕鸡","花生","小丸子","肉丸","球球","大鸡腿","小鸟","皮球","瓜子","蹦蹦",
+        "飞飞","小西瓜","笨蛋","臭鸟","月亮","皮蛋","鸡蛋","鸟蛋","鸟士比亚","鸟加索",
+    }
+    base_layout.middlebtn = {
+        text = "随机",
+        cb = function(inst, doer, widget)
+            local name = BIRD_NAMES[math.random(#BIRD_NAMES)]
+            widget:OverrideText(name)
+        end,
+        control = CONTROL_MENU_MISC_2,
+    }
+end
+
+writeables.AddLayout("tallbird", base_layout)
+writeables.AddLayout("teenbird", base_layout)
+writeables.AddLayout("smallbird", base_layout)
 
 local modid = 'lovely_tallbird_family'
 
@@ -497,6 +535,16 @@ AddPrefabPostInit("smallbird", function(inst)
             end
             inst.sg:GoToState("eat")
         end)
+        inst:AddComponent("named")
+        inst:AddComponent("writeable")
+        inst.components.writeable:SetDefaultWriteable(false)
+        inst.components.writeable:SetAutomaticDescriptionEnabled(false)
+        inst.components.writeable:SetWriteableDistance(TUNING.BEEFALO_NAMING_DIST)
+        inst.components.writeable:SetOnWrittenFn(function(inst, new_name, writer)
+            if inst.components.named ~= nil then
+                inst.components.named:SetName(new_name, writer ~= nil and writer.userid or nil)
+            end
+        end)
     end
 local function ShouldAcceptItem(inst, item)
     if item.components.edible and inst.components.hunger and inst.components.eater and not item:HasTag("tallbirdegg") then
@@ -543,6 +591,25 @@ if inst.components.combat then
     inst.components.combat:SetNoAggroTags({"bird_family", "smallbird","teenbird","tallbird"})
 end
 
+if inst.userfunctions then
+    -- local old_teenfn = inst.userfunctions.SpawnTeen
+    inst.userfunctions.SpawnTeen = function (inst)
+        local teenbird = SpawnPrefab("teenbird")
+        teenbird.Transform:SetPosition(inst.Transform:GetWorldPosition())
+        teenbird.sg:GoToState("idle")
+        local name = inst.name
+        if inst.components.follower:GetLeader() then
+            teenbird.components.follower:SetLeader(inst.components.follower:GetLeader())
+            local leader = inst.components.follower:GetLeader()
+            if name and teenbird.components.named then
+                teenbird.components.named:SetName(name,leader.name)
+            end
+        end
+
+        inst:Remove()
+    end
+end
+
 inst:ListenForEvent("leaderchanged", function(inst, data)
 if inst.components.follower
 and inst.components.follower.leader
@@ -579,6 +646,16 @@ AddPrefabPostInit("teenbird", function(inst)
             end
             inst.sg:GoToState("eat")
         end)
+        inst:AddComponent("named")
+        inst:AddComponent("writeable")
+        inst.components.writeable:SetDefaultWriteable(false)
+        inst.components.writeable:SetAutomaticDescriptionEnabled(false)
+        inst.components.writeable:SetWriteableDistance(TUNING.BEEFALO_NAMING_DIST)
+        inst.components.writeable:SetOnWrittenFn(function(inst, new_name, writer)
+            if inst.components.named ~= nil then
+                inst.components.named:SetName(new_name, writer ~= nil and writer.userid or nil)
+            end
+        end)
     end
 local function ShouldAcceptItem(inst, item)
     if item.components.edible and inst.components.hunger and inst.components.eater and not item:HasTag("tallbirdegg") then
@@ -595,7 +672,11 @@ local function SpawnAdult(inst)
   
     if inst.components.follower and inst.components.follower.leader then
         local leader = inst.components.follower.leader
+        local name = inst.name
         tallbird.components.follower:SetLeader(leader)
+        if name and tallbird.components.named then
+            tallbird.components.named:SetName(name,leader.name)
+        end
         if leader.components.bird_family then
             leader.components.bird_family.number = leader.components.bird_family.number+1
             leader.components.bird_family:Updata()
@@ -1847,6 +1928,19 @@ AddStategraphEvent("tallbird", EventHandler("onhop",
             end
         end))
 
+AddStategraphPostInit("smallbird", function(sg)
+    local hatch_fn = sg.states["hatch"].onenter
+    sg.states["hatch"].onenter = function (inst)
+        if hatch_fn then hatch_fn(inst) end
+        local shell1 = SpawnPrefab("tallbird_eggshell1")
+        local shell2 = SpawnPrefab("tallbird_eggshell2")
+        if inst.components.lootdropper then
+            inst.components.lootdropper:FlingItem(shell1)
+            inst.components.lootdropper:FlingItem(shell2)
+        end
+    end
+end)
+
 AddStategraphPostInit("tallbird", function(sg)
     local death_fn = sg.events.death.fn
     sg.events.death.fn = function(inst, ...)
@@ -1999,6 +2093,35 @@ AddStategraphActionHandler("wilson_client", ActionHandler(ACTIONS.BIRD_FOLLOW, "
 AddComponentAction("USEITEM", "bird_follow", function(inst, doer, target, actions, right)
     if inst:HasTag("bird_follow") and doer:HasTag("bird_family") and not target:HasTag("bird_follower") and target:HasTag("tallbird") then
         table.insert(actions, ACTIONS.BIRD_FOLLOW)
+    end
+end)
+
+local BIRD_NAMED = Action()
+BIRD_NAMED.id = "BIRD_NAMED"
+BIRD_NAMED.strfn = function (act)
+    return "NAMED"
+end
+-- BIRD_NAMED.priority = 20
+BIRD_NAMED.fn = function (act)
+    local obj = act.invobject
+    local target = act.target
+    local doer = act.doer
+    if obj.components.bird_named then
+        return obj.components.bird_named:Named(obj,target,doer)
+    end
+    return false
+end
+AddAction(BIRD_NAMED)
+STRINGS.ACTIONS.BIRD_NAMED = {
+    NAMED = "命名"
+}
+
+AddStategraphActionHandler("wilson", ActionHandler(ACTIONS.BIRD_NAMED, "give"))
+AddStategraphActionHandler("wilson_client", ActionHandler(ACTIONS.BIRD_NAMED, "give"))
+
+AddComponentAction("USEITEM", "bird_named", function(inst, doer, target, actions, right)
+    if target:HasTag("lovely_bird") and doer and inst:HasTag("tallbird_eggshell") then
+        table.insert(actions, ACTIONS.BIRD_NAMED)
     end
 end)
 
