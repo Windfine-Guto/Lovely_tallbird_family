@@ -8,7 +8,8 @@ Assets = {
 PrefabFiles = {
     "tallbird",
     "tallbird_saddle",
-    "tallbird_eggshell"
+    "tallbird_eggshell",
+    "tallbird_skins"
 }
 
 local writeables = require("writeables")
@@ -99,6 +100,18 @@ if locale == "zh" or locale == "zht" or locale=="zhr" then
 else
     modimport("scripts/string_en")
 end
+
+local modname = KnownModIndex:GetModActualName(folder_name) or folder_name or "tallbird"
+
+local skin_prefabs = LoadPrefabFile("scripts/prefabs/tallbird_skins", nil, MODS_ROOT..modname.."/")
+local tallbird_skins = {}
+for _, prefab in ipairs(skin_prefabs) do
+    table.insert(tallbird_skins, prefab.name)
+end
+
+GlassicAPI.SkinHandler.AddModSkins({
+    tallbird = tallbird_skins,
+})
 
 AddRecipe2("tallbird_saddle",{Ingredient("rope", 3),Ingredient("beardhair", 10),Ingredient("driftwood_log", 3)},
 TECH.SCIENCE_TWO,
