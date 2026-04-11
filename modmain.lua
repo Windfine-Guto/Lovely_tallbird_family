@@ -32,7 +32,7 @@ if not TheNet:IsDedicated() then
     local BIRD_NAMES = {
         "小短腿", "飞毛腿", "尖嘴巴", "长睫毛",
         "跳跳","大眼睛","黑汤圆","乒乓球","炸弹","哈基鸟","小鸡","坤坤","大长腿","活珠子",
-        "蛋蛋","咕咕鸡","花生","小丸子","肉丸","球球","大鸡腿","小鸟","皮球","瓜子","蹦蹦",
+        "蛋蛋","咕咕鸡","花生","小丸子","肉丸","球球","大鸡腿","皮球","瓜子","蹦蹦",
         "飞飞","小西瓜","笨蛋","臭鸟","月亮","皮蛋","鸡蛋","鸟蛋","鸟士比亚","鸟加索",
     }
     base_layout.middlebtn = {
@@ -100,7 +100,7 @@ if locale == "zh" or locale == "zht" or locale=="zhr" then
 else
     modimport("scripts/string_en")
 end
-
+modimport("glassic_api_loader")
 local modname = KnownModIndex:GetModActualName(folder_name) or folder_name or "tallbird"
 
 local skin_prefabs = LoadPrefabFile("scripts/prefabs/tallbird_skins", nil, MODS_ROOT..modname.."/")
@@ -610,7 +610,7 @@ if inst.userfunctions then
         local teenbird = SpawnPrefab("teenbird")
         teenbird.Transform:SetPosition(inst.Transform:GetWorldPosition())
         teenbird.sg:GoToState("idle")
-        local name = inst.name
+        local name = inst.name~="小鸟" and inst.name or nil
         if inst.components.follower:GetLeader() then
             teenbird.components.follower:SetLeader(inst.components.follower:GetLeader())
             local leader = inst.components.follower:GetLeader()
@@ -685,7 +685,7 @@ local function SpawnAdult(inst)
   
     if inst.components.follower and inst.components.follower.leader then
         local leader = inst.components.follower.leader
-        local name = inst.name
+        local name = inst.name~="小高脚鸟" and inst.name or nil
         tallbird.components.follower:SetLeader(leader)
         if name and tallbird.components.named then
             tallbird.components.named:SetName(name,leader.name)
