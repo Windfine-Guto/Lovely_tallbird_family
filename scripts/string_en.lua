@@ -7,7 +7,7 @@ STRINGS.CHARACTERS.GENERIC.DESCRIBE.TALLBIRD_EGGSHELL2 = "This is for naming the
 --角色检查台词
 STRINGS.CHARACTERS.GENERIC.DESCRIBE.TALLBIRD_SADDLE = "Huh, a saddle for a Tallbird. Quite clever design."
 STRINGS.CHARACTERS.WENDY.DESCRIBE.TALLBIRD_SADDLE = "To torment two lives simultaneously."
-STRINGS.CHARACTERS.WINOAN.DESCRIBE.TALLBIRD_SADDLE= "Will this hold that fierce bird? Don’t break mid‑ride."
+STRINGS.CHARACTERS.WINONA.DESCRIBE.TALLBIRD_SADDLE= "Will this hold that fierce bird? Don’t break mid‑ride."
 STRINGS.CHARACTERS.WOLFGANG.DESCRIBE.TALLBIRD_SADDLE= "The saddle of the big bird... Hope it doesn't drop Wolfgang off!"
 STRINGS.CHARACTERS.WICKERBOTTOM.DESCRIBE.TALLBIRD_SADDLE= "Someone has crafted a saddle specially for the tallbird. Quite the novel invention."
 STRINGS.CHARACTERS.WANDA.DESCRIBE.TALLBIRD_SADDLE= "I don't want to spend time trying to maintain balance on it."
