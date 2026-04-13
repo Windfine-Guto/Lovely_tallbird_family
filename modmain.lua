@@ -100,7 +100,8 @@ if locale == "zh" or locale == "zht" or locale=="zhr" then
 else
     modimport("scripts/string_en")
 end
-modimport("glassic_api_loader")
+
+modimport("scripts/glassic_api_loader")
 local modname = KnownModIndex:GetModActualName(folder_name) or folder_name or "tallbird"
 
 local skin_prefabs = LoadPrefabFile("scripts/prefabs/tallbird_skins", nil, MODS_ROOT..modname.."/")

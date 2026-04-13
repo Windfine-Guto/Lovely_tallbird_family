@@ -1,0 +1,1 @@
+modimport("scripts/dynamic_icon")

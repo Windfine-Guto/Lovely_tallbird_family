@@ -11,18 +11,17 @@ end
 tallbird_clear_fn = clear_fn
 ---皮肤列表
 local skins = {
-    ---测试用例 皮肤做好把这个注释了
-    CreatePrefabSkin("tallbird_0", {   ---皮肤名字
+    CreatePrefabSkin("tallbird_teen", {   ---皮肤名字
         base_prefab = "tallbird",      ---高脚鸟
         type = "item",
         rarity = "Elegant",
         assets = {
-            Asset("ANIM", "anim/test_tallbird_build.zip"),  ---build资源位置
+            Asset("ANIM", "anim/tallbird_teen_build.zip"),  ---build资源位置
         },
         init_fn = init_fn,
         clear_fn = clear_fn,
-        skin_tags = { "TALLBIRD", "TEST" },      ---皮肤标签
-        build_name_override = "test_tallbird_build",   ---皮肤build名字
+        skin_tags = { "TALLBIRD", "TEEN" },      ---皮肤标签
+        build_name_override = "tallbird_teen_build",   ---皮肤build名字
     }),
     -- CreatePrefabSkin("tallbird_", {
     --     base_prefab = "tallbird",
