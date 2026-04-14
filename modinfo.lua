@@ -1,7 +1,7 @@
 local modid = 'lovely_tallbird_family'
 local cur = (locale == 'zh' or locale == 'zhr') and 'zh' or 'en'
 
-version = '1.5.0'
+version = '26.04.14'
 author = 'over_dragon、Guto'
 
 forumthread = ''
@@ -139,7 +139,7 @@ local LANGS = {
                 {'9.0',9},
                 {'10.0',10}
             }},
-            {modid..'_teenbirdhunger_speed','小高脚鸟饥饿速度','注意，会对所有青年高脚鸟生效，饥饿速度过低野生青年高脚鸟饿不死',60,{
+            {modid..'_teenbirdhunger_speed','青年高脚鸟饥饿速度','注意，会对所有青年高脚鸟生效，饥饿速度过低野生青年高脚鸟饿不死',60,{
                 {'60饥饿值/天',60},
                 {'40饥饿值/天',40},
                 {'20饥饿值/天',20},

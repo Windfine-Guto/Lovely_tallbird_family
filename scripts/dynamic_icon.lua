@@ -6,7 +6,7 @@ local iconname = menv.modname .. "_dynamic_icon"
 local UIAnim = require("widgets/uianim")
 
 menv.FrontEndAssets = {
-    Asset("ANIM", "anim/tallbird_health.zip"),
+    Asset("ANIM", "anim/dynamic_icon.zip"),
 }
 
 if not rawget(_G, "HookedFrontendUnloadMod_" .. menv.modname) then
@@ -33,9 +33,9 @@ local function AddDynamicIcon(self, root, s, x, y)
     end
 
     self[iconname] = self[root]:AddChild(UIAnim())
-    self[iconname]:GetAnimState():SetBank("tallbird_health")
-    self[iconname]:GetAnimState():SetBuild("tallbird_health")
-    self[iconname]:GetAnimState():PlayAnimation("anim", true)
+    self[iconname]:GetAnimState():SetBank("dynamic_icon")
+    self[iconname]:GetAnimState():SetBuild("dynamic_icon")
+    self[iconname]:GetAnimState():PlayAnimation("icon", true)
     self[iconname]:SetPosition(x or 0, y or 0)
     if s then
         self[iconname]:SetScale(s)
@@ -49,7 +49,7 @@ end
 
 local function PatchModDetails(self)
     if self.currentmodname == menv.modname then
-        AddDynamicIcon(self, "detailimage", 0.8, 0, 0)
+        AddDynamicIcon(self, "detailimage", 0.14, 0, 0)
     elseif self[iconname] then
         self[iconname]:Kill()
         self[iconname] = nil
@@ -64,7 +64,7 @@ local function PatchModIcon(widget, data)
             opt[iconname]:Kill()
             opt[iconname] = nil
         end
-        AddDynamicIcon(opt, "image", 0.6, 0, 0)
+        AddDynamicIcon(opt, "image", 0.11, 0, 0)
     elseif opt[iconname] then
         opt[iconname]:Kill()
         opt[iconname] = nil

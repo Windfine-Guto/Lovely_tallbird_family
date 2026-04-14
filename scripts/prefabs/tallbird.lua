@@ -326,6 +326,7 @@ local function fn()
     inst:AddComponent("embarker")
 
     inst:AddComponent("drownable")
+    inst.components.drownable.enabled = true
 
     inst:SetStateGraph("SGtallbird")
 
