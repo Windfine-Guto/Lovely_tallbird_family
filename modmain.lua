@@ -538,6 +538,7 @@ AddPrefabPostInit("smallbird", function(inst)
     end
     inst:AddComponent("embarker")
     inst:AddComponent("drownable")
+    inst.components.drownable.enabled = true
     inst:AddComponent("sanityaura")
     inst:AddComponent("bird_cultivate")
     inst.components.sanityaura.aurafn = CalcSanityAura
@@ -585,6 +586,9 @@ if GetModConfigData(config_name11) then
 		COLLISION.OBSTACLES,
 		COLLISION.CHARACTERS)
     inst.Physics:Teleport(inst.Transform:GetWorldPosition())
+    if inst.components.drownable then
+        inst.components.drownable.enabled = false
+    end
 end
 if inst.components.hunger then
     inst.components.hunger:SetRate(smallbird_hunger_speed/TUNING.TEENBIRD_STARVE_TIME)
@@ -611,7 +615,7 @@ if inst.userfunctions then
         local teenbird = SpawnPrefab("teenbird")
         teenbird.Transform:SetPosition(inst.Transform:GetWorldPosition())
         teenbird.sg:GoToState("idle")
-        local name = inst.name~="小鸟" and inst.name or nil
+        local name = inst.name~="小鸟" and inst.name~="Smallbird" and inst.name or nil
         if inst.components.follower:GetLeader() then
             teenbird.components.follower:SetLeader(inst.components.follower:GetLeader())
             local leader = inst.components.follower:GetLeader()
@@ -650,6 +654,7 @@ AddPrefabPostInit("teenbird", function(inst)
     inst:AddComponent("embarker")
     inst:AddComponent("bird_cultivate")
     inst:AddComponent("drownable")
+    inst.components.drownable.enabled = true
     inst:AddComponent("sanityaura")
     inst.components.sanityaura.aurafn = CalcSanityAura
     if inst.components.eater then
@@ -686,7 +691,7 @@ local function SpawnAdult(inst)
   
     if inst.components.follower and inst.components.follower.leader then
         local leader = inst.components.follower.leader
-        local name = inst.name~="小高脚鸟" and inst.name or nil
+        local name = inst.name~="小高脚鸟" and inst.name~="Smallish Tallbird" and inst.name or nil
         tallbird.components.follower:SetLeader(leader)
         if name and tallbird.components.named then
             tallbird.components.named:SetName(name,leader.name)
@@ -715,6 +720,9 @@ if GetModConfigData(config_name12) then
 		COLLISION.OBSTACLES,
 		COLLISION.CHARACTERS)
         inst.Physics:Teleport(inst.Transform:GetWorldPosition())
+        if inst.components.drownable then
+            inst.components.drownable.enabled = false
+        end
 end
 if inst.components.hunger then
     inst.components.hunger:SetRate(teenbird_hunger_speed/TUNING.TEENBIRD_STARVE_TIME)
@@ -1214,6 +1222,9 @@ if GetModConfigData(config_name21) then
 		COLLISION.OBSTACLES,
 		COLLISION.CHARACTERS)
     inst.Physics:Teleport(inst.Transform:GetWorldPosition())
+    if inst.components.drownable then
+        inst.components.drownable.enabled = false
+    end
 end
 local bird_health
 if inst.components.health then
