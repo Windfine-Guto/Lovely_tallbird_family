@@ -14,7 +14,9 @@ reign_of_giants_compatible = false -- 单机版：巨人国适配性
 all_clients_require_mod = true -- 服务端/所有端模组
 -- server_only_mod = true -- 仅服务端模组
 -- client_only_mod = true -- 仅客户端模组
-server_filter_tags = {} -- 创意工坊模组分类标签
+server_filter_tags = {
+    "tallbird",
+} -- 创意工坊模组分类标签
 icon_atlas = 'modicon.xml' -- 图集
 icon = 'modicon.tex' -- 图标
 
@@ -23,7 +25,7 @@ icon = 'modicon.tex' -- 图标
 local LANGS = {
     ['zh'] = {
         name = '可爱鸟家族',
-        description = '放心的养鸟，遛鸟，鸟绝不会让你失望的',
+        description = '󰀏·完全重写高脚鸟的机制！󰀓高脚鸟将不再会做出违背伦理的行为！\n󰀅·孵化高脚鸟蛋，养大高脚鸟，提升在高脚鸟族群的声望。\n󰀌·雇佣并骑乘高脚鸟，让它们为你干活！战斗！󰀒·\n可使用扫把为高脚鸟换皮肤。',
         config = {
             {'高脚鸟蛋'},
             {modid..'_egghatch','高脚鸟蛋孵化时间','原版是3天',1,{
@@ -218,7 +220,7 @@ local LANGS = {
     },
     ['en'] = {
         name = 'Lovely Tallbird Family',
-        description = 'Raise and walk your birds with peace of mind — they\'ll never let you down!',
+        description = "󰀏·Completely rewritten Tallbird mechanics!󰀓Tallbirds will no longer act unethically!\n󰀅·Hatch Tallbird Eggs, raise Tallbirds, and increase your reputation among the Tallbird flock.\n󰀌·Hire and ride Tallbirds to make them work and fight for you!󰀒·\nUse a broom to change your Tallbird's skin.",
         config = {
             {'Tallbird Egg'},
             {modid..'_egghatch','Morsel Egg Incubation Time','Vanilla: 3 days',1,{
