@@ -9,7 +9,9 @@ PrefabFiles = {
     "tallbird",
     "tallbird_saddle",
     "tallbird_eggshell",
-    "tallbird_skins"
+    "tallbird_skins",
+    "teenbird_skins",
+    "smallbird_skins",
 }
 
 local writeables = require("writeables")
@@ -110,8 +112,23 @@ for _, prefab in ipairs(skin_prefabs) do
     table.insert(tallbird_skins, prefab.name)
 end
 
+local skin_prefabs_teen = LoadPrefabFile("scripts/prefabs/teenbird_skins", nil, MODS_ROOT..modname.."/")
+local teenbird_skins = {}
+for _, prefab in ipairs(skin_prefabs_teen) do
+    table.insert(teenbird_skins, prefab.name)
+end
+
+local skin_prefabs_small = LoadPrefabFile("scripts/prefabs/smallbird_skins", nil, MODS_ROOT..modname.."/")
+local smallbird_skins = {}
+for _, prefab in ipairs(skin_prefabs_small) do
+    table.insert(smallbird_skins, prefab.name)
+end
+
+
 GlassicAPI.SkinHandler.AddModSkins({
     tallbird = tallbird_skins,
+    teenbird = teenbird_skins,
+    smallbird = smallbird_skins,
 })
 
 AddRecipe2("tallbird_saddle",{Ingredient("rope", 3),Ingredient("beardhair", 10),Ingredient("driftwood_log", 3)},
@@ -623,7 +640,10 @@ if inst.userfunctions then
                 teenbird.components.named:SetName(name,leader.name)
             end
         end
-
+        local build_name = inst.AnimState:GetSkinBuild()
+        if build_name=="smallbirdskin_manrabbit" then
+            teenbird.AnimState:SetSkin("tallbird_teenskin_manrabbit")
+        end
         inst:Remove()
     end
 end
@@ -701,7 +721,10 @@ local function SpawnAdult(inst)
             leader.components.bird_family:Updata()
         end
     end
-
+    local build_name = inst.AnimState:GetSkinBuild()
+    if build_name=="tallbird_teenskin_manrabbit" then
+        tallbird.AnimState:SetSkin("tallbirdskin_manrabbit")
+    end
     inst:Remove()
 end
 if inst.userfunctions then
