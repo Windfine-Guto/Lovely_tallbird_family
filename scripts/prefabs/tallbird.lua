@@ -234,19 +234,23 @@ local function OnRefuseRider(inst, data)
 end
 local function OnRefuseGiver(inst, giver, item)
     local talker = giver.components.talker
+    local leader = inst.components.follower and inst.components.follower.leader or nil
+    if leader and leader~=giver then
+        return
+    end
     if item and item.prefab=="twigs" then
         if talker then
-            if inst.components.follower and inst.components.follower.leader==giver then
+            if leader and leader==giver then
                 return
             end
-            giver.components.talker:Say(GetString(giver,"ANNOUNCE_TALLBIRD_NOFAMILY"))
+            talker:Say(GetString(giver,"ANNOUNCE_TALLBIRD_NOFAMILY"))
         end
     elseif item and item.prefab=="cutgrass"  then
-        if inst.components.follower and inst.components.follower.leader~=giver then
+        if leader and leader~=giver then
             return
         end
         if talker then
-            giver.components.talker:Say(GetString(giver,"ANNOUNCE_TALLBIRD_NOFAMILY"))
+            talker:Say(GetString(giver,"ANNOUNCE_TALLBIRD_NOFAMILY"))
         end
     end
 end
@@ -416,7 +420,7 @@ local function fn()
     ------------------
     inst.userfunctions={}
     inst.userfunctions.GetPeepChance=function ()
-        return 0.9
+        return 0.8
     end
     inst.sounds = sounds
 	inst.CanMakeNewHome = CanMakeNewHome
