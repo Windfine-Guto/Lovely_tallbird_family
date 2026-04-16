@@ -107,6 +107,18 @@ local skins = {
         skin_tags = { "TALLBIRD", "BROWN" },      ---皮肤标签
         build_name_override = "tallbirdskin_brown",   ---皮肤build名字
     }),
+    CreatePrefabSkin("tallbird_snowman", {   ---皮肤名字
+        base_prefab = "tallbird",      ---高脚鸟
+        type = "item",
+        rarity = "Elegant",
+        assets = {
+            Asset("ANIM", "anim/tallbirdskin_snowman.zip"),  ---build资源位置
+        },
+        init_fn = init_fn,
+        clear_fn = clear_fn,
+        skin_tags = { "TALLBIRD", "SNOWMAN" },      ---皮肤标签
+        build_name_override = "tallbirdskin_snowman",   ---皮肤build名字
+    }),
     -- CreatePrefabSkin("tallbird_", {
     --     base_prefab = "tallbird",
     --     type = "item",
