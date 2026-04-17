@@ -420,7 +420,7 @@ local function fn()
     ------------------
     inst.userfunctions={}
     inst.userfunctions.GetPeepChance=function ()
-        return 0.9
+        return 0.8
     end
     inst.sounds = sounds
 	inst.CanMakeNewHome = CanMakeNewHome
