@@ -85,8 +85,8 @@ local RETARGET_MUST_TAGS = { "_combat", "_health" }
 local RETARGET_CANT_TAGS_HOME={"tallbird","teenbird","smallbird","bird_friend"}
 local RETARGET_CANT_TAGS = { "tallbird","teenbird","smallbird","player",
 "glommer","chester","companion","beefalo","hutch","abigail" }
-local RETARGET_ONEOF_TAGS = { "animal","monster","pig" }
-local RETARGET_ANIMAL_ONEOF_TAGS = { "animal", "monster","character" }
+local RETARGET_ONEOF_TAGS = { "monster","hostile" }
+local RETARGET_ANIMAL_ONEOF_TAGS = {  "monster","hostile" }
 local function Retarget(inst)
     local function IsValidTarget(guy)
         return not guy.components.health:IsDead()

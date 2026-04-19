@@ -12,6 +12,7 @@ PrefabFiles = {
     "tallbird_skins",
     "teenbird_skins",
     "smallbird_skins",
+    "tallbird_comb",
 }
 
 local writeables = require("writeables")
@@ -136,6 +137,11 @@ TECH.SCIENCE_TWO,
 {atlas = "images/inventoryimages/tallbird_saddle.xml",
 image = "tallbird_saddle.tex"},
 {"RIDING"})
+AddRecipe2("tallbird_comb_follow",{Ingredient("boneshard", 5)},
+TECH.NONE,
+{atlas = "images/inventoryimages/comb.xml",
+image = "comb.tex"},
+{"TOOLS"})
 
 local originalGetString = GetString
 
@@ -2025,6 +2031,43 @@ AddStategraphPostInit("wilson", function(sg)
         end)
       )
     end
+    local whistle_onenter = sg.states["play_whistle"].onenter
+    sg.states["play_whistle"].onenter = function(inst, ...)
+        if inst:HasTag("tallbird_mount") then
+            inst.AnimState:PlayAnimation("action_uniqueitem_pre")
+            inst.AnimState:PushAnimation("emoteXL_waving1",false)
+        else
+            whistle_onenter(inst)
+        end
+    end
+    local whistle_timeline = sg.states["play_whistle"].timeline
+    local original_fn_whistle = nil
+    local pos_whistle = nil
+    for i = #whistle_timeline, 1, -1 do
+        local v = whistle_timeline[i]
+        if v and v.time and v.time == 20 * FRAMES then
+            original_fn_whistle = v.fn
+            pos_whistle = i
+            table.remove(whistle_timeline, i)
+            break
+        end
+      end
+      table.insert(whistle_timeline,pos_whistle,
+        TimeEvent(20 * FRAMES, function(inst)
+            if inst:HasTag("tallbird_mount") then
+                if inst:PerformBufferedAction() then
+					inst.SoundEmitter:PlaySound("dontstarve/creatures/tallbird/chirp")
+                else
+					inst.sg.statemem.action_failed = true
+					inst.AnimState:SetFrame(35)
+                end
+            else
+                if original_fn_whistle then
+                    original_fn_whistle(inst)
+                end
+            end
+        end)
+      )
     -- local attack_timeline = sg.states.attack.timeline
     -- table.insert(attack_timeline, TimeEvent(7 * FRAMES, function(inst)
     --     local rider = inst.replica.rider
@@ -2451,6 +2494,97 @@ AddComponentAction("SCENE", "pickable", function(inst, doer, actions, right)
     end
 end)
 
+local BIRDS_FOLLOW = Action()
+BIRDS_FOLLOW.id = "BIRDS_FOLLOW"
+BIRDS_FOLLOW.strfn = function (act)
+    return "GATHER"
+end
+BIRDS_FOLLOW.priority = 20
+BIRDS_FOLLOW.mount_valid =true
+BIRDS_FOLLOW.fn = function (act)
+    local obj = act.invobject
+    local doer = act.doer
+    local x,y,z = doer.Transform:GetWorldPosition()
+    local targets = doer:HasTag("bird_family") and TheSim:FindEntities(x, y or 0, z, 20 , {"tallbird"},nil , nil)
+                    or TheSim:FindEntities(x, y or 0, z, 20 , {"lovely_bird"},nil , nil)
+    for _,v in pairs(targets) do
+        if v.components.follower and v.components.follower.leader==nil then
+            v.components.follower:SetLeader(doer)
+        end
+    end
+    local item = SpawnPrefab("tallbird_comb_leave")
+    if item then
+        local container = obj.components.inventoryitem:GetContainer()
+        if container ~= nil then
+            local slot = obj.components.inventoryitem:GetSlotNum()
+            obj:Remove()
+            container:GiveItem(item, slot)
+        else
+            obj:Remove()
+            item.Transform:SetPosition(x, y, z)
+        end
+    end
+    return true
+end
+AddAction(BIRDS_FOLLOW)
+STRINGS.ACTIONS.BIRDS_FOLLOW = {
+    GATHER = "集合"
+}
+
+AddStategraphActionHandler("wilson", ActionHandler(ACTIONS.BIRDS_FOLLOW,  "play_whistle"))
+AddStategraphActionHandler("wilson_client", ActionHandler(ACTIONS.BIRDS_FOLLOW,  "play_whistle"))
+
+AddComponentAction("INVENTORY", "bird_follow", function(inst, doer, actions, right)
+    if doer and inst:HasTag("tallbird_comb_follow") then
+        table.insert(actions, ACTIONS.BIRDS_FOLLOW)
+    end
+end)
+
+local BIRDS_LEAVE = Action()
+BIRDS_LEAVE.id = "BIRDS_LEAVE"
+BIRDS_LEAVE.strfn = function (act)
+    return "DISSOLVE"
+end
+BIRDS_LEAVE.priority = 20
+BIRDS_LEAVE.mount_valid =true
+BIRDS_LEAVE.fn = function (act)
+    local obj = act.invobject
+    local doer = act.doer
+    local x,y,z = doer.Transform:GetWorldPosition()
+    local targets = doer.components.leader and doer.components.leader.followers or {}
+    for follower,_ in pairs(targets) do
+        if follower:IsValid() and follower:HasTag("tallbird") and follower.components.follower and follower.components.follower.leader==doer then
+            follower.components.follower:SetLeader(nil)
+        end
+    end
+    local item = SpawnPrefab("tallbird_comb_follow")
+    if item then
+        local container = obj.components.inventoryitem:GetContainer()
+        if container ~= nil then
+            local slot = obj.components.inventoryitem:GetSlotNum()
+            obj:Remove()
+            container:GiveItem(item, slot)
+        else
+            obj:Remove()
+            item.Transform:SetPosition(x, y, z)
+        end
+    end
+    return true
+end
+AddAction(BIRDS_LEAVE)
+STRINGS.ACTIONS.BIRDS_LEAVE = {
+    DISSOLVE = "解散"
+}
+
+AddStategraphActionHandler("wilson", ActionHandler(ACTIONS.BIRDS_LEAVE,  "play_whistle"))
+AddStategraphActionHandler("wilson_client", ActionHandler(ACTIONS.BIRDS_LEAVE,  "play_whistle"))
+
+AddComponentAction("INVENTORY", "bird_leave", function(inst, doer, actions, right)
+    if doer and inst:HasTag("tallbird_comb_leave") then
+        table.insert(actions, ACTIONS.BIRDS_LEAVE)
+    end
+end)
+
 local PICKUP_TARGET_EXCLUDE_TAGS = { "catchable", "mineactive", "intense" }
 AddComponentPostInit("playercontroller",function(self)
     local action = nil
@@ -2488,6 +2622,49 @@ end)
 local attack_mode_key = 114
 local attack_mode = "tallbird"
 
+local retarget1 = "retarget1"
+local retarget2 = "retarget2"
+
+local function Retarget1(inst)
+    return FindEntity(inst, 16, function(ent)
+local t = ent.components.combat.target
+return inst.components.combat:CanTarget(ent) and t and (t == inst or t:HasTag("player")
+ or (t:HasTag("companion") and (not t.components.combat or t.components.combat.target ~= inst)))
+ end, { "_combat" }, { "player" })
+end
+
+local RETARGET_MUST_TAGS = { "_combat", "_health" }
+local RETARGET_CANT_TAGS_HOME={"tallbird","teenbird","smallbird","bird_friend"}
+local RETARGET_CANT_TAGS = { "tallbird","teenbird","smallbird","player",
+"glommer","chester","companion","beefalo","hutch","abigail" }
+local RETARGET_ONEOF_TAGS = { "monster","prey","insect","hostile","character","animal" }
+local RETARGET_ANIMAL_ONEOF_TAGS = { "monster","prey","insect","hostile","character","animal" }
+local function Retarget2(inst)
+    local function IsValidTarget(guy)
+        return not guy.components.health:IsDead()
+            and inst.components.combat:CanTarget(guy)
+            and (not inst:HasTag("smallbird") or inst:HasTag("companion"))
+    end
+    return
+        inst.components.homeseeker ~= nil and
+        inst.components.homeseeker:HasHome() and
+        FindEntity(
+            inst.components.homeseeker.home,
+            SpringCombatMod(TUNING.TALLBIRD_DEFEND_DIST/2),
+            IsValidTarget,
+            RETARGET_MUST_TAGS,
+            RETARGET_CANT_TAGS_HOME,
+            RETARGET_ANIMAL_ONEOF_TAGS)
+        or
+        FindEntity(
+            inst,
+            SpringCombatMod(TUNING.TALLBIRD_TARGET_DIST*2),
+            IsValidTarget,
+            RETARGET_MUST_TAGS,
+            RETARGET_CANT_TAGS,
+            RETARGET_ONEOF_TAGS)
+end
+
 AddModRPCHandler(attack_mode..'attack', attack_mode..'attack', function(inst,mode)
     if inst and inst:IsValid() and not inst:HasTag("playerghost") and inst:HasTag("tallbird_mount") then
         if mode==true then
@@ -2500,6 +2677,41 @@ AddModRPCHandler(attack_mode..'attack', attack_mode..'attack', function(inst,mod
                 inst.components.talker:Say(GetString(inst,"ANNOUNCE_TALLBIRD_NOTATKLEG"))
             end
             inst._tallbird_mount_aoe_leg = mode
+        end
+    end
+end)
+
+AddModRPCHandler(retarget1..'attack', retarget1..'attack', function(inst)
+    if inst and inst:IsValid() and not inst:HasTag("playerghost") and inst:HasTag("tallbird_mount") then
+        local targets = inst.components.leader and inst.components.leader.followers or {}
+        local talker = inst.components.talker
+        if talker then
+            talker:Say(GetString(inst,"ANNOUNCE_TALLBIRD_RETARGET1"))
+        end
+        for follower,_ in pairs(targets) do
+            if follower:IsValid() and follower:HasTag("tallbird") and follower.components.follower and follower.components.follower.leader==inst then
+                if follower.components.combat then
+                    follower.components.combat:DropTarget()
+                    follower.components.combat:SetRetargetFunction(1.5, Retarget1)
+                end
+            end
+        end
+    end
+end)
+
+AddModRPCHandler(retarget2..'attack', retarget2..'attack', function(inst)
+    if inst and inst:IsValid() and not inst:HasTag("playerghost") and inst:HasTag("tallbird_mount") then
+        local targets = inst.components.leader and inst.components.leader.followers or {}
+        local talker = inst.components.talker
+        if talker then
+            talker:Say(GetString(inst,"ANNOUNCE_TALLBIRD_RETARGET2"))
+        end
+        for follower,_ in pairs(targets) do
+            if follower:IsValid() and follower:HasTag("tallbird") and follower.components.follower and follower.components.follower.leader==inst then
+                if follower.components.combat then
+                    follower.components.combat:SetRetargetFunction(1.5, Retarget2)
+                end
+            end
         end
     end
 end)

@@ -11,6 +11,20 @@ local CastSelect = {
         animdis = "switch",
         animfoc = "switch_focus"
     },
+    retarget2 = {
+        pos = { -130, -75 },
+        animbank = "spell_icons_tallbird",
+        animbuild = "spell_icons_tallbird",
+        animdis = "rile",
+        animfoc = "rile_focus"
+    },
+    retarget1 = {
+        pos = { 130, -75 },
+        animbank = "spell_icons_tallbird",
+        animbuild = "spell_icons_tallbird",
+        animdis = "soothe",
+        animfoc = "soothe_focus"
+    }
 }
 -- 高亮（聚焦）动画
 local function OnSelect(anim)
@@ -137,7 +151,8 @@ end
 function TallbirdAtkSelect:OnMouseButton(button, down, x, y)
     -- 只处理左键松开（click）
     if button == MOUSEBUTTON_LEFT and not down then
-        if self.hovered_spell then
+        local retarget = "retarget"
+        if self.hovered_spell=="atk_mode" then
             local attack_mode = "tallbird"
             if self.owner._tallbird_mount_aoe_leg == true then
                 self.owner._tallbird_mount_aoe_leg = false
@@ -145,6 +160,12 @@ function TallbirdAtkSelect:OnMouseButton(button, down, x, y)
                 self.owner._tallbird_mount_aoe_leg = true
             end
         	SendModRPCToServer(MOD_RPC[attack_mode..'attack'][attack_mode..'attack'],self.owner._tallbird_mount_aoe_leg)
+            self:Hide()
+        elseif self.hovered_spell=="retarget1" then
+            SendModRPCToServer(MOD_RPC[retarget..'1attack'][retarget..'1attack'])
+            self:Hide()
+        elseif self.hovered_spell=="retarget2" then
+            SendModRPCToServer(MOD_RPC[retarget..'2attack'][retarget..'2attack'])
             self:Hide()
         end
         return true  -- 表示已处理
