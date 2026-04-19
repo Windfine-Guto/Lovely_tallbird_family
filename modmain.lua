@@ -2032,10 +2032,24 @@ AddStategraphPostInit("wilson", function(sg)
       )
     end
     local whistle_onenter = sg.states["play_whistle"].onenter
-    sg.states["play_whistle"].onenter = function(inst, ...)
+    sg.states["play_whistle"].onenter = function(inst)
+        local buffered_action = inst:GetBufferedAction()
         if inst:HasTag("tallbird_mount") then
+            if buffered_action and buffered_action.action == ACTIONS.BIRDS_LEAVE then
+                inst.components.locomotor:Stop()
+                inst.AnimState:PlayAnimation("action_uniqueitem_pre")
+                inst.AnimState:PushAnimation("emote_slowclap",false)
+            else
+                inst.components.locomotor:Stop()
+                inst.AnimState:PlayAnimation("action_uniqueitem_pre")
+                inst.AnimState:PushAnimation("emoteXL_waving1",false)
+            end
+            
+        elseif buffered_action and (buffered_action.action == ACTIONS.BIRDS_LEAVE 
+            or buffered_action.action == ACTIONS.BIRDS_FOLLOW) then
+            inst.components.locomotor:Stop()
             inst.AnimState:PlayAnimation("action_uniqueitem_pre")
-            inst.AnimState:PushAnimation("emoteXL_waving1",false)
+            inst.AnimState:PushAnimation("whistle", false)
         else
             whistle_onenter(inst)
         end
@@ -2510,6 +2524,7 @@ BIRDS_FOLLOW.fn = function (act)
     for _,v in pairs(targets) do
         if v.components.follower and v.components.follower.leader==nil then
             v.components.follower:SetLeader(doer)
+            v.sg:GoToState("idle_blink")
         end
     end
     local item = SpawnPrefab("tallbird_comb_leave")
@@ -2555,6 +2570,7 @@ BIRDS_LEAVE.fn = function (act)
     for follower,_ in pairs(targets) do
         if follower:IsValid() and follower:HasTag("tallbird") and follower.components.follower and follower.components.follower.leader==doer then
             follower.components.follower:SetLeader(nil)
+            follower.sg:GoToState("idle_blink")
         end
     end
     local item = SpawnPrefab("tallbird_comb_follow")
@@ -2586,36 +2602,52 @@ AddComponentAction("INVENTORY", "bird_leave", function(inst, doer, actions, righ
 end)
 
 local PICKUP_TARGET_EXCLUDE_TAGS = { "catchable", "mineactive", "intense" }
-AddComponentPostInit("playercontroller",function(self)
-    local action = nil
+
+AddComponentPostInit("playercontroller", function(self)
     local old_GetActionButtonAction = self.GetActionButtonAction
     self.GetActionButtonAction = function(self, force_target)
-		if self.inst.replica.rider ~= nil and self.inst.replica.rider:IsRiding() then
-			local mount = self.inst.replica.rider:GetMount()
-			if mount:HasTag("tallbird") then
-		        local pickup_tags =
-		        {
-				"CHOP_workable",
-				"MINE_workable",
-		        }
-		        local x, y, z = self.inst.Transform:GetWorldPosition()
-		        local ents = TheSim:FindEntities(x, y, z, self.directwalking and 3 or 6, nil, PICKUP_TARGET_EXCLUDE_TAGS, pickup_tags)
-		        for i, v in ipairs(ents) do
-		            if v ~= self.inst and v.entity:IsVisible() and CanEntitySeeTarget(self.inst, v) then
-		            	if v:HasTag("CHOP_workable") then
-							action=ACTIONS.BIRD_CHOP
-						end
-						if v:HasTag("MINE_workable") then
-							action=ACTIONS.BIRD_MINE
-						end
-		                if action ~= nil then
-		                    return BufferedAction(self.inst, v, action)
-		                end
-		            end
-		        end
-		    end
-		end
-		return old_GetActionButtonAction(self,force_target)
+        local nearest_dist = math.huge
+        local nearest_action = nil
+
+        local default_action = old_GetActionButtonAction(self, force_target)
+        if default_action and default_action.action ~= ACTIONS.WALKTO and default_action.action ~= ACTIONS.ATTACK then
+            local target = default_action.target
+            if target and target:IsValid() then
+                local dist = self.inst:GetDistanceSqToInst(target)
+                nearest_dist = dist
+                nearest_action = default_action
+            end
+        end
+
+        if self.inst.replica.rider and self.inst.replica.rider:IsRiding() then
+            local mount = self.inst.replica.rider:GetMount()
+            if mount:HasTag("tallbird") then
+                local pickup_tags = { "CHOP_workable", "MINE_workable" }
+                local x, y, z = self.inst.Transform:GetWorldPosition()
+                local ents = TheSim:FindEntities(x, y, z, self.directwalking and 3 or 6, nil, PICKUP_TARGET_EXCLUDE_TAGS, pickup_tags)
+
+                for i, v in ipairs(ents) do
+                    if v ~= self.inst and v.entity:IsVisible() and CanEntitySeeTarget(self.inst, v) then
+                        local action = nil
+                        if v:HasTag("CHOP_workable") then
+                            action = ACTIONS.BIRD_CHOP
+                        elseif v:HasTag("MINE_workable") then
+                            action = ACTIONS.BIRD_MINE
+                        end
+
+                        if action then
+                            local dist = self.inst:GetDistanceSqToInst(v)
+                            if dist < nearest_dist then
+                                nearest_dist = dist
+                                nearest_action = BufferedAction(self.inst, v, action)
+                            end
+                        end
+                    end
+                end
+            end
+        end
+
+        return nearest_action or default_action
     end
 end)
 
