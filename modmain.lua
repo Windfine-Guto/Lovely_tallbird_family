@@ -296,6 +296,9 @@ nil, NOTAGS)
                     -- inst.components.combat:DoAttack(target,nil, nil, nil, 0.2*1)
                     inst.target_spdamage_processed = nil
                     return
+                elseif weapon.components.weapon == nil then
+                    inst.target_spdamage_processed = nil
+                    return
                 elseif weapon.components.projectile or weapon:HasTag("rangedweapon") then
                     inst.target_spdamage_processed = nil
                     return
