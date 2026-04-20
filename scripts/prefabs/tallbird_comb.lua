@@ -3,6 +3,8 @@ local assets =
     Asset("ANIM", "anim/comb.zip"),
     Asset("IMAGE","images/inventoryimages/comb.tex"),
 	Asset("ATLAS", "images/inventoryimages/comb.xml"),
+    Asset("IMAGE","images/inventoryimages/comb2.tex"),
+	Asset("ATLAS", "images/inventoryimages/comb2.xml"),
 }
 
 
@@ -17,7 +19,7 @@ local function fn1()
 
     inst.AnimState:SetBank("comb")
     inst.AnimState:SetBuild("comb")
-    inst.AnimState:PlayAnimation("idle")
+    inst.AnimState:PlayAnimation("idle2")
 
     inst:AddTag("tallbird_comb_follow")
 
@@ -29,8 +31,8 @@ local function fn1()
 
     inst:AddComponent("inspectable")
     inst:AddComponent("inventoryitem")
-    inst.components.inventoryitem.imagename = "comb"
-    inst.components.inventoryitem.atlasname = "images/inventoryimages/comb.xml"
+    inst.components.inventoryitem.imagename = "comb2"
+    inst.components.inventoryitem.atlasname = "images/inventoryimages/comb2.xml"
 
     inst:AddComponent("bird_follow")
 

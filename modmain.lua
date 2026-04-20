@@ -139,8 +139,8 @@ image = "tallbird_saddle.tex"},
 {"RIDING"})
 AddRecipe2("tallbird_comb_follow",{Ingredient("boneshard", 5)},
 TECH.NONE,
-{atlas = "images/inventoryimages/comb.xml",
-image = "comb.tex"},
+{atlas = "images/inventoryimages/comb2.xml",
+image = "comb2.tex"},
 {"TOOLS"})
 
 local originalGetString = GetString
