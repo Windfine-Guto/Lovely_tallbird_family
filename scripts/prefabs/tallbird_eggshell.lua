@@ -28,6 +28,10 @@ local function fn(data)
     if not TheWorld.ismastersim then
         return inst
     end
+    inst:AddComponent("edible")
+    inst.components.edible.foodtype = FOODTYPE.SEEDS
+    inst.components.edible.healthvalue = 1
+    inst.components.edible.hungervalue = 5
 
     inst:AddComponent("inspectable")
     inst:AddComponent("inventoryitem")
