@@ -126,14 +126,17 @@ function Bird_cultivate:Updata()
             self.inst:AddTag("bird_plannared")
         end
     end
+    if self.nogrow==true and self.inst.components.growable then
+        self.inst:RemoveComponent("growable")
+        if not self.inst:HasTag("nogrow") then
+            self.inst:AddTag("nogrow")
+        end
+    end
     if self.wild==true then
         return
     end
     if self.inst:HasTag("tallbird") and self.inst.components.combat then
-        self.inst.components.combat:SetRetargetFunction(3, Retarget)
-    end
-    if self.nogrow==true and self.inst.components.growable then
-        self.inst:RemoveComponent("growable")
+        self.inst.components.combat:SetRetargetFunction(1.5, Retarget)
     end
     if self.follow==true then
         if not self.inst:HasTag("bird_follower") then
@@ -234,7 +237,8 @@ function Bird_cultivate:OnSave()
     return {
         wild = self.wild,
         plannar = self.plannar,
-        follow = self.follow
+        follow = self.follow,
+        nogrow = self.nogrow,
     }
 end
 function Bird_cultivate:OnLoad(data)
@@ -242,6 +246,7 @@ function Bird_cultivate:OnLoad(data)
         self.wild = data.wild
         self.plannar = data.plannar
         self.follow = data.follow
+        self.nogrow = data.nogrow
     end
     self:Updata()
 end

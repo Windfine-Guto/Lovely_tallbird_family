@@ -69,9 +69,6 @@ local function ShouldAcceptItem(inst, item)
     end
 end
 local function OnGetItemFromPlayer(inst, giver, item)
-    if inst.components.sleeper then
-        inst.components.sleeper:WakeUp()
-    end
     if item.components.edible then
         if inst.components.combat.target and inst.components.combat.target == giver then
             inst.components.combat:SetTarget(nil)
@@ -84,6 +81,9 @@ local function OnGetItemFromPlayer(inst, giver, item)
                 inst.components.bird_cultivate.wild=false
                 inst.components.bird_cultivate:Updata()
             end
+        end
+        if inst.components.eater:CanEat(item) then
+            inst.components.eater:Eat(item, giver)
         end
         if inst.components.rideable:IsBeingRidden() then
             giver.AnimState:PlayAnimation("graze_loop")
@@ -108,15 +108,15 @@ local function KeepTarget(inst, target)
 end
 
 local function ShouldSleep(inst)
-    if inst.components.follower and inst.components.follower.leader then
-        return DefaultSleepTest(inst) and inst.components.follower:IsNearLeader(7)
-    else
-        return DefaultSleepTest(inst)
-    end
+    return not inst.components.rideable:IsBeingRidden()
+        and DefaultSleepTest(inst)
+        and (inst.components.follower:GetLeader() == nil
+            or inst.components.follower:IsNearLeader(10))
 end
 
 local function ShouldWake(inst)
-    return DefaultWakeTest(inst) or not inst.components.follower:IsNearLeader(10)
+    return DefaultWakeTest(inst) or (inst.components.follower:GetLeader() ~= nil
+            and not inst.components.follower:IsNearLeader(10))
 end
 
 local function CanShareTargetWith(dude)
@@ -228,9 +228,11 @@ local function OnDeath(inst, data)
 end
 
 local function OnRefuseRider(inst, data)
-      if inst.components.sleeper:IsAsleep() and not inst.components.health:IsDead() then
-        inst.components.sleeper:WakeUp()
-      end
+    inst:DoTaskInTime(0.1,function ()
+        if inst.components.sleeper:IsAsleep() and not inst.components.health:IsDead() then
+            inst.components.sleeper:WakeUp()
+        end
+    end)
 end
 local function OnRefuseGiver(inst, giver, item)
     local talker = giver.components.talker
@@ -253,10 +255,20 @@ local function OnRefuseGiver(inst, giver, item)
             talker:Say(GetString(giver,"ANNOUNCE_TALLBIRD_NOFAMILY"))
         end
     end
+    if inst.components.sleeper:IsAsleep() then
+        inst.components.sleeper:WakeUp()
+    end
 end
 
 local function OnRiderChanged(inst, data)
-    if data.newrider == nil and inst.components.health:IsDead() then
+    if data.newrider ~= nil then
+        if inst.components.sleeper ~= nil then
+            inst.components.sleeper:WakeUp()
+        end
+        if inst.sg ~= nil then
+            inst.sg:GoToState("idle")
+        end
+    elseif inst.components.health:IsDead() then
         if inst.sg and inst.sg.currentstate.name ~= "death" then
             inst.sg:GoToState("death")
         end
@@ -347,7 +359,7 @@ local function fn()
     inst.components.combat.hiteffectsymbol = "head"
     inst.components.combat:SetDefaultDamage(TUNING.TALLBIRD_DAMAGE)
     inst.components.combat:SetAttackPeriod(TUNING.TALLBIRD_ATTACK_PERIOD)
-    inst.components.combat:SetRetargetFunction(3, Retarget)
+    inst.components.combat:SetRetargetFunction(1.5, Retarget)
     inst.components.combat:SetKeepTargetFunction(KeepTarget)
     inst.components.combat:SetRange(TUNING.TALLBIRD_ATTACK_RANGE)
     inst.components.combat:SetNoAggroTags({"bird_family", "smallbird","teenbird","tallbird"})

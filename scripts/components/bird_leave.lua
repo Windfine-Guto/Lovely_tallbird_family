@@ -15,6 +15,9 @@ function Bird_leave:Leave(inst,target,doer)
         target:RemoveTag("bird_follower")
         if target.sg then
             target.sg:GoToState("idle_peep")
+            if target.components.sleeper and target.components.sleeper:IsAsleep() then
+                target.components.sleeper:WakeUp()
+            end
         end
         if inst.components.stackable then
             inst.components.stackable:Get():Remove()

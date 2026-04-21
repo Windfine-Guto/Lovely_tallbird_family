@@ -1,7 +1,7 @@
 local modid = 'lovely_tallbird_family'
 local cur = (locale == 'zh' or locale == 'zhr') and 'zh' or 'en'
 
-version = '26.04.20'
+version = '26.04.21'
 author = 'over_dragon、Guto'
 
 forumthread = ''
@@ -88,10 +88,10 @@ local LANGS = {
                 {'1分钟',80},
                 {'10秒',480},
             }},
-            {modid..'_smallbirdgrow','小鸟不长大','玩家养的小鸟永远保持幼年，合适当宠物',false,{
-                {'开启',true},
-                {'关闭',false}
-            }},
+            -- {modid..'_smallbirdgrow','小鸟不长大','玩家养的小鸟永远保持幼年，合适当宠物',false,{
+            --     {'开启',true},
+            --     {'关闭',false}
+            -- }},
             {modid..'_smallbirdprotect','小鸟血线保护','血量不会低于10%，且低于20%不参与战斗，血量恢复100%时恢复正常',true,{
                 {'开启',true},
                 {'关闭',false}
@@ -215,6 +215,11 @@ local LANGS = {
             {modid..'sanityaura','鸟正向理智光环','最高25理智/分钟',true,{
                 {'开启',true},
                 {'关闭',false}
+            }},
+            {"兼容其它模组有随从上下洞穴功能选项"},
+            {modid..'_tallbird_follow','鸟跟随上下洞穴只对高脚鸟生效','一般有这个功能的模组都不会把高脚鸟算进去，因此开启此选项可以兼容',false,{
+                {'开启',true},
+                {'关闭',false}
             }}
         }
     },
@@ -283,10 +288,10 @@ local LANGS = {
                 {'1 Minute',80},
                 {'10 Seconds',480},
             }},
-            {modid..'_smallbirdgrow','Smallbird Never Grows Up','Player-raised smallbirds will remain babies forever, suitable as pets.',false,{
-                {'Enable',true},
-                {'Disable',false}
-            }},
+            -- {modid..'_smallbirdgrow','Smallbird Never Grows Up','Player-raised smallbirds will remain babies forever, suitable as pets.',false,{
+            --     {'Enable',true},
+            --     {'Disable',false}
+            -- }},
             {modid..'_smallbirdprotect','Smallbird Health Threshold Protection','Health never drops below 10%; stops fighting below 20% and resumes when fully healed',true,{
                 {'Enable',true},
                 {'Disable',false}
@@ -408,6 +413,11 @@ local LANGS = {
                 {'Disable',false}
             }},
             {modid..'sanityaura', 'Avian Positive Sanity Aura', 'Max 25 Sanity/Min', true, {
+                {'Enable', true},
+                {'Disable', false}
+            }},
+            {"Compatible with other mods that allow followers to travel between surface and caves"},
+            {modid..'_tallbird_follow', 'Tallbird follows between surface and caves', 'Most mods with this feature do not include tallbirds by default. Enable this option to make it compatible.', false, {
                 {'Enable', true},
                 {'Disable', false}
             }}

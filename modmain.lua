@@ -58,7 +58,7 @@ local modid = 'lovely_tallbird_family'
 local config_name10 = modid..'_egghatch'
 local config_name = modid..'_smallbirdhealth'
 local config_name2 = modid..'_smallbirddamage'
-local config_name3 = modid..'_smallbirdgrow'
+-- local config_name3 = modid..'_smallbirdgrow'
 local config_name4 = modid..'_smallbirdprotect'
 local config_name5 = modid..'_smallbirdgifts'
 local config_name11 = modid..'_smallbirdwaterwalk'
@@ -83,6 +83,7 @@ local config_name23 =modid..'_smallbirdgrowtime'
 local config_name24 =modid..'_teenbirdgrowtime'
 local config_name25 =modid..'_smallbirdhunger_speed'
 local config_name26 =modid..'_teenbirdhunger_speed'
+local config_name27 =modid..'_tallbird_follow'
 
 local smallbird_hunger_speed = GetModConfigData(config_name25)
 local teenbird_hunger_speed = GetModConfigData(config_name26)
@@ -201,7 +202,7 @@ function AnimState:PushAnimation(anim, loop)
 end
 
 TUNING.LOVELY_BIRD = {
-    TAG = { "lovely_bird","smallbird","teenbird","tallbird" }
+    TAG = GetModConfigData(config_name27) and {"tallbird"} or { "lovely_bird","smallbird","teenbird","tallbird" }
 }
 local function is_bird_follower(inst)
     GLOBAL.assert(inst ~= nil);
@@ -601,11 +602,11 @@ if GetModConfigData(config_name4) then
 else
     inst.components.bird_cultivate.nodeath = false
 end
-if GetModConfigData(config_name3) then
-    inst.components.bird_cultivate.nogrow = true
-else
-    inst.components.bird_cultivate.nogrow = false
-end
+-- if GetModConfigData(config_name3) then
+--     inst.components.bird_cultivate.nogrow = true
+-- else
+--     inst.components.bird_cultivate.nogrow = false
+-- end
 if GetModConfigData(config_name11) then
     inst.Physics:SetCollisionMask(
 		COLLISION.GROUND,
@@ -2107,6 +2108,36 @@ AddPrefabPostInit("horrorfuel", function(inst)
     inst:AddComponent("bird_plannaritem")
 end)
 
+local WAX_fn = ACTIONS.WAX.fn
+ACTIONS.WAX.fn = function(act)
+    local target = act.target
+    local waxitem = act.invobject
+    if target and (target:HasTag("smallbird") or target:HasTag("teenbird")) then
+        if target.components.bird_cultivate then
+            target.components.bird_cultivate.nogrow = true
+            target.components.bird_cultivate:Updata()
+        end
+    if waxitem then
+        if waxitem.components.finiteuses ~= nil then
+            waxitem.components.finiteuses:Use()
+        elseif waxitem.components.stackable ~= nil then
+            waxitem.components.stackable:Get():Remove()
+        else
+            waxitem:Remove()
+        end
+    end
+        return true
+    end
+    return WAX_fn(act)
+end
+
+AddComponentAction("EQUIPPED", "wax", function(inst, doer, target, actions, right)
+    if (target:HasTag("smallbird") or target:HasTag("teenbird"))
+    and inst:HasTag("waxspray") and not target:HasTag("nogrow") then
+        table.insert(actions, ACTIONS.WAX)
+    end
+end)
+
 local BIRD_PLANNARITEM = Action()
 BIRD_PLANNARITEM.id = "BIRD_PLANNARITEM"
 BIRD_PLANNARITEM.strfn = function (act)
@@ -2508,6 +2539,69 @@ AddComponentAction("SCENE", "pickable", function(inst, doer, actions, right)
     local tallbird = doer.replica.rider:IsRiding() and doer.replica.rider:GetMount()
     if right and IsValidScytheTarget(inst) and tallbird and tallbird:HasTag("tallbird") and inst:HasTag("pickable") then
         table.insert(actions, ACTIONS.BIRD_SCYTHE)
+    end
+end)
+
+local NABBAG_MUSTTAGS = {"_inventoryitem"}
+local NABBAG_CANTTAGS = {"INLIMBO", "FX", "_container", "heavy", "fire"}
+local BIRD_COLLECT = Action()
+BIRD_COLLECT.id = "BIRD_COLLECT"
+BIRD_COLLECT.strfn = function (act)
+    return "COLLECT"
+end
+BIRD_COLLECT.priority = 20
+BIRD_COLLECT.mount_valid =true
+BIRD_COLLECT.fn = function (act)
+    local doer = act.doer
+    local target = act.target
+
+    local success = false
+    if target and not target:HasAnyTag(NABBAG_CANTTAGS) then
+        success = ACTIONS.PICKUP.fn(act)
+        if not success then
+            return false
+        end
+    end
+
+    if not doer._tallbird_mount_aoe_leg then
+        return success
+    end
+
+    local x, y, z = doer.Transform:GetWorldPosition()
+    local max_dist = TUNING.SKILLS.WORTOX.NABBAG_MAX_RADIUS
+    local ents = TheSim:FindEntities(x, y, z, max_dist, NABBAG_MUSTTAGS, NABBAG_CANTTAGS)
+    
+    local picked_count = 0
+    local max_items = TUNING.SKILLS.WORTOX.NABBAG_MAX_ITEMS_PER_NAB
+
+    for _, ent in ipairs(ents) do
+        if ent ~= target and ent.replica.inventoryitem and ent.replica.inventoryitem:CanBePickedUp(doer) then
+            act.target = ent
+            if ACTIONS.PICKUP.fn(act) then
+                picked_count = picked_count + 1
+                if picked_count >= max_items then break end
+            end
+        end
+    end
+
+    act.target = target
+    return success or picked_count > 0
+end
+AddAction(BIRD_COLLECT)
+STRINGS.ACTIONS.BIRD_COLLECT = {
+    COLLECT = "收集"
+}
+
+AddStategraphActionHandler("wilson", ActionHandler(ACTIONS.BIRD_COLLECT, "attack"))
+AddStategraphActionHandler("wilson_client", ActionHandler(ACTIONS.BIRD_COLLECT, "attack"))
+
+AddComponentAction("SCENE", "inventoryitem", function(inst, doer, actions, right)
+    if right and inst.replica.inventoryitem
+    and inst.replica.inventoryitem:CanBePickedUp(doer)
+    and not inst:HasAnyTag("_container", "heavy", "fire")
+    and doer:HasTag("tallbird_mount")
+    then
+        table.insert(actions, ACTIONS.BIRD_COLLECT)
     end
 end)
 
