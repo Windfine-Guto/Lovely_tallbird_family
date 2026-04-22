@@ -1,7 +1,7 @@
 local modid = 'lovely_tallbird_family'
 local cur = (locale == 'zh' or locale == 'zhr') and 'zh' or 'en'
 
-version = '26.04.21.02'
+version = '26.04.22'
 author = 'over_dragon、Guto'
 
 forumthread = ''
@@ -25,7 +25,7 @@ icon = 'modicon.tex' -- 图标
 local LANGS = {
     ['zh'] = {
         name = '可爱鸟家族',
-        description = '󰀏·完全重写高脚鸟的机制！󰀓高脚鸟将不再会做出违背伦理的行为！\n󰀅·孵化高脚鸟蛋，养大高脚鸟，提升在高脚鸟族群的声望。\n󰀌·雇佣并骑乘高脚鸟，让它们为你干活！战斗！󰀒·\n可使用扫把为高脚鸟换皮肤。',
+        description = '·完全重写高脚鸟的机制！高脚鸟将不再会做出违背伦理的行为！\n·孵化高脚鸟蛋，养大高脚鸟，提升在高脚鸟族群的声望。\n·雇佣并骑乘高脚鸟，让它们为你干活！战斗！\n·可使用扫把为高脚鸟换皮肤。\n󰀀!!!兼容性!!!：\n·模组目前使用了Glassic API来实现皮肤，无法兼容使用了Modded API的皮肤模组。\n·会堆叠高鸟蛋的模组会覆盖官方的孵化代码，会导致无法正常孵化高鸟蛋，请不要开启。',
         config = {
             {'高脚鸟蛋'},
             {modid..'_egghatch','高脚鸟蛋孵化时间','原版是3天',1,{
@@ -225,7 +225,7 @@ local LANGS = {
     },
     ['en'] = {
         name = 'Lovely Tallbird Family',
-        description = "󰀏·Completely rewritten Tallbird mechanics!󰀓Tallbirds will no longer act unethically!\n󰀅·Hatch Tallbird Eggs, raise Tallbirds, and increase your reputation among the Tallbird flock.\n󰀌·Hire and ride Tallbirds to make them work and fight for you!󰀒·\nUse a broom to change your Tallbird's skin.",
+        description = "·Completely rewritten Tallbird mechanics!󰀓Tallbirds will no longer act unethically!\n·Hatch Tallbird Eggs, raise Tallbirds, and increase your reputation among the Tallbird flock.\n·Hire and ride Tallbirds to make them work and fight for you!·\nUse a broom to change your Tallbird's skin.\n󰀀!!!Compatibility!!!\n-This mod currently uses Glassic API for skins and is incompatible with skin mods that use Modded API.\n-Mods that stack Tallbird Eggs will overwrite the official hatching code, which will result in failure to hatch Tallbird Eggs properly. Please do not enable such mods.",
         config = {
             {'Tallbird Egg'},
             {modid..'_egghatch','Morsel Egg Incubation Time','Vanilla: 3 days',1,{
