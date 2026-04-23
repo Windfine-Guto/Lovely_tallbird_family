@@ -84,6 +84,8 @@ local config_name24 =modid..'_teenbirdgrowtime'
 local config_name25 =modid..'_smallbirdhunger_speed'
 local config_name26 =modid..'_teenbirdhunger_speed'
 local config_name27 =modid..'_tallbird_follow'
+local config_name28 =modid..'_selecttallbird'
+local config_name29 =modid..'select_op'
 
 local smallbird_hunger_speed = GetModConfigData(config_name25)
 local teenbird_hunger_speed = GetModConfigData(config_name26)
@@ -97,6 +99,8 @@ TUNING.SMALLBIRD_HUNGER=TUNING.SMALLBIRD_HUNGER*GetModConfigData(config_name14)
 TUNING.TEENBIRD_HUNGER=TUNING.TEENBIRD_HUNGER*GetModConfigData(config_name15)
 TUNING.SMALLBIRD_GROW_TIME=TUNING.SMALLBIRD_GROW_TIME/GetModConfigData(config_name23)
 TUNING.TEENBIRD_GROW_TIME=TUNING.TEENBIRD_GROW_TIME/GetModConfigData(config_name24)
+TUNING.TALLBIRD_SELECT_MODE=GetModConfigData(config_name28) or 1
+TUNING.TALLBIRD_SELECT_KEY=GetModConfigData(config_name29) or 122
 
 local locale = GLOBAL.LOC.GetLocaleCode()
 if locale == "zh" or locale == "zht" or locale=="zhr" then
@@ -376,6 +380,13 @@ ACTIONS.SADDLE.fn = function(act)
         return false
     end
 
+    if is_saddle_tallbird_saddle and is_target_tallbird then
+        local current = target.components.inventory and target.components.inventory:GetEquippedItem(EQUIPSLOTS.HEAD)
+        if current ~= nil then
+            target.components.inventory:DropItem(current)
+        end
+    end
+
     return SADDLE_fn(act)
 end
 
@@ -439,12 +450,15 @@ AddComponentPostInit("playercontroller", function(self)
             return true
         end
 
+        if  TUNING.TALLBIRD_SELECT_MODE==2 then
+            return
+        end
+        
         local player = self.inst
         if not player or not player.HUD then
             return
         end
 
-        -- 检查是否骑乘高脚鸟（有 tallbird 标签）
         local rider = player.replica.rider
         local mount = rider and rider:GetMount()
         if not mount or not mount:HasTag("tallbird") then
@@ -559,6 +573,32 @@ local function CalcSanityAura(inst, observer)
     return (GetModConfigData(config_name22) and inst.components.follower ~= nil and inst.components.follower.leader == observer and TUNING.SANITYAURA_SMALL) or 0
 end
 AddPrefabPostInit("smallbird", function(inst)
+    local function OnGetItemFromPlayer(inst, giver, item)
+    --print("smallbird - OnGetItemFromPlayer")
+
+    if inst.components.sleeper then
+        inst.components.sleeper:WakeUp()
+    end
+
+    --I eat food
+    if item.components.edible then
+        if inst.components.combat.target and inst.components.combat.target == giver then
+            inst.components.combat:SetTarget(nil)
+        end
+        if inst.components.eater:Eat(item, giver) then
+            --print("   yummy!")
+            -- yay!?
+        end
+    end
+     if item.components.equippable ~= nil and item.components.equippable.equipslot == EQUIPSLOTS.HEAD then
+        local current = inst.components.inventory:GetEquippedItem(EQUIPSLOTS.HEAD)
+        if current ~= nil then
+            inst.components.inventory:DropItem(current)
+        end
+        inst.components.inventory:Equip(item)
+        inst.AnimState:Show("hat")
+    end
+end
     if inst.components.locomotor then
         inst.components.locomotor.runspeed = 6
         inst.components.locomotor:SetAllowPlatformHopping(true)
@@ -589,12 +629,17 @@ AddPrefabPostInit("smallbird", function(inst)
         end)
     end
 local function ShouldAcceptItem(inst, item)
-    if item.components.edible and inst.components.hunger and inst.components.eater and not item:HasTag("tallbirdegg") then
+    if item.components.equippable ~= nil and item.components.equippable.equipslot == EQUIPSLOTS.HEAD then
+        return true
+    elseif item.components.edible and inst.components.hunger and inst.components.eater and not item:HasTag("tallbirdegg") then
         return inst.components.eater:CanEat(item)
     end
 end
     if inst.components.trader then
         inst.components.trader:SetAcceptTest(ShouldAcceptItem)
+        inst.components.trader.onaccept = OnGetItemFromPlayer
+        inst.components.trader.deleteitemonaccept = false
+        inst:AddComponent("inventory")
     end
 
 if GetModConfigData(config_name4) then
@@ -672,6 +717,32 @@ end)
 end)
 
 AddPrefabPostInit("teenbird", function(inst)
+    local function OnGetItemFromPlayer(inst, giver, item)
+    --print("smallbird - OnGetItemFromPlayer")
+
+    if inst.components.sleeper then
+        inst.components.sleeper:WakeUp()
+    end
+
+    --I eat food
+    if item.components.edible then
+        if inst.components.combat.target and inst.components.combat.target == giver then
+            inst.components.combat:SetTarget(nil)
+        end
+        if inst.components.eater:Eat(item, giver) then
+            --print("   yummy!")
+            -- yay!?
+        end
+    end
+     if item.components.equippable ~= nil and item.components.equippable.equipslot == EQUIPSLOTS.HEAD then
+        local current = inst.components.inventory:GetEquippedItem(EQUIPSLOTS.HEAD)
+        if current ~= nil then
+            inst.components.inventory:DropItem(current)
+        end
+        inst.components.inventory:Equip(item)
+        inst.AnimState:Show("hat")
+    end
+end
     if inst.AnimState then
         inst.AnimState:Hide("beakfull")
         inst.AnimState:Hide("tallbird_beakfull")
@@ -707,13 +778,19 @@ AddPrefabPostInit("teenbird", function(inst)
         end)
     end
 local function ShouldAcceptItem(inst, item)
-    if item.components.edible and inst.components.hunger and inst.components.eater and not item:HasTag("tallbirdegg") then
+    if item.components.equippable ~= nil and item.components.equippable.equipslot == EQUIPSLOTS.HEAD then
+        return true
+    elseif item.components.edible and inst.components.hunger and inst.components.eater and not item:HasTag("tallbirdegg") then
         return inst.components.eater:CanEat(item)
     end
 end
     if inst.components.trader then
         inst.components.trader:SetAcceptTest(ShouldAcceptItem)
+        inst.components.trader.onaccept = OnGetItemFromPlayer
+        inst.components.trader.deleteitemonaccept = false
+        inst:AddComponent("inventory")
     end
+
 local function SpawnAdult(inst)
     local tallbird = SpawnPrefab("tallbird")
     tallbird.Transform:SetPosition(inst.Transform:GetWorldPosition())
@@ -2748,7 +2825,7 @@ AddComponentPostInit("playercontroller", function(self)
     end
 end)
 
-local attack_mode_key = 114
+local select_mode = "tallbird_select"
 local attack_mode = "tallbird"
 
 local retarget1 = "retarget1"
@@ -2851,20 +2928,29 @@ local function IsHUDScreen()
 end
 local function AddKeyListener(self)
     if self.owner and self.owner:HasTag("player") then
-        self[attack_mode..'handle'] = {}
+        self[select_mode..'handle'] = {}
         self.inst:ListenForEvent("onremove", function()
-            for _, handler in pairs(self[attack_mode..'handle']) do
+            for _, handler in pairs(self[select_mode..'handle']) do
                 handler:Remove()
             end
         end)
-        self[attack_mode.."handle"].keydown = TheInput:AddKeyDownHandler(attack_mode_key, function()
+        self[select_mode.."handle"].keydown = TheInput:AddKeyDownHandler(TUNING.TALLBIRD_SELECT_KEY, function()
     	if IsHUDScreen() and self.owner:HasTag("tallbird_mount") then
-            if self.owner._tallbird_mount_aoe_leg == true then
-                self.owner._tallbird_mount_aoe_leg = false
-            else
-                self.owner._tallbird_mount_aoe_leg = true
+            local player = self.owner
+            if not player or not player.HUD or TUNING.TALLBIRD_SELECT_MODE==1 then
+                return
             end
-        	SendModRPCToServer(MOD_RPC[attack_mode..'attack'][attack_mode..'attack'],self.owner._tallbird_mount_aoe_leg)
+
+            local rider = player.replica.rider
+            local mount = rider and rider:GetMount()
+            if not mount or not mount:HasTag("tallbird") then
+                return
+            end
+            if player.HUD.controls.tallbird_atk_select and player.HUD.controls.tallbird_atk_select.open == false then
+                player.HUD.controls.tallbird_atk_select:Show()
+            elseif player.HUD.controls.tallbird_atk_select and player.HUD.controls.tallbird_atk_select.open == true then
+                player.HUD.controls.tallbird_atk_select:Hide()
+            end
     	end
         end)
     end

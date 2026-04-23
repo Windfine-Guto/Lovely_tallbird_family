@@ -61,7 +61,9 @@ local function Retarget(inst)
 end
 
 local function ShouldAcceptItem(inst, item)
-    if item.components.edible and inst.components.eater and not item:HasTag("tallbirdegg") then
+    if item.components.equippable ~= nil and item.components.equippable.equipslot == EQUIPSLOTS.HEAD then
+        return inst.components.rideable and not inst.components.rideable:IsSaddled()
+    elseif item.components.edible and inst.components.eater and not item:HasTag("tallbirdegg") then
         if inst.components.health then
             inst.components.health:DoDelta(inst.components.health.maxhealth*.2,nil,item)
         end
@@ -90,6 +92,14 @@ local function OnGetItemFromPlayer(inst, giver, item)
             return
         end
         inst.sg:GoToState("eat")
+    end
+    if item.components.equippable ~= nil and item.components.equippable.equipslot == EQUIPSLOTS.HEAD then
+        local current = inst.components.inventory:GetEquippedItem(EQUIPSLOTS.HEAD)
+        if current ~= nil then
+            inst.components.inventory:DropItem(current)
+        end
+        inst.components.inventory:Equip(item)
+        inst.AnimState:Show("hat")
     end
 end
 
@@ -368,6 +378,7 @@ local function fn()
     inst.components.trader:SetAcceptTest(ShouldAcceptItem)
     inst.components.trader.onaccept = OnGetItemFromPlayer
     inst.components.trader:SetOnRefuse(OnRefuseGiver)
+    inst.components.trader.deleteitemonaccept = false
 
     MakeLargeBurnableCharacter(inst, "head")
     MakeLargeFreezableCharacter(inst, "head")
@@ -409,6 +420,8 @@ local function fn()
     inst:AddComponent("inspectable")
 
     inst:AddComponent("follower")
+
+    inst:AddComponent("inventory")
 
     inst:AddComponent("rideable")
     inst.components.rideable:SetShouldSave(true)

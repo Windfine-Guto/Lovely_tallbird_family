@@ -1,7 +1,7 @@
 local modid = 'lovely_tallbird_family'
 local cur = (locale == 'zh' or locale == 'zhr') and 'zh' or 'en'
 
-version = '26.04.22'
+version = '26.04.23'
 author = 'over_dragon、Guto'
 
 forumthread = ''
@@ -19,7 +19,11 @@ server_filter_tags = {
 } -- 创意工坊模组分类标签
 icon_atlas = 'modicon.xml' -- 图集
 icon = 'modicon.tex' -- 图标
-
+local op={{'A',97},{'B',98},{'C',99},{'D',100},{'E',101},{'F',102},{'G',103},
+{'H',104},{'I',105},{'J',106},{'K',107},{'L',108},{'M',109},{'N',110},{'O',111},
+{'P',112},{'Q',113},{'R',114},{'S',115},{'T',116},{'U',117},{'V',118},{'W',119},
+{'X',120},{'Y',121},{'Z',122},{'0',48},{'1',49},{'2',50},{'3',51},{'4',52},{'5',53},
+{'6',54},{'7',55},{'8',56},{'9',57}}
 
 
 local LANGS = {
@@ -216,6 +220,13 @@ local LANGS = {
                 {'开启',true},
                 {'关闭',false}
             }},
+            {"轮盘"},
+            {modid..'_selecttallbird','轮盘呼出方式','',1,{
+                {'仅鼠标',1},
+                {'仅键盘',2},
+                {'鼠标和键盘',3}
+            }},
+            {modid..'select_op','键盘按键','',122,op},
             {"兼容其它模组有随从上下洞穴功能选项"},
             {modid..'_tallbird_follow','鸟跟随上下洞穴只对高脚鸟生效','一般有这个功能的模组都不会把高脚鸟算进去，因此开启此选项可以兼容',false,{
                 {'开启',true},
@@ -416,6 +427,13 @@ local LANGS = {
                 {'Enable', true},
                 {'Disable', false}
             }},
+            {"Radial Menu"},
+            {modid..'_selecttallbird', 'Radial Menu Activation Method', '', 1, {
+                {'Mouse Only', 1},
+                {'Keyboard Only', 2},
+                {'Mouse and Keyboard', 3}
+            }},
+            {modid..'select_op', 'Keyboard Key', '', 122, op},
             {"Compatible with other mods that allow followers to travel between surface and caves"},
             {modid..'_tallbird_follow', 'Tallbird follows between surface and caves', 'Most mods with this feature do not include tallbirds by default. Enable this option to make it compatible.', false, {
                 {'Enable', true},
