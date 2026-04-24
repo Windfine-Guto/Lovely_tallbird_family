@@ -5,13 +5,19 @@ Assets = {
     Asset("ANIM","anim/tallbird_health.zip"),
 }
 
-PrefabFiles = {
+PrefabFiles = GetModConfigData('lovely_tallbird_family'..'skins') and {
     "tallbird",
     "tallbird_saddle",
     "tallbird_eggshell",
     "tallbird_skins",
     "teenbird_skins",
     "smallbird_skins",
+    "tallbird_comb",
+}
+or {
+    "tallbird",
+    "tallbird_saddle",
+    "tallbird_eggshell",
     "tallbird_comb",
 }
 
@@ -86,6 +92,7 @@ local config_name26 =modid..'_teenbirdhunger_speed'
 local config_name27 =modid..'_tallbird_follow'
 local config_name28 =modid..'_selecttallbird'
 local config_name29 =modid..'select_op'
+local config_name30 =modid..'skins'
 
 local smallbird_hunger_speed = GetModConfigData(config_name25)
 local teenbird_hunger_speed = GetModConfigData(config_name26)
@@ -109,6 +116,7 @@ else
     modimport("scripts/string_en")
 end
 
+if GetModConfigData(config_name30) then
 modimport("scripts/glassic_api_loader")
 local modname = KnownModIndex:GetModActualName(folder_name) or folder_name or "tallbird"
 
@@ -136,6 +144,7 @@ GlassicAPI.SkinHandler.AddModSkins({
     teenbird = teenbird_skins,
     smallbird = smallbird_skins,
 })
+end
 
 AddRecipe2("tallbird_saddle",{Ingredient("rope", 3),Ingredient("beardhair", 10),Ingredient("driftwood_log", 3)},
 TECH.SCIENCE_TWO,
@@ -428,7 +437,7 @@ end
 AddPrefabPostInit("player_classified", function(inst)
     inst.tallbirdData = GLOBAL.net_string(inst.GUID, "tallbirdData", "tallbirdDataDirty")
     inst.tallbirdHealth = GLOBAL.net_ushortint(inst.GUID, "tallbirdHealth", "tallbirdHealthDirty")
-
+    inst.birdFameNumber = GLOBAL.net_ushortint(inst.GUID, "birdFameNumber", "birdFameNumberDirty")
     if GLOBAL.TheWorld.ismastersim then
         inst.OnTallbirdHealthDelta = function(mount, data)
             inst.tallbirdHealth:set(mount.replica.health:GetCurrent())
@@ -438,6 +447,15 @@ AddPrefabPostInit("player_classified", function(inst)
             local parent = inst.entity:GetParent()
             inst:ListenForEvent("mounted", OnTallbirdMount, parent)
             inst:ListenForEvent("dismounted", OnTallbirdDismount, parent)
+        end)
+        inst:DoTaskInTime(0.1, function()
+        local parent = inst.entity:GetParent()
+        if parent and parent.components.bird_family then
+            inst.birdFameNumber:set(parent.components.bird_family.number)
+            parent:ListenForEvent("bird_fame_changed", function()
+                inst.birdFameNumber:set(parent.components.bird_family.number)
+            end)
+        end
         end)
     end
 end)

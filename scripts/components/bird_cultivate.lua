@@ -247,6 +247,7 @@ function Bird_cultivate:Trusteeship(giver)
     end
     if self.reputation~=nil and giver.components.bird_family then
         giver.components.bird_family.number = 0
+        giver.components.bird_family:Updata()
     end
     if self.inst.components.follower and self.inst.components.follower.leader==giver then
         self.inst.components.follower:SetLeader(nil)

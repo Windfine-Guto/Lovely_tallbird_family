@@ -227,6 +227,11 @@ local LANGS = {
                 {'鼠标和键盘',3}
             }},
             {modid..'select_op','键盘按键','',122,op},
+            {"皮肤"},
+            {modid..'skins','皮肤是否开启','',true,{
+                {'开启',true},
+                {'关闭',false}
+            }},
             {"兼容其它模组有随从上下洞穴功能选项"},
             {modid..'_tallbird_follow','鸟跟随上下洞穴只对高脚鸟生效','一般有这个功能的模组都不会把高脚鸟算进去，因此开启此选项可以兼容',false,{
                 {'开启',true},
@@ -432,6 +437,11 @@ local LANGS = {
                 {'Mouse Only', 1},
                 {'Keyboard Only', 2},
                 {'Mouse and Keyboard', 3}
+            }},
+            {"Skins"},
+            {modid..'skins', 'Enable skins?', '', true, {
+                {'Enable', true},
+                {'Disable', false}
             }},
             {modid..'select_op', 'Keyboard Key', '', 122, op},
             {"Compatible with other mods that allow followers to travel between surface and caves"},

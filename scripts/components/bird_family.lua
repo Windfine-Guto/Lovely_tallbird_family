@@ -23,18 +23,26 @@ function Bird_family:Updata()
         if not self.inst:HasTag("bird_friend") then
             self.inst:AddTag("bird_friend")
         end
+    else
+        self.inst:RemoveTag("bird_friend")
     end
     if self.number>=3 then
         if not self.inst:HasTag("bird_friend2") then
             self.inst:AddTag("bird_friend2")
         end
         self.inst:ListenForEvent("attacked",OnAttacked)
+    else
+        self.inst:RemoveTag("bird_friend2")
+        self.inst:RemoveEventCallback("attacked", OnAttacked)
     end
     if self.number>=8 then
         if not self.inst:HasTag("bird_family") then
             self.inst:AddTag("bird_family")
         end
+    else
+        self.inst:RemoveTag("bird_family")
     end
+    self.inst:PushEvent("bird_fame_changed", { number = self.number })
 end
 
 function Bird_family:OnSave()

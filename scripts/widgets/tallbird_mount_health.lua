@@ -1,6 +1,7 @@
 local Widget = require "widgets/widget"
 local Badge = require "widgets/badge"
 local UIAnim = require "widgets/uianim"
+local Text = require "widgets/text"
 
 local HealthBadge = Class(Badge, function(self, config)
     Badge._ctor(self, "tallbird_health", nil, {1, 1, 1, 1}, nil, nil, false)
@@ -95,6 +96,20 @@ local Tallbird_Mount_Health = Class(Widget, function(self, owner)
         else
             self:SetPosition(self.CONFIG.BASE_X, self.CONFIG.BASE_Y + offset)
         end
+    end)
+
+    self.fameText = self.root:AddChild(Text(NEWFONT, 24, "声望：0"))
+    self.fameText:SetHAlign(0)
+    self.fameText:SetPosition(80, 0, 0)  -- 放在血量右边，调整位置直到合适
+    self.fameText:SetColour(1, 1, 1, 1)
+
+    -- 监听网络变量变化
+    self.owner:DoTaskInTime(0.1, function()
+        if not self.owner.player_classified then return end
+        self.owner.player_classified:ListenForEvent("birdFameNumberDirty", function(classified)
+            local fame = classified.birdFameNumber:value()
+            self.fameText:SetString("声望：" .. tostring(fame))
+        end)
     end)
 end)
 
