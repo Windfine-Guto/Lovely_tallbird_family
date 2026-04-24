@@ -383,6 +383,19 @@ ACTIONS.SADDLE.fn = function(act)
     if is_saddle_tallbird_saddle and is_target_tallbird then
         local current = target.components.inventory and target.components.inventory:GetEquippedItem(EQUIPSLOTS.HEAD)
         if current ~= nil then
+            if current.prefab=="featherhat"  then
+                if target.components.bird_cultivate.playerid~=nil
+                and target.components.bird_cultivate.playerid~=doer.userid then
+                    if talker then
+                        doer:DoTaskInTime(0,function ()
+                        talker:Say(GetString(doer,"ANNOUNCE_TALLBIRD_TRUSTEENSHIP"))
+                        end)
+                    end
+                    return false
+                elseif doer.userid==target.components.bird_cultivate.playerid then
+                    target.components.bird_cultivate:Get_Back(doer)
+                end
+            end
             target.components.inventory:DropItem(current)
         end
     end
@@ -441,6 +454,15 @@ AddClassPostConstruct("widgets/controls", function(self)
     self.TallbirdMountHealth = self.bottom_root:AddChild(TallbirdMountHealth(self.owner))
     self.TallbirdMountHealth:MoveToBack()
 end)
+
+local InventoryBar = require "widgets/inventorybar"
+local OldRebuild = InventoryBar.Rebuild
+function InventoryBar:Rebuild(...)
+    OldRebuild(self, ...)
+    if self.owner then
+        self.owner:PushEvent("RepositionStatusBar_Tallbird")
+    end
+end
 
 AddComponentPostInit("playercontroller", function(self)
     local fn_name = self.TryAOECharging and "TryAOECharging" or "TryAOETargeting"
@@ -684,6 +706,10 @@ end
 if inst.userfunctions then
     -- local old_teenfn = inst.userfunctions.SpawnTeen
     inst.userfunctions.SpawnTeen = function (inst)
+        local current = inst.components.inventory and inst.components.inventory:GetEquippedItem(EQUIPSLOTS.HEAD)
+        if current ~= nil then
+            inst.components.inventory:DropItem(current)
+        end
         local teenbird = SpawnPrefab("teenbird")
         teenbird.Transform:SetPosition(inst.Transform:GetWorldPosition())
         teenbird.sg:GoToState("idle")
@@ -792,6 +818,10 @@ end
     end
 
 local function SpawnAdult(inst)
+    local current = inst.components.inventory and inst.components.inventory:GetEquippedItem(EQUIPSLOTS.HEAD)
+        if current ~= nil then
+            inst.components.inventory:DropItem(current)
+        end
     local tallbird = SpawnPrefab("tallbird")
     tallbird.Transform:SetPosition(inst.Transform:GetWorldPosition())
     tallbird.sg:GoToState("idle")
@@ -1365,6 +1395,21 @@ end
     -- end
     -- end
     -- end)
+end)
+
+AddPrefabPostInit("featherhat", function(inst)
+    local old_onequip
+    if inst.components.equippable then
+        old_onequip = inst.components.equippable.onequipfn
+        inst.components.equippable:SetOnEquip(function(inst, owner, from_ground)
+            if old_onequip then
+                old_onequip(inst, owner, from_ground)
+            end
+            if owner:HasTag("tallbird") and inst.components.fueled then
+                inst.components.fueled:StopConsuming()
+            end
+        end)
+    end
 end)
 
 AddStategraphActionHandler("smallbird", ActionHandler(ACTIONS.DIG, "till_or_dig"))

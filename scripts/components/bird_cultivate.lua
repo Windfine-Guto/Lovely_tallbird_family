@@ -6,6 +6,8 @@ local Bird_cultivate = Class(function(self, inst)
     self.gift = false
     self.follow = true
     self.nogrow = false
+    self.reputation = nil
+    self.playerid = nil
 end,
 nil,
 {
@@ -233,12 +235,54 @@ function Bird_cultivate:NoLeader(doer)
     end
 end
 
+function Bird_cultivate:Trusteeship(giver)
+    self.reputation = giver.components.bird_family and giver.components.bird_family.number or nil
+    self.playerid = giver.userid or nil
+    local targets = giver.components.leader and giver.components.leader.followers or {}
+    for follower,_ in pairs(targets) do
+        if follower:IsValid() and follower:HasTag("smallbird") and follower.components.follower and follower.components.follower.leader==giver then
+            follower.components.follower:SetLeader(self.inst)
+            follower.sg:GoToState("idle_blink")
+        end
+    end
+    if self.reputation~=nil and giver.components.bird_family then
+        giver.components.bird_family.number = 0
+    end
+    if self.inst.components.follower and self.inst.components.follower.leader==giver then
+        self.inst.components.follower:SetLeader(nil)
+    end
+end
+
+function Bird_cultivate:Get_Back(giver)
+    if giver.userid==self.playerid then
+        if giver.components.bird_family then
+            giver.components.bird_family.number = self.reputation or 0
+            giver.components.bird_family:Updata()
+        end
+        local targets = self.inst.components.leader and self.inst.components.leader.followers or {}
+        for follower,_ in pairs(targets) do
+            if follower:IsValid() and follower:HasTag("smallbird") and follower.components.follower and follower.components.follower.leader==self.inst then
+                follower.components.follower:SetLeader(giver)
+                follower.sg:GoToState("idle_blink")
+            end
+        end
+        -- if self.inst.components.follower and self.inst.components.follower.leader==nil then
+        --     self.inst.components.follower:SetLeader(giver)
+        -- end
+        self.reputation = nil
+        self.playerid = nil
+    end
+    
+end
+
 function Bird_cultivate:OnSave()
     return {
         wild = self.wild,
         plannar = self.plannar,
         follow = self.follow,
         nogrow = self.nogrow,
+        reputation = self.reputation,
+        playerid = self.playerid
     }
 end
 function Bird_cultivate:OnLoad(data)
@@ -247,6 +291,8 @@ function Bird_cultivate:OnLoad(data)
         self.plannar = data.plannar
         self.follow = data.follow
         self.nogrow = data.nogrow
+        self.reputation = data.reputation
+        self.playerid = data.playerid
     end
     self:Updata()
 end

@@ -95,7 +95,22 @@ local function OnGetItemFromPlayer(inst, giver, item)
     end
     if item.components.equippable ~= nil and item.components.equippable.equipslot == EQUIPSLOTS.HEAD then
         local current = inst.components.inventory:GetEquippedItem(EQUIPSLOTS.HEAD)
+        if inst.components.bird_cultivate.playerid==nil and item.prefab=="featherhat" then
+            inst.components.bird_cultivate:Trusteeship(giver)
+        end
         if current ~= nil then
+            
+            if current.prefab=="featherhat" then
+                local talker = giver.components.talker
+                if inst.components.bird_cultivate.playerid~=nil
+                and inst.components.bird_cultivate.playerid~=giver.userid then
+                    talker:Say(GetString(giver,"ANNOUNCE_TALLBIRD_TRUSTEENSHIP"))
+                    inst.components.inventory:DropItem(item)
+                    return
+                elseif inst.components.bird_cultivate.playerid == giver.userid then
+                    inst.components.bird_cultivate:Get_Back(giver)
+                end
+            end
             inst.components.inventory:DropItem(current)
         end
         inst.components.inventory:Equip(item)

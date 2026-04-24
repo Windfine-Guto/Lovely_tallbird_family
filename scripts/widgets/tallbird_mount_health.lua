@@ -82,7 +82,7 @@ local Tallbird_Mount_Health = Class(Widget, function(self, owner)
         end)
     end)
 
-    self.owner:ListenForEvent("RepositionStatusBar", function()
+    self.owner:ListenForEvent("RepositionStatusBar_Tallbird", function()
         local offset = 0
         if Profile:GetIntegratedBackpack() or TheInput:ControllerAttached() then
             local backpack = self.owner.replica.inventory:GetOverflowContainer()

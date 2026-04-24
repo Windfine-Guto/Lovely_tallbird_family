@@ -31,7 +31,7 @@ STRINGS.CHARACTERS.WURT.DESCRIBE.TALLBIRD_SADDLE= "上面画了个大眼睛，�
 STRINGS.CHARACTERS.WX78.DESCRIBE.TALLBIRD_SADDLE= "我要折磨你"
 STRINGS.CHARACTERS.WORTOX.DESCRIBE.TALLBIRD_SADDLE= "哼！别盯着我！"
 
-
+STRINGS.CHARACTERS.GENERIC.ANNOUNCE_TALLBIRD_TRUSTEENSHIP = "这是别人的"
 ---中文
 ---骑乘高脚鸟低生命时的台词 写""里面
 ---威尔逊
