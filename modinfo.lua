@@ -1,7 +1,7 @@
 local modid = 'lovely_tallbird_family'
 local cur = (locale == 'zh' or locale == 'zhr') and 'zh' or 'en'
 
-version = '26.04.24'
+version = '26.04.25'
 author = 'over_dragon、Guto'
 
 forumthread = ''
@@ -228,7 +228,7 @@ local LANGS = {
             }},
             {modid..'select_op','键盘按键','',122,op},
             {"皮肤"},
-            {modid..'skins','皮肤是否开启','',true,{
+            {modid..'skins','皮肤是否开启','如要兼容使用了Modded API的模组，请关闭',true,{
                 {'开启',true},
                 {'关闭',false}
             }},
@@ -440,7 +440,7 @@ local LANGS = {
             }},
             {modid..'select_op', 'Keyboard Key', '', 122, op},
             {"Skins"},
-            {modid..'skins', 'Enable skins?', '', true, {
+            {modid..'skins', 'Enable skins?', 'Disable for Modded API compatibility.', true, {
                 {'Enable', true},
                 {'Disable', false}
             }},
