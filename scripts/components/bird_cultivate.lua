@@ -263,7 +263,11 @@ function Bird_cultivate:Get_Back(giver)
         for follower,_ in pairs(targets) do
             if follower:IsValid() and follower:HasTag("smallbird") and follower.components.follower and follower.components.follower.leader==self.inst then
                 follower.components.follower:SetLeader(giver)
-                follower.sg:GoToState("idle_blink")
+                if follower.prefab=="smallbird" then
+                    follower.sg:GoToState("idle_peep")
+                else
+                    follower.sg:GoToState("idle_blink")
+                end
             end
         end
         -- if self.inst.components.follower and self.inst.components.follower.leader==nil then

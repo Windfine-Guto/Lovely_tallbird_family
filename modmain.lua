@@ -1412,6 +1412,83 @@ AddPrefabPostInit("featherhat", function(inst)
     end
 end)
 
+AddPrefabPostInit("alterguardianhat", function(inst)
+    local old_onequip, old_onunequip
+    if inst.components.equippable then
+        old_onequip = inst.components.equippable.onequipfn
+        old_onunequip = inst.components.equippable.onunequipfn
+        inst.components.equippable:SetOnEquip(function(inst, owner, from_ground)
+            if old_onequip then
+                old_onequip(inst, owner, from_ground)
+            end
+            if owner:HasTag("tallbird") or owner:HasTag("smallbird") then
+               if not inst._is_active then
+                    owner.AnimState:ClearOverrideSymbol("swap_hat")
+                    owner.AnimState:Hide("HAT")
+                    owner.AnimState:Hide("HAIR_HAT")
+                    owner.AnimState:Show("HAIR_NOHAT")
+                    owner.AnimState:Show("HAIR")
+                  
+                    if inst._light == nil then
+                        inst._light = SpawnPrefab("alterguardianhatlight")
+                        inst._light.entity:SetParent(owner.entity)
+                    end
+
+                   local layer = owner.prefab == "smallbird" and "head" or "tallbird_head"
+                   local y = owner.prefab == "smallbird" and 0 or -50
+                   local scale = owner.prefab == "smallbird" and 1 
+                   or owner.prefab == "teenbird" and 1.3 or 1.5
+                    if inst._front == nil then
+                        inst._front = SpawnPrefab("alterguardian_hat_equipped")
+                        inst._front.entity:SetParent(owner.entity)
+                        inst._front.entity:AddFollower()
+                        
+                        inst._front.Follower:FollowSymbol(owner.GUID, layer, 0, y, 0)
+                        inst._front.Transform:SetScale(scale, scale, scale)
+                        inst._front.AnimState:Hide("back")
+                        inst._front.AnimState:SetFinalOffset(1)
+                        inst._front.AnimState:PlayAnimation("activate_pre")
+                        inst._front.AnimState:PushAnimation("activate_loop", true)
+                    end
+
+                   
+                    if inst._back == nil then
+                        inst._back = SpawnPrefab("alterguardian_hat_equipped")
+                        inst._back.entity:SetParent(owner.entity)
+                        inst._back.entity:AddFollower()
+                        inst._back.Follower:FollowSymbol(owner.GUID, layer, 0, y, 0)
+                        inst._back.Transform:SetScale(scale, scale, scale)
+                        inst._back.AnimState:Hide("front")
+                        inst._back.AnimState:SetFinalOffset(-1)
+                        inst._back.AnimState:PlayAnimation("activate_pre")
+                        inst._back.AnimState:PushAnimation("activate_loop", true)
+                    end
+
+                    
+                    local skin_build = inst:GetSkinBuild()
+                    if skin_build then
+                        inst._front:SetSkin(skin_build, inst.GUID)
+                        inst._back:SetSkin(skin_build, inst.GUID)
+                    end
+
+                    inst:PushEvent("itemget", {})
+                end
+                inst._is_active = true
+            end
+        end)
+        inst.components.equippable:SetOnUnequip(function(inst, owner)
+            if old_onunequip then
+                old_onunequip(inst, owner)
+            end
+            if owner:HasTag("tallbird") or owner:HasTag("smallbird") then
+                if inst._is_active then
+                    inst._is_active = false
+                end
+            end
+        end)
+    end
+end)
+
 AddStategraphActionHandler("smallbird", ActionHandler(ACTIONS.DIG, "till_or_dig"))
 AddStategraphActionHandler("smallbird", ActionHandler(ACTIONS.TILL, "till_or_dig"))
 AddStategraphActionHandler("smallbird", ActionHandler(ACTIONS.CHOP, "chop"))
@@ -2238,6 +2315,13 @@ ACTIONS.WAX.fn = function(act)
         if target.components.bird_cultivate then
             target.components.bird_cultivate.nogrow = true
             target.components.bird_cultivate:Updata()
+            local fx = SpawnPrefab("beeswax_spray_fx")
+            fx.Transform:SetPosition(target.Transform:GetWorldPosition())
+            if target.prefab=="smallbird" then
+                target.AnimState:PlayAnimation("fear")
+            else
+                target.sg:GoToState("idle_blink")
+            end
         end
     if waxitem then
         if waxitem.components.finiteuses ~= nil then
