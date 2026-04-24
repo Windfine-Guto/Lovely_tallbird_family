@@ -438,12 +438,12 @@ local LANGS = {
                 {'Keyboard Only', 2},
                 {'Mouse and Keyboard', 3}
             }},
+            {modid..'select_op', 'Keyboard Key', '', 122, op},
             {"Skins"},
             {modid..'skins', 'Enable skins?', '', true, {
                 {'Enable', true},
                 {'Disable', false}
             }},
-            {modid..'select_op', 'Keyboard Key', '', 122, op},
             {"Compatible with other mods that allow followers to travel between surface and caves"},
             {modid..'_tallbird_follow', 'Tallbird follows between surface and caves', 'Most mods with this feature do not include tallbirds by default. Enable this option to make it compatible.', false, {
                 {'Enable', true},
