@@ -3,6 +3,7 @@ GLOBAL.setmetatable(env,{__index=function(t,k) return GLOBAL.rawget(GLOBAL,k) en
 Assets = {
 	Asset("ANIM", "anim/spell_icons_tallbird.zip"),
     Asset("ANIM","anim/tallbird_health.zip"),
+    Asset("ANIM","anim/smallbird_basic_water.zip"),
 }
 
 PrefabFiles = GetModConfigData('lovely_tallbird_family'..'skins') and {
@@ -641,11 +642,26 @@ AddPrefabPostInit("smallbird", function(inst)
 end
     if inst.components.locomotor then
         inst.components.locomotor.runspeed = 6
+        inst.components.locomotor.pathcaps = {
+            ignorecreep = true,
+            allowocean = true,
+        }
         inst.components.locomotor:SetAllowPlatformHopping(true)
+        inst:AddComponent("embarker")
+        inst.components.embarker.embark_speed = 6
+
+        inst:AddComponent("drownable")
+
+        inst:AddComponent("amphibiouscreature")
+        inst.components.amphibiouscreature:SetBanks("smallbird", "smallbird_water")
+        inst.components.amphibiouscreature:SetEnterWaterFn(function(inst)
+            inst.AnimState:SetBuild("smallbird_basic_water")
+        end)
+        inst.components.amphibiouscreature:SetExitWaterFn(function(inst)
+            inst.AnimState:SetBuild("smallbird_basic")
+        end)
     end
-    inst:AddComponent("embarker")
-    inst:AddComponent("drownable")
-    inst.components.drownable.enabled = true
+
     inst:AddComponent("sanityaura")
     inst:AddComponent("bird_cultivate")
     inst.components.sanityaura.aurafn = CalcSanityAura
@@ -1638,6 +1654,412 @@ AddStategraphState("smallbird",State{
             end),
         },
 })
+
+local config = {swimming_clear_collision_frame = 5*FRAMES,}
+local anims = {pre="boat_jump_pre", loop="boat_jump", pst="boat_jump_pst",antic="boat_jump_pre"}
+local timelines = {
+        hop_pre = {
+            TimeEvent(0, function(inst)
+                if inst:HasTag("swimming") then
+                    SpawnPrefab("splash_green").Transform:SetPosition(inst.Transform:GetWorldPosition())
+                end
+            end),
+        },
+        hop_pst = {
+            TimeEvent(4 * FRAMES, function(inst)
+                if inst:HasTag("swimming") then
+                    inst.components.locomotor:Stop()
+                    SpawnPrefab("splash_green").Transform:SetPosition(inst.Transform:GetWorldPosition())
+                end
+            end),
+            TimeEvent(6 * FRAMES, function(inst)
+                if not inst:HasTag("swimming") then
+                    inst.components.locomotor:StopMoving()
+                end
+            end),
+        }
+    }
+local onenters = (config ~= nil and config.onenters ~= nil) and config.onenters or nil
+local onexits = (config ~= nil and config.onexits ~= nil) and config.onexits or nil
+
+local base_hop_pre_timeline = {
+    TimeEvent(config.swimming_clear_collision_frame or 0, function(inst)
+		if inst.sg.statemem.swimming then
+			inst.Physics:ClearCollidesWith(COLLISION.LIMITS)
+		end
+	end),
+}
+timelines.hop_pre = timelines.hop_pre == nil and base_hop_pre_timeline or JoinArrays(timelines.hop_pre, base_hop_pre_timeline)
+
+AddStategraphState("smallbird",State{
+        name = "hop_pre",
+        tags = { "doing", "busy", "jumping", "canrotate" },
+
+        onenter = function(inst)
+			inst.sg.statemem.swimming = inst:HasTag("swimming")
+            inst.AnimState:PlayAnimation(anims.pre or "jump")
+			if not inst.sg.statemem.swimming then
+				inst.Physics:ClearCollidesWith(COLLISION.LIMITS)
+			end
+			if inst.components.embarker:HasDestination() then
+	            inst.sg:SetTimeout(18 * FRAMES)
+                inst.components.embarker:StartMoving()
+			else
+	            inst.sg:SetTimeout(18 * FRAMES)
+                if inst.landspeed then
+                    inst.components.locomotor.runspeed = inst.landspeed
+                end
+                inst.components.locomotor:RunForward()
+			end
+
+			if onenters ~= nil and onenters.hop_pre ~= nil then
+				onenters.hop_pre(inst)
+			end
+        end,
+
+	    onupdate = function(inst,dt)
+			if inst.components.embarker:HasDestination() then
+				if inst.sg.statemem.embarked then
+					inst.components.embarker:Embark()
+					inst.sg:GoToState("hop_pst", false)
+				elseif inst.sg.statemem.timeout then
+					inst.components.embarker:Cancel()
+
+					local x, y, z = inst.Transform:GetWorldPosition()
+					inst.sg:GoToState("hop_pst", not TheWorld.Map:IsVisualGroundAtPoint(x, y, z) and inst:GetCurrentPlatform() == nil)
+				end
+            elseif inst.sg.statemem.timeout or
+                   (inst.sg.statemem.tryexit and inst.sg.statemem.swimming == TheWorld.Map:IsVisualGroundAtPoint(inst.Transform:GetWorldPosition())) or
+                   (not inst.components.locomotor.dest and not inst.components.locomotor.wantstomoveforward) then
+				inst.components.embarker:Cancel()
+				local x, y, z = inst.Transform:GetWorldPosition()
+				inst.sg:GoToState("hop_pst", not TheWorld.Map:IsVisualGroundAtPoint(x, y, z) and inst:GetCurrentPlatform() == nil)
+			end
+		end,
+
+        timeline = timelines.hop_pre,
+
+		ontimeout = function(inst)
+			inst.sg.statemem.timeout = true
+		end,
+
+        events =
+        {
+            EventHandler("done_embark_movement", function(inst)
+				if not inst.AnimState:IsCurrentAnimation("jump_loop") then
+					inst.AnimState:PlayAnimation(anims.loop or "jump_loop", false)
+					inst.components.amphibiouscreature:OnExitOcean()
+				end
+				inst.sg.statemem.embarked = true
+            end),
+            EventHandler("animover", function(inst)
+				if not inst.AnimState:IsCurrentAnimation("jump_loop") then
+					if inst.AnimState:AnimDone() then
+						if not inst.components.embarker:HasDestination() then
+							inst.sg.statemem.tryexit = true
+						end
+					end
+					inst.AnimState:PlayAnimation(anims.loop or "jump_loop", false)
+
+					inst.components.amphibiouscreature:OnExitOcean()
+				end
+            end),
+        },
+
+		onexit = function(inst)
+            inst.Physics:CollidesWith(COLLISION.LIMITS)
+			if inst.components.embarker:HasDestination() then
+				inst.components.embarker:Cancel()
+			end
+
+			if onexits ~= nil and onexits.hop_pre ~= nil then
+				onexits.hop_pre(inst)
+			end
+		end,
+    })
+AddStategraphState("smallbird",State{
+        name = "hop_pst",
+        tags = { "busy", "jumping" },
+
+        onenter = function(inst, land_in_water)
+			if land_in_water then
+				inst.components.amphibiouscreature:OnEnterOcean()
+			else
+				inst.components.amphibiouscreature:OnExitOcean()
+			end
+
+			if onenters ~= nil and onenters.hop_pst ~= nil then
+				onenters.hop_pst(inst)
+			end
+
+            inst.AnimState:PlayAnimation(anims.pst or "jump_pst")
+        end,
+
+        timeline = timelines.hop_pst,
+
+        events =
+        {
+            EventHandler("animover", function(inst)
+                if inst.AnimState:AnimDone() then
+                    inst.sg:GoToState("idle")
+                end
+            end),
+        },
+
+        onexit = function(inst)
+			if onexits ~= nil and onexits.hop_pst ~= nil then
+				onexits.hop_pst(inst)
+			end
+		end,
+    })
+AddStategraphState("smallbird",State{
+        name = "hop_antic",
+        tags = { "doing", "busy", "jumping", "canrotate" },
+
+        onenter = function(inst)
+            inst.components.locomotor:StopMoving()
+            inst.sg.statemem.swimming = inst:HasTag("swimming")
+
+            inst.AnimState:PlayAnimation(anims.antic or "jump_antic")
+
+            inst.sg:SetTimeout(30 * FRAMES)
+
+			if onenters ~= nil and onenters.hop_antic ~= nil then
+				onenters.hop_antic(inst)
+			end
+        end,
+
+        timeline = timelines.hop_antic,
+
+        ontimeout = function(inst)
+            inst.sg:GoToState("hop_pre")
+        end,
+        onexit = function(inst)
+			if onexits ~= nil and onexits.hop_antic ~= nil then
+				onexits.hop_antic(inst)
+			end
+        end,
+    })
+-- local wait_for_pre = true
+-- local anims = { pre = "boat_jump_pre", loop = "boat_jump", pst = "boat_jump_pst"}
+-- local timelines = {}
+-- local data = {}
+-- local land_sound = nil
+-- local landed_in_falling_state = nil
+-- local fns = nil
+
+-- AddStategraphState("smallbird",State{
+--         name = "hop_pre",
+--         tags = { "doing", "nointerrupt", "busy", "boathopping", "jumping", "autopredict", "nomorph", "nosleep" },
+
+--         onenter = function(inst)
+-- 			if fns and fns.pre_onenter then
+-- 				fns.pre_onenter(inst)
+-- 			end
+--             local embark_x, embark_z = inst.components.embarker:GetEmbarkPosition()
+--             inst:ForceFacePoint(embark_x, 0, embark_z)
+--             if not wait_for_pre then
+-- 				inst.sg.statemem.not_interrupted = true
+--                 inst.sg:GoToState("hop_loop", inst.sg.statemem.queued_post_land_state)
+-- 			else
+-- 	            inst.AnimState:PlayAnimation(FunctionOrValue(anims.pre, inst) or "jump_pre", false)
+-- 				if data.start_embarking_pre_frame ~= nil then
+-- 					inst.sg:SetTimeout(data.start_embarking_pre_frame)
+-- 				end
+--             end
+--         end,
+
+--         timeline = timelines.hop_pre or nil,
+
+-- 		ontimeout = function(inst)
+-- 			inst.sg.statemem.collisionmask = inst.Physics:GetCollisionMask()
+-- 	        inst.Physics:SetCollisionMask(COLLISION.GROUND)
+-- 			if not TheWorld.ismastersim then
+-- 	            inst.Physics:SetLocalCollisionMask(COLLISION.GROUND)
+-- 			end
+-- 			inst.components.embarker:StartMoving()
+--             if fns and fns.pre_ontimeout then
+--                 fns.pre_ontimeout(inst)
+--             end
+-- 		end,
+
+--         events =
+--         {
+--             EventHandler("animover",
+--                 function(inst)
+--                     if wait_for_pre then
+-- 						inst.sg.statemem.not_interrupted = true
+--                         inst.sg:GoToState("hop_loop", {queued_post_land_state = inst.sg.statemem.queued_post_land_state, collisionmask = inst.sg.statemem.collisionmask})
+--                     end
+--                 end),
+--             EventHandler("cancelhop", function(inst)
+--                 inst.sg:GoToState("hop_cancelhop")
+--             end),
+--         },
+
+-- 		onexit = function(inst)
+-- 			if fns and fns.pre_onexit then
+-- 				fns.pre_onexit(inst)
+-- 			end
+-- 			if not inst.sg.statemem.not_interrupted then
+-- 				if data.start_embarking_pre_frame ~= nil then
+-- 					inst.Physics:ClearLocalCollisionMask()
+-- 					if inst.sg.statemem.collisionmask ~= nil then
+-- 						inst.Physics:SetCollisionMask(inst.sg.statemem.collisionmask)
+-- 					end
+-- 				end
+-- 	            inst.components.embarker:Cancel()
+-- 			end
+-- 		end,
+-- })
+-- AddStategraphState("smallbird",State{
+--         name = "hop_loop",
+--         tags = { "doing", "nointerrupt", "busy", "boathopping", "jumping", "autopredict", "nomorph", "nosleep" },
+
+--         onenter = function(inst, data)
+-- 			if fns and fns.loop_onenter then
+-- 				fns.loop_onenter(inst)
+-- 			end
+-- 			inst.sg.statemem.queued_post_land_state = data ~= nil and data.queued_post_land_state or nil
+--             inst.AnimState:PlayAnimation(FunctionOrValue(anims.loop, inst) or "jump_loop", true)
+-- 			inst.sg.statemem.collisionmask = data ~= nil and data.collisionmask or inst.Physics:GetCollisionMask()
+-- 	        inst.Physics:SetCollisionMask(COLLISION.GROUND)
+-- 			if not TheWorld.ismastersim then
+-- 	            inst.Physics:SetLocalCollisionMask(COLLISION.GROUND)
+-- 			end
+--             inst.components.embarker:StartMoving()
+--             inst:AddTag("ignorewalkableplatforms")
+--         end,
+
+--         timeline = timelines.hop_loop or nil,
+
+--         events =
+--         {
+--             EventHandler("done_embark_movement", function(inst)
+--                 local px, _, pz = inst.Transform:GetWorldPosition()
+-- 				inst.sg.statemem.not_interrupted = true
+--                 inst.sg:GoToState("hop_pst", {landed_in_water = not TheWorld.Map:IsPassableAtPoint(px, 0, pz), queued_post_land_state = inst.sg.statemem.queued_post_land_state} )
+--             end),
+--             EventHandler("cancelhop", function(inst)
+--                 inst.sg:GoToState("hop_cancelhop")
+--             end),
+--         },
+
+-- 		onexit = function(inst)
+-- 			if fns and fns.loop_onexit then
+-- 				fns.loop_onexit(inst)
+-- 			end
+--             inst.Physics:ClearLocalCollisionMask()
+-- 			if inst.sg.statemem.collisionmask ~= nil then
+--                 inst.Physics:SetCollisionMask(inst.sg.statemem.collisionmask)
+-- 			end
+--             inst:RemoveTag("ignorewalkableplatforms")
+-- 			if not inst.sg.statemem.not_interrupted then
+-- 	            inst.components.embarker:Cancel()
+-- 			end
+
+-- 			if inst.components.locomotor.isrunning then
+--                 inst:PushEvent("locomote")
+-- 			end
+-- 		end,
+-- })
+-- AddStategraphState("smallbird",State{
+--         name = "hop_pst",
+--         tags = { "doing", "nointerrupt", "boathopping", "jumping", "autopredict", "nomorph", "nosleep" },
+
+--         onenter = function(inst, data)
+-- 			if fns and fns.pst_onenter then
+-- 				fns.pst_onenter(inst)
+-- 			end
+--             inst.AnimState:PlayAnimation(FunctionOrValue(anims.pst, inst) or "jump_pst", false)
+
+--             inst.components.embarker:Embark()
+
+--             local nextstate = "hop_pst_complete"
+-- 			if data ~= nil then
+-- 				nextstate = (
+--                                 data.landed_in_water and landed_in_falling_state ~= nil and
+--                                 (
+--                                     type(landed_in_falling_state) ~= "function" and landed_in_falling_state or landed_in_falling_state(inst)
+--                                 )
+--                             )
+-- 							 or data.queued_post_land_state
+-- 							 or nextstate
+-- 			end
+--             if wait_for_pre then
+--                 inst.sg.statemem.nextstate = nextstate
+--             else
+--                 inst.sg:GoToState(nextstate)
+--             end
+--         end,
+
+--         timeline = timelines.hop_pst or nil,
+
+--         events =
+--         {
+--             EventHandler("animover", function(inst)
+--                 if wait_for_pre then
+--                     inst.sg:GoToState(inst.sg.statemem.nextstate)
+--                 end
+--             end),
+--         },
+
+-- 		onexit = function(inst)
+-- 			if fns and fns.pst_onexit then
+-- 				fns.pst_onexit(inst)
+-- 			end
+-- 			-- here for now, should be moved into timeline
+-- 			land_sound = FunctionOrValue(land_sound, inst)
+-- 			if land_sound ~= nil then
+-- 				--For now we just have the land on boat sound
+-- 				--Delay since inst:GetCurrentPlatform() may not be updated yet
+-- 				inst:DoTaskInTime(0, DoHopLandSound, land_sound)
+--             end
+-- 		end
+-- })
+-- AddStategraphState("smallbird",State{
+--         name = "hop_pst_complete",
+--         tags = {"autopredict", "nomorph", "nosleep" },
+
+--         onenter = function(inst)
+-- 			if fns and fns.pst_complete_onenter then
+-- 				fns.pst_complete_onenter(inst)
+-- 			end
+-- 			if inst.components.locomotor.isrunning then
+--                 inst:DoTaskInTime(0,
+--                     function()
+--                         if inst.sg.currentstate.name == "hop_pst_complete" then
+--                             inst.sg:GoToState("idle")
+--                         end
+--                     end)
+--             else
+--                 inst.sg:GoToState("idle")
+--             end
+--         end,
+
+-- 		onexit = fns and fns.pst_complete_onexit,
+-- })
+-- AddStategraphState("smallbird",State{
+--         name = "hop_cancelhop",
+--         tags = {"nopredict", "nomorph", "nosleep", "busy"},
+
+--         onenter = function(inst)
+-- 			if fns and fns.cancelhop_onenter then
+-- 				fns.cancelhop_onenter(inst)
+-- 			end
+--             inst.components.locomotor:Stop()
+--             inst.AnimState:PlayAnimation(FunctionOrValue(anims.pst, inst) or "jump_pst", false)
+--         end,
+
+--         events = {
+--             EventHandler("animover", function(inst)
+--                 inst.sg:GoToState("idle")
+--             end),
+--         },
+
+-- 		onexit = fns and fns.cancelhop_onexit,
+-- })
+
 local wait_for_pre = true
 local anims = { pre = "boat_jump_pre", loop = "boat_jump", pst = "boat_jump_pst"}
 local timelines = {}
@@ -1645,218 +2067,6 @@ local data = {}
 local land_sound = nil
 local landed_in_falling_state = nil
 local fns = nil
-
-AddStategraphState("smallbird",State{
-        name = "hop_pre",
-        tags = { "doing", "nointerrupt", "busy", "boathopping", "jumping", "autopredict", "nomorph", "nosleep" },
-
-        onenter = function(inst)
-			if fns and fns.pre_onenter then
-				fns.pre_onenter(inst)
-			end
-            local embark_x, embark_z = inst.components.embarker:GetEmbarkPosition()
-            inst:ForceFacePoint(embark_x, 0, embark_z)
-            if not wait_for_pre then
-				inst.sg.statemem.not_interrupted = true
-                inst.sg:GoToState("hop_loop", inst.sg.statemem.queued_post_land_state)
-			else
-	            inst.AnimState:PlayAnimation(FunctionOrValue(anims.pre, inst) or "jump_pre", false)
-				if data.start_embarking_pre_frame ~= nil then
-					inst.sg:SetTimeout(data.start_embarking_pre_frame)
-				end
-            end
-        end,
-
-        timeline = timelines.hop_pre or nil,
-
-		ontimeout = function(inst)
-			inst.sg.statemem.collisionmask = inst.Physics:GetCollisionMask()
-	        inst.Physics:SetCollisionMask(COLLISION.GROUND)
-			if not TheWorld.ismastersim then
-	            inst.Physics:SetLocalCollisionMask(COLLISION.GROUND)
-			end
-			inst.components.embarker:StartMoving()
-            if fns and fns.pre_ontimeout then
-                fns.pre_ontimeout(inst)
-            end
-		end,
-
-        events =
-        {
-            EventHandler("animover",
-                function(inst)
-                    if wait_for_pre then
-						inst.sg.statemem.not_interrupted = true
-                        inst.sg:GoToState("hop_loop", {queued_post_land_state = inst.sg.statemem.queued_post_land_state, collisionmask = inst.sg.statemem.collisionmask})
-                    end
-                end),
-            EventHandler("cancelhop", function(inst)
-                inst.sg:GoToState("hop_cancelhop")
-            end),
-        },
-
-		onexit = function(inst)
-			if fns and fns.pre_onexit then
-				fns.pre_onexit(inst)
-			end
-			if not inst.sg.statemem.not_interrupted then
-				if data.start_embarking_pre_frame ~= nil then
-					inst.Physics:ClearLocalCollisionMask()
-					if inst.sg.statemem.collisionmask ~= nil then
-						inst.Physics:SetCollisionMask(inst.sg.statemem.collisionmask)
-					end
-				end
-	            inst.components.embarker:Cancel()
-			end
-		end,
-})
-AddStategraphState("smallbird",State{
-        name = "hop_loop",
-        tags = { "doing", "nointerrupt", "busy", "boathopping", "jumping", "autopredict", "nomorph", "nosleep" },
-
-        onenter = function(inst, data)
-			if fns and fns.loop_onenter then
-				fns.loop_onenter(inst)
-			end
-			inst.sg.statemem.queued_post_land_state = data ~= nil and data.queued_post_land_state or nil
-            inst.AnimState:PlayAnimation(FunctionOrValue(anims.loop, inst) or "jump_loop", true)
-			inst.sg.statemem.collisionmask = data ~= nil and data.collisionmask or inst.Physics:GetCollisionMask()
-	        inst.Physics:SetCollisionMask(COLLISION.GROUND)
-			if not TheWorld.ismastersim then
-	            inst.Physics:SetLocalCollisionMask(COLLISION.GROUND)
-			end
-            inst.components.embarker:StartMoving()
-            inst:AddTag("ignorewalkableplatforms")
-        end,
-
-        timeline = timelines.hop_loop or nil,
-
-        events =
-        {
-            EventHandler("done_embark_movement", function(inst)
-                local px, _, pz = inst.Transform:GetWorldPosition()
-				inst.sg.statemem.not_interrupted = true
-                inst.sg:GoToState("hop_pst", {landed_in_water = not TheWorld.Map:IsPassableAtPoint(px, 0, pz), queued_post_land_state = inst.sg.statemem.queued_post_land_state} )
-            end),
-            EventHandler("cancelhop", function(inst)
-                inst.sg:GoToState("hop_cancelhop")
-            end),
-        },
-
-		onexit = function(inst)
-			if fns and fns.loop_onexit then
-				fns.loop_onexit(inst)
-			end
-            inst.Physics:ClearLocalCollisionMask()
-			if inst.sg.statemem.collisionmask ~= nil then
-                inst.Physics:SetCollisionMask(inst.sg.statemem.collisionmask)
-			end
-            inst:RemoveTag("ignorewalkableplatforms")
-			if not inst.sg.statemem.not_interrupted then
-	            inst.components.embarker:Cancel()
-			end
-
-			if inst.components.locomotor.isrunning then
-                inst:PushEvent("locomote")
-			end
-		end,
-})
-AddStategraphState("smallbird",State{
-        name = "hop_pst",
-        tags = { "doing", "nointerrupt", "boathopping", "jumping", "autopredict", "nomorph", "nosleep" },
-
-        onenter = function(inst, data)
-			if fns and fns.pst_onenter then
-				fns.pst_onenter(inst)
-			end
-            inst.AnimState:PlayAnimation(FunctionOrValue(anims.pst, inst) or "jump_pst", false)
-
-            inst.components.embarker:Embark()
-
-            local nextstate = "hop_pst_complete"
-			if data ~= nil then
-				nextstate = (
-                                data.landed_in_water and landed_in_falling_state ~= nil and
-                                (
-                                    type(landed_in_falling_state) ~= "function" and landed_in_falling_state or landed_in_falling_state(inst)
-                                )
-                            )
-							 or data.queued_post_land_state
-							 or nextstate
-			end
-            if wait_for_pre then
-                inst.sg.statemem.nextstate = nextstate
-            else
-                inst.sg:GoToState(nextstate)
-            end
-        end,
-
-        timeline = timelines.hop_pst or nil,
-
-        events =
-        {
-            EventHandler("animover", function(inst)
-                if wait_for_pre then
-                    inst.sg:GoToState(inst.sg.statemem.nextstate)
-                end
-            end),
-        },
-
-		onexit = function(inst)
-			if fns and fns.pst_onexit then
-				fns.pst_onexit(inst)
-			end
-			-- here for now, should be moved into timeline
-			land_sound = FunctionOrValue(land_sound, inst)
-			if land_sound ~= nil then
-				--For now we just have the land on boat sound
-				--Delay since inst:GetCurrentPlatform() may not be updated yet
-				inst:DoTaskInTime(0, DoHopLandSound, land_sound)
-            end
-		end
-})
-AddStategraphState("smallbird",State{
-        name = "hop_pst_complete",
-        tags = {"autopredict", "nomorph", "nosleep" },
-
-        onenter = function(inst)
-			if fns and fns.pst_complete_onenter then
-				fns.pst_complete_onenter(inst)
-			end
-			if inst.components.locomotor.isrunning then
-                inst:DoTaskInTime(0,
-                    function()
-                        if inst.sg.currentstate.name == "hop_pst_complete" then
-                            inst.sg:GoToState("idle")
-                        end
-                    end)
-            else
-                inst.sg:GoToState("idle")
-            end
-        end,
-
-		onexit = fns and fns.pst_complete_onexit,
-})
-AddStategraphState("smallbird",State{
-        name = "hop_cancelhop",
-        tags = {"nopredict", "nomorph", "nosleep", "busy"},
-
-        onenter = function(inst)
-			if fns and fns.cancelhop_onenter then
-				fns.cancelhop_onenter(inst)
-			end
-            inst.components.locomotor:Stop()
-            inst.AnimState:PlayAnimation(FunctionOrValue(anims.pst, inst) or "jump_pst", false)
-        end,
-
-        events = {
-            EventHandler("animover", function(inst)
-                inst.sg:GoToState("idle")
-            end),
-        },
-
-		onexit = fns and fns.cancelhop_onexit,
-})
 
 AddStategraphActionHandler("tallbird", ActionHandler(ACTIONS.DIG, "till_or_dig"))
 AddStategraphActionHandler("tallbird", ActionHandler(ACTIONS.TILL, "till_or_dig"))
@@ -2216,6 +2426,58 @@ AddStategraphPostInit("smallbird", function(sg)
     end
 end)
 
+AddStategraphPostInit("smallbird", function(sg)
+    local function SoundPath(event)
+        return "waterlogged1/creatures/spider_water/" .. event
+    end
+    local old_walk_onenter = sg.states["walk"].onenter
+    sg.states["walk"].onenter = function(inst, ...)
+        old_walk_onenter(inst, ...)
+        if inst.components.amphibiouscreature.in_water then
+            inst.SoundEmitter:PlaySound(SoundPath("walk_water"))
+        end
+    end
+
+    local old_timeline = sg.states["walk"].timeline
+      local original_fn = nil
+      local pos = nil
+      for i = #old_timeline, 1, -1 do
+        local v = old_timeline[i]
+        if v and v.time and v.time == 1 * FRAMES then
+            original_fn = v.fn
+            pos = i
+            table.remove(old_timeline, i)
+            break
+        end
+      end
+      table.insert(old_timeline,pos,
+        TimeEvent(1 * FRAMES, function(inst)
+            if inst.components.amphibiouscreature.in_water then
+                inst.SoundEmitter:PlaySound(SoundPath("walk_water"))
+            else
+              if original_fn then
+                    original_fn(inst)
+                end
+            end
+        end)
+      )
+      table.insert(old_timeline,
+        TimeEvent(5 * FRAMES, function(inst)
+            if inst.components.amphibiouscreature.in_water then
+                inst.SoundEmitter:PlaySound("turnoftides/common/together/water/swim/walk_water_med")
+                local wake = SpawnPrefab("boat_water_fx")
+                local rotation = inst.Transform:GetRotation() - 180
+                local reverse_rot = rotation - math.floor(rotation/360)*360
+                local theta = reverse_rot * DEGREES
+                local pos = inst:GetPosition() + (Vector3(math.cos(theta), 0, -math.sin(theta)) * 0.5)
+                wake.Transform:SetPosition(pos:Get())
+                wake.Transform:SetRotation(reverse_rot - 90)
+                wake.AnimState:SetScale(0.7, 0.7)
+            end
+        end)
+      )
+end)
+
 AddStategraphPostInit("tallbird", function(sg)
     local death_fn = sg.events.death.fn
     sg.events.death.fn = function(inst, ...)
@@ -2312,7 +2574,6 @@ AddStategraphPostInit("wilson", function(sg)
     --     end
     --     inst.SoundEmitter:PlaySound("dontstarve/creatures/tallbird/attack")
     -- end))
-    
 end)
 
 AddPrefabPostInit("purebrilliance", function(inst)
@@ -2921,6 +3182,92 @@ AddComponentAction("INVENTORY", "bird_leave", function(inst, doer, actions, righ
         table.insert(actions, ACTIONS.BIRDS_LEAVE)
     end
 end)
+
+-- local BIRDS_JUMP = Action()
+-- BIRDS_JUMP.id = "BIRDS_JUMP"
+-- BIRDS_JUMP.strfn = function (act)
+--     return "JUMP"
+-- end
+-- -- BIRDS_JUMP.priority = 20
+-- BIRDS_JUMP.mount_valid =true
+-- -- BIRDS_JUMP.rmb=true
+-- BIRDS_JUMP.do_not_locomote = true  
+-- BIRDS_JUMP.fn = function (act)
+--     local doer = act.doer
+--     local pos = act:GetActionPoint()
+    
+--         local x, y, z = pos:Get()
+--         -- doer.components.embarker:SetDisembarkPos(x, z)
+--         -- doer:PushEvent("onhop")
+--         return true
+    
+--     -- return false
+-- end
+-- AddAction(BIRDS_JUMP)
+-- STRINGS.ACTIONS.BIRDS_JUMP = {
+--     JUMP = "跳跃"
+-- }
+
+-- AddStategraphActionHandler("wilson", ActionHandler(ACTIONS.BIRDS_JUMP,  "hop_pre"))
+-- AddStategraphActionHandler("wilson_client", ActionHandler(ACTIONS.BIRDS_JUMP,  "hop_pre"))
+
+
+
+-- local function getactionfn(inst, target, pos, useitem, right, bufs)
+--     if #bufs <= 0 --当前没有要执⾏的action
+--     and not useitem --⽆⼿持
+--     and not inst.checkingmapactions --没有⼤⼩⼩地图
+--     and inst:HasTag("tallbird_mount")
+--     then
+--         return ACTIONS.BIRDS_JUMP
+--     end
+-- end
+
+-- local function OrderByPriority(l, r)
+--     return (l.action and l.action.priority or 0) > (r.action and
+--     r.action.priority or 0)
+-- end
+
+-- local function NoEquipActivator(bufs, self, pos, target, right)
+-- --当玩家装备aoetargeting可施法武器的时候，会导致不管是施法还是这个动作都⽆法执⾏，我希望最少有⼀个能执⾏
+--     local item = self.inst.replica.inventory and
+--     self.inst.replica.inventory:GetEquippedItem(EQUIPSLOTS.HANDS)
+--     if not (item and item.components.aoetargeting and
+--     item.components.aoetargeting:IsEnabled()) then
+
+--         local useitem = self.inst.replica.inventory and
+--         self.inst.replica.inventory:GetActiveItem()
+
+--         local act, pos2 = getactionfn(self.inst, target, pos, useitem, right,
+--         bufs)
+
+--         if act then
+--             local actions = { act }
+--             for _, buf in ipairs(self:SortActionList(actions, pos2 or pos)) do
+--             table.insert(bufs, buf)
+--             end
+--             table.sort(bufs, OrderByPriority) --顺便和原来的⼀起排个序
+--         end
+--     end
+-- end
+
+-- AddComponentPostInit("playeractionpicker", function(self)
+    
+--     local OldGetLeftClickActions = self.GetLeftClickActions
+--     self.GetLeftClickActions = function(self, position, target, ...)
+--         local bufs = OldGetLeftClickActions(self, position, target, ...)
+--         NoEquipActivator(bufs, self, position, target, false)
+--         return bufs
+--     end
+
+--     local OldGetRightClickActions = self.GetRightClickActions
+--     self.GetRightClickActions = function(self, position, target, ...)
+--         local bufs = OldGetRightClickActions(self, position, target, ...)
+--         NoEquipActivator(bufs, self, position, target, true)
+--         return bufs
+--     end
+
+-- end)
 
 local PICKUP_TARGET_EXCLUDE_TAGS = { "catchable", "mineactive", "intense" }
 
