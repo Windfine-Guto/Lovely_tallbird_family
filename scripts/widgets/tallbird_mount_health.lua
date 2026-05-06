@@ -111,6 +111,11 @@ local Tallbird_Mount_Health = Class(Widget, function(self, owner)
             self.fameText:SetString("声望：" .. tostring(fame))
         end)
     end)
+    self.owner:DoTaskInTime(0.2, function()
+        if not self.owner.player_classified then return end
+        local fame = self.owner.player_classified.birdFameNumber:value()
+        self.fameText:SetString("声望：" .. tostring(fame))
+    end)
 end)
 
 function Tallbird_Mount_Health:UpdateHealth(health)

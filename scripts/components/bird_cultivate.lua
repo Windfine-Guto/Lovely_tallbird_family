@@ -154,13 +154,8 @@ function Bird_cultivate:Updata()
     if not self.inst:HasTag("lovely_bird") then
         self.inst:AddTag("lovely_bird")
     end
-    
     if self.inst.components.combat then
         self.inst.components.combat:SetNoAggroTags({"bird_friend","bird_family", "smallbird","teenbird","tallbird"})
-    end
-    if self.inst.components.follower then
-        self.inst.components.follower.keepdeadleader = true
-        self.inst.components.follower:KeepLeaderOnAttacked()
     end
     if self.nodeath==true and self.inst.components.health then
         self.inst.components.health:SetMinHealth(5)

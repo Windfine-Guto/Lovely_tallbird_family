@@ -614,7 +614,7 @@ local function CalcSanityAura(inst, observer)
     return (GetModConfigData(config_name22) and inst.components.follower ~= nil and inst.components.follower.leader == observer and TUNING.SANITYAURA_SMALL) or 0
 end
 AddPrefabPostInit("smallbird", function(inst)
-    local function OnGetItemFromPlayer(inst, giver, item)
+local function OnGetItemFromPlayer(inst, giver, item)
     --print("smallbird - OnGetItemFromPlayer")
 
     if inst.components.sleeper then
@@ -629,6 +629,9 @@ AddPrefabPostInit("smallbird", function(inst)
         if inst.components.eater:Eat(item, giver) then
             --print("   yummy!")
             -- yay!?
+        end
+        if inst.components.follower and inst.components.follower.leader==nil then
+            inst.components.follower:SetLeader(giver)
         end
     end
      if item.components.equippable ~= nil and item.components.equippable.equipslot == EQUIPSLOTS.HEAD then
@@ -736,7 +739,10 @@ if inst.components.combat then
     inst.components.combat:SetDefaultDamage(smallbird_damage)
     inst.components.combat:SetNoAggroTags({"bird_family", "smallbird","teenbird","tallbird"})
 end
-
+if inst.components.follower then
+    inst.components.follower.keepdeadleader = true
+    inst.components.follower:KeepLeaderOnAttacked()
+end
 if inst.userfunctions then
     -- local old_teenfn = inst.userfunctions.SpawnTeen
     inst.userfunctions.SpawnTeen = function (inst)
@@ -777,7 +783,7 @@ end)
 end)
 
 AddPrefabPostInit("teenbird", function(inst)
-    local function OnGetItemFromPlayer(inst, giver, item)
+local function OnGetItemFromPlayer(inst, giver, item)
     --print("smallbird - OnGetItemFromPlayer")
 
     if inst.components.sleeper then
@@ -792,6 +798,9 @@ AddPrefabPostInit("teenbird", function(inst)
         if inst.components.eater:Eat(item, giver) then
             --print("   yummy!")
             -- yay!?
+        end
+        if inst.components.follower and inst.components.follower.leader==nil then
+            inst.components.follower:SetLeader(giver)
         end
     end
      if item.components.equippable ~= nil and item.components.equippable.equipslot == EQUIPSLOTS.HEAD then
@@ -915,6 +924,10 @@ if inst.components.health then
 end
 if inst.components.combat then
     inst.components.combat:SetNoAggroTags({"bird_family", "smallbird","teenbird","tallbird"})
+end
+if inst.components.follower then
+    inst.components.follower.keepdeadleader = true
+    inst.components.follower:KeepLeaderOnAttacked()
 end
 inst:ListenForEvent("leaderchanged", function(inst, data)
 if inst.components.follower
@@ -1138,25 +1151,36 @@ local function FindFoodAction(inst)
 end
 
 local function ShouldWaitForHelp(inst)
-    if inst.components.combat.target == nil then
-        return false
-    end
     local leader = inst.components.follower:GetLeader()
     return leader ~= nil and inst.components.health:GetPercent() <= 0.3
 end
-local function TargetFollowTargetDistFn(inst)
-    local target = inst.components.combat.target
+local function GetWaitTarget(inst)
+    local target = FindEntity(inst, 16, function(ent)
+        local t = ent.components.combat.target
+        return inst.components.combat:CanTarget(ent)
+           and t
+           and (t == inst
+                or t:HasTag("player")
+                or (t:HasTag("companion") and (not t.components.combat or t.components.combat.target ~= inst)))
+    end, {"_combat"})
+    inst._wait_target = target
+    return target
+end
 
+local function WaitTargetDist(inst)
+    local target = inst._wait_target
     if target == nil or target.components.combat == nil then
         return DEFAULT_FOLLOW_TARGET_DIST
     end
-
-    return math.max(math.sqrt(target.components.combat:CalcAttackRangeSq(inst)) + MIN_FOLLOW_TARGET_DIST, DEFAULT_FOLLOW_TARGET_DIST)
+    return math.max(
+        math.sqrt(target.components.combat:CalcAttackRangeSq(inst)) + MIN_FOLLOW_TARGET_DIST,
+        DEFAULT_FOLLOW_TARGET_DIST
+    )
 end
 
     table.insert(self.bt.root.children,4,WhileNode(function() return ShouldWaitForHelp(self.inst) end, "WaitingForHelp",
             PriorityNode({
-                Follow(self.inst, function() return self.inst.components.combat.target end, MIN_FOLLOW_TARGET_DIST, TargetFollowTargetDistFn, MAX_FOLLOW_TARGET_DIST),
+                Follow(self.inst, function() return GetWaitTarget(self.inst) end, MIN_FOLLOW_TARGET_DIST, WaitTargetDist, MAX_FOLLOW_TARGET_DIST),
                 StandStill(self.inst)
             }, .25)
         )
@@ -2686,7 +2710,7 @@ AddStategraphActionHandler("wilson", ActionHandler(ACTIONS.BIRD_LEAVE, "give"))
 AddStategraphActionHandler("wilson_client", ActionHandler(ACTIONS.BIRD_LEAVE, "give"))
 
 AddComponentAction("USEITEM", "bird_leave", function(inst, doer, target, actions, right)
-    if inst:HasTag("bird_leave") and target:HasTag("lovely_bird") and doer:HasTag("bird_family") and not target:HasTag("bird_leaver") and target:HasTag("tallbird") then
+    if inst:HasTag("bird_leave") and target:HasTag("lovely_bird") and not target:HasTag("bird_leaver") and target:HasTag("tallbird") then
         table.insert(actions, ACTIONS.BIRD_LEAVE)
     end
 end)

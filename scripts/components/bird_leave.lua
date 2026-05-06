@@ -13,12 +13,17 @@ function Bird_leave:Leave(inst,target,doer)
             target:AddTag("bird_leaver")
         end
         target:RemoveTag("bird_follower")
-        if target.sg then
-            target.sg:GoToState("idle_peep")
-            if target.components.sleeper and target.components.sleeper:IsAsleep() then
-                target.components.sleeper:WakeUp()
-            end
+
+        if target.components.sleeper and target.components.sleeper:IsAsleep() then
+            target.components.sleeper:WakeUp()
         end
+
+        if target:CanMakeNewHome() then
+            target:PushEvent("makenewnest")
+        else
+            target.sg:GoToState("idle_peep")
+        end
+
         if inst.components.stackable then
             inst.components.stackable:Get():Remove()
         else

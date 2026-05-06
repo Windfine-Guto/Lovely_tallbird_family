@@ -78,7 +78,7 @@ local function OnGetItemFromPlayer(inst, giver, item)
         if giver.components.leader and giver:HasTag("bird_family") then
             if inst.components.bird_cultivate and inst.components.follower and not inst.components.follower.leader then
                 giver:PushEvent("makefriend")
-                giver.components.leader:AddFollower(inst)
+                inst.components.bird_cultivate:SetLeader(giver)
                 inst.components.bird_cultivate.follow=true
                 inst.components.bird_cultivate.wild=false
                 inst.components.bird_cultivate:Updata()
@@ -91,7 +91,9 @@ local function OnGetItemFromPlayer(inst, giver, item)
             giver.AnimState:PlayAnimation("graze_loop")
             return
         end
-        inst.sg:GoToState("eat")
+        if not inst.sg:HasStateTag("busy") then
+            inst.sg:GoToState("eat")
+        end
     end
     if item.components.equippable ~= nil and item.components.equippable.equipslot == EQUIPSLOTS.HEAD then
         local current = inst.components.inventory:GetEquippedItem(EQUIPSLOTS.HEAD)
@@ -435,6 +437,8 @@ local function fn()
     inst:AddComponent("inspectable")
 
     inst:AddComponent("follower")
+    inst.components.follower.keepdeadleader = true
+    inst.components.follower:KeepLeaderOnAttacked()
 
     inst:AddComponent("inventory")
 
