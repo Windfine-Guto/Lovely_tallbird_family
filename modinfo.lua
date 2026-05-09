@@ -1,7 +1,7 @@
 local modid = 'lovely_tallbird_family'
 local cur = (locale == 'zh' or locale == 'zhr') and 'zh' or 'en'
 
-version = '26.05.06'
+version = '26.05.09'
 author = 'over_dragon、Guto'
 
 forumthread = ''
@@ -104,10 +104,10 @@ local LANGS = {
                 {'开启',true},
                 {'关闭',false}
             }},
-            {modid..'_smallbirdwaterwalk','小鸟水上行走','出海也能跟着你',false,{
-                {'开启',true},
-                {'关闭',false}
-            }},
+            -- {modid..'_smallbirdwaterwalk','小鸟水上行走','出海也能跟着你',false,{
+            --     {'开启',true},
+            --     {'关闭',false}
+            -- }},
             {'小高脚鸟'},
             {modid..'_teenbirdhealth','青年高脚鸟生命上限倍率','调整生命上限倍率',1,{
                 {'1.0',1},
@@ -210,6 +210,63 @@ local LANGS = {
             {modid..'_tallbirdwaterwalk','高脚鸟水上行走','出海也能跟着你',false,{
                 {'开启',true},
                 {'关闭',false}
+            }},
+            {"位面化高脚鸟"},
+            {modid..'_planar_damage','位面伤害','',20,{
+                {'10',10},
+                {'20',20},
+                {'30',30},
+                {'40',40},
+                {'50',50},
+                {'60',60},
+                {'70',70},
+                {'80',80}
+            }},
+            {modid..'_planar_defense','位面防御','',0,{
+                {'0',0},
+                {'5',5},
+                {'15',15},
+                {'20',20},
+                {'30',30},
+                {'35',35}
+            }},
+            {modid..'_planar_absor','伤害吸收','位面伤害除外',0.2,{
+                {'0%',0},
+                {'10%',0.1},
+                {'20%',0.2},
+                {'30%',0.3},
+                {'40%',0.4},
+                {'50%',0.5},
+                {'60%',0.6},
+                {'70%',0.7},
+                {'80%',0.8},
+                {'90%',0.9}
+            }},
+            {'释放法术每只高脚鸟提供的加成及上限'},
+            {modid..'_add_speed','移速','',0.02,{
+                {'1%',0.01},
+                {'2%',0.02},
+                {'3%',0.03},
+                {'4%',0.04},
+                {'5%',0.05}
+            }},
+            {modid..'_add_absor','减伤','',0.02,{
+                {'1%',0.01},
+                {'2%',0.02},
+                {'3%',0.03},
+                {'4%',0.04},
+            }},
+            {modid..'_add_damage','增伤','',0.02,{
+                {'1%',0.01},
+                {'2%',0.02},
+                {'3%',0.03},
+                {'4%',0.04},
+                {'5%',0.05}
+            }},
+            {modid..'_add_limit','数量上限','',10,{
+                {'5',5},
+                {'8',8},
+                {'10',10},
             }},
             {'全部鸟'},
             {modid..'_birdfollow','鸟跟随上下洞穴','但是换角色时鸟会消失',true,{
@@ -316,10 +373,10 @@ local LANGS = {
                 {'Enable',true},
                 {'Disable',false}
             }},
-            {modid..'_smallbirdwaterwalk','Smallbird Water Walking','Follows you even across the ocean',false,{
-                {'Enable',true},
-                {'Disable',false}
-            }},
+            -- {modid..'_smallbirdwaterwalk','Smallbird Water Walking','Follows you even across the ocean',false,{
+            --     {'Enable',true},
+            --     {'Disable',false}
+            -- }},
             {'Teenbird'},
             {modid..'_teenbirdhealth','Teenbird Max Health Multiplier','Adjust max health multiplier',1,{
                 {'1.0',1},
@@ -422,6 +479,63 @@ local LANGS = {
             {modid..'_tallbirdwaterwalk','Tallbird Water Walking','Can follow you on water',false,{
                 {'Enable',true},
                 {'Disable',false}
+            }},
+            {"Planar Tallbird"},
+            {modid..'_planar_damage', 'Planar Damage', '', 20, {
+                {'10', 10},
+                {'20', 20},
+                {'30', 30},
+                {'40', 40},
+                {'50', 50},
+                {'60', 60},
+                {'70', 70},
+                {'80', 80},
+            }},
+            {modid..'_planar_defense', 'Planar Defense', '', 0, {
+                {'0', 0},
+                {'5', 5},
+                {'15', 15},
+                {'20', 20},
+                {'30', 30},
+                {'35', 35},
+            }},
+            {modid..'_planar_absor', 'Damage Absorption', 'Except Planar Damage', 0.2, {
+                {'0%', 0},
+                {'10%', 0.1},
+                {'20%', 0.2},
+                {'30%', 0.3},
+                {'40%', 0.4},
+                {'50%', 0.5},
+                {'60%', 0.6},
+                {'70%', 0.7},
+                {'80%', 0.8},
+                {'90%', 0.9},
+            }},
+            {"Bonus per Tallbird when casting the spell and the limit"},
+            {modid..'_add_speed', 'Movement Speed', '', 0.02, {
+                {'1%', 0.01},
+                {'2%', 0.02},
+                {'3%', 0.03},
+                {'4%', 0.04},
+                {'5%', 0.05},
+            }},
+            {modid..'_add_absor', 'Damage Reduction', '', 0.02, {
+                {'1%', 0.01},
+                {'2%', 0.02},
+                {'3%', 0.03},
+                {'4%', 0.04},
+            }},
+            {modid..'_add_damage', 'Damage Increase', '', 0.02, {
+                {'1%', 0.01},
+                {'2%', 0.02},
+                {'3%', 0.03},
+                {'4%', 0.04},
+                {'5%', 0.05},
+            }},
+            {modid..'_add_limit', 'Max Count', '', 10, {
+                {'5', 5},
+                {'8', 8},
+                {'10', 10},
             }},
             {'All Bird'},
             {modid..'_birdfollow','Bird Cave Transition Follow','Disappears when switching characters',true,{

@@ -2,7 +2,7 @@ local Bird_cultivate = Class(function(self, inst)
     self.inst = inst
     self.nodeath = false
     self.wild = true
-    self.plannar = false
+    self.planar = false
     self.gift = false
     self.follow = true
     self.nogrow = false
@@ -116,16 +116,23 @@ local function Retarget(inst)
 end
 
 function Bird_cultivate:Updata()
-    if self.plannar==true then
+    if self.planar==true then
         if self.inst.components.planarentity==nil then
             self.inst:AddComponent("planarentity")
         end
         if self.inst.components.planardamage == nil then
             self.inst:AddComponent("planardamage")
         end
-        self.inst.components.planardamage:SetBaseDamage(20)
-        if not self.inst:HasTag("bird_plannared") then
-            self.inst:AddTag("bird_plannared")
+        self.inst.components.planardamage:SetBaseDamage(TUNING.TALLBIRD_PLANAR_DAMAGE)
+        if self.inst.components.planardefense then
+            self.inst:AddComponent("planardefense")
+        end
+        self.inst.components.planardefense:SetBaseDefense(TUNING.TALLBIRD_PLANAR_DEFENSE)
+        if self.inst.components.health then
+            self.inst.components.health:SetAbsorptionAmount(TUNING.TALLBIRD_PLANAR_ABSOR)
+        end
+        if not self.inst:HasTag("bird_planared") then
+            self.inst:AddTag("bird_planared")
         end
     end
     if self.nogrow==true and self.inst.components.growable then
@@ -278,7 +285,7 @@ end
 function Bird_cultivate:OnSave()
     return {
         wild = self.wild,
-        plannar = self.plannar,
+        planar = self.planar,
         follow = self.follow,
         nogrow = self.nogrow,
         reputation = self.reputation,
@@ -288,7 +295,7 @@ end
 function Bird_cultivate:OnLoad(data)
     if data~=nil then
         self.wild = data.wild
-        self.plannar = data.plannar
+        self.planar = data.planar
         self.follow = data.follow
         self.nogrow = data.nogrow
         self.reputation = data.reputation
