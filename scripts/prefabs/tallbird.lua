@@ -406,9 +406,9 @@ local function fn()
 
     inst:AddComponent("bird_cultivate")
     inst:AddComponent("planardamage")
-
+    inst:AddComponent("planardefense")
     inst:AddComponent("leader")
-
+    inst:AddComponent("debuffable")
     ------------------
 
     inst:AddComponent("eater")

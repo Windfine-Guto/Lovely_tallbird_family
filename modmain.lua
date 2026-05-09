@@ -14,12 +14,16 @@ PrefabFiles = GetModConfigData('lovely_tallbird_family'..'skins') and {
     "teenbird_skins",
     "smallbird_skins",
     "tallbird_comb",
+    "tallbird_buffs",
+    "tallbird_eyefx",
 }
 or {
     "tallbird",
     "tallbird_saddle",
     "tallbird_eggshell",
     "tallbird_comb",
+    "tallbird_buffs",
+    "tallbird_eyefx",
 }
 
 local writeables = require("writeables")
@@ -68,7 +72,7 @@ local config_name2 = modid..'_smallbirddamage'
 -- local config_name3 = modid..'_smallbirdgrow'
 local config_name4 = modid..'_smallbirdprotect'
 local config_name5 = modid..'_smallbirdgifts'
-local config_name11 = modid..'_smallbirdwaterwalk'
+-- local config_name11 = modid..'_smallbirdwaterwalk'
 local config_name14 = modid..'_smallbirdhunger'
 local smallbird_health=TUNING.SMALLBIRD_HEALTH*GetModConfigData(config_name)
 local smallbird_damage=TUNING.SMALLBIRD_DAMAGE*GetModConfigData(config_name2)
@@ -109,6 +113,13 @@ TUNING.SMALLBIRD_GROW_TIME=TUNING.SMALLBIRD_GROW_TIME/GetModConfigData(config_na
 TUNING.TEENBIRD_GROW_TIME=TUNING.TEENBIRD_GROW_TIME/GetModConfigData(config_name24)
 TUNING.TALLBIRD_SELECT_MODE=GetModConfigData(config_name28) or 1
 TUNING.TALLBIRD_SELECT_KEY=GetModConfigData(config_name29) or 122
+TUNING.TALLBIRD_PLANAR_DAMAGE = GetModConfigData(modid..'_planar_damage')
+TUNING.TALLBIRD_PLANAR_ABSOR = GetModConfigData(modid..'_planar_absor')
+TUNING.TALLBIRD_PLANAR_DEFENSE = GetModConfigData(modid..'_planar_defense')
+TUNING.TALLBIRD_PLAYER_DAMAGE = GetModConfigData(modid..'_add_damage')
+TUNING.TALLBIRD_PLAYER_ABSOR = GetModConfigData(modid..'_add_absor')
+TUNING.TALLBIRD_PLAYER_SPEED = GetModConfigData(modid..'_add_speed')
+TUNING.TALLBIRD_PLAYER_LIMIT = GetModConfigData(modid..'_add_limit')
 
 local locale = GLOBAL.LOC.GetLocaleCode()
 if locale == "zh" or locale == "zht" or locale=="zhr" then
@@ -286,6 +297,39 @@ end
 end
 inst._tallbird_mount_aoe_leg = true
 inst:AddComponent("bird_family")
+
+local old_doubleclickactionsfn
+local function GetDoubleClickActions(inst, pos, dir, target)
+	local rider = inst.replica.rider
+	local mount = rider and rider:GetMount() or nil
+    if old_doubleclickactionsfn~=nil and mount and mount:HasTag("woby") then
+        return old_doubleclickactionsfn(inst, pos, dir, target)
+    elseif inst:HasTag("shadow_tallbird_dash") then
+        local pos2
+		if dir then
+			pos2 = inst:GetPosition()
+			pos2.x = pos2.x + dir.x * 10
+			pos2.y = 0
+			pos2.z = pos2.z + dir.z * 10
+		elseif target then
+			pos2 = target:GetPosition()
+			pos2.y = 0
+		end
+		return { ACTIONS.SHADOW_TALLBIRD_DASH }, pos2
+    end
+    if old_doubleclickactionsfn~=nil then
+        return old_doubleclickactionsfn(inst, pos, dir, target)
+    else
+        return {}
+    end
+end
+local function OnSetOwner(inst)
+	if inst.components.playeractionpicker then
+        old_doubleclickactionsfn = inst.components.playeractionpicker.doubleclickactionsfn
+		inst.components.playeractionpicker.doubleclickactionsfn = GetDoubleClickActions
+	end
+end
+inst:ListenForEvent("setowner", OnSetOwner)
 end)
 
 local NOTAGS = {'INLIMBO','notarget','noattack','player','companion','abigail','glommer','friendlyfruitfly'}
@@ -461,6 +505,7 @@ AddPrefabPostInit("player_classified", function(inst)
     end
 end)
 
+---轮盘UI 血量UI
 local CastSelect = require("widgets/castselect")
 local TallbirdMountHealth = require "widgets/tallbird_mount_health"
 AddClassPostConstruct("widgets/controls", function(self)
@@ -544,7 +589,7 @@ AddComponentPostInit("rider", function(self)
                 inst.components.worker:SetAction(ACTIONS.DIG,    1)
                 inst.components.worker:SetAction(ACTIONS.HAMMER, 1)
             end
-            if target:HasTag("bird_plannared") and not target:HasTag("toughworker") then
+            if target:HasTag("bird_planared") and not target:HasTag("toughworker") then
                 inst:AddTag("toughworker")
             end
         end
@@ -610,6 +655,7 @@ AddComponentPostInit("rideable", function(self)
     end
 end)
 
+--鸟 预制体
 local function CalcSanityAura(inst, observer)
     return (GetModConfigData(config_name22) and inst.components.follower ~= nil and inst.components.follower.leader == observer and TUNING.SANITYAURA_SMALL) or 0
 end
@@ -711,16 +757,16 @@ end
 -- else
 --     inst.components.bird_cultivate.nogrow = false
 -- end
-if GetModConfigData(config_name11) then
-    inst.Physics:SetCollisionMask(
-		COLLISION.GROUND,
-		COLLISION.OBSTACLES,
-		COLLISION.CHARACTERS)
-    inst.Physics:Teleport(inst.Transform:GetWorldPosition())
-    if inst.components.drownable then
-        inst.components.drownable.enabled = false
-    end
-end
+-- if GetModConfigData(config_name11) then
+--     inst.Physics:SetCollisionMask(
+-- 		COLLISION.GROUND,
+-- 		COLLISION.OBSTACLES,
+-- 		COLLISION.CHARACTERS)
+--     inst.Physics:Teleport(inst.Transform:GetWorldPosition())
+--     if inst.components.drownable then
+--         inst.components.drownable.enabled = false
+--     end
+-- end
 if inst.components.hunger then
     inst.components.hunger:SetRate(smallbird_hunger_speed/TUNING.TEENBIRD_STARVE_TIME)
 end
@@ -2512,6 +2558,7 @@ AddStategraphPostInit("tallbird", function(sg)
 end)
 
 AddStategraphPostInit("wilson", function(sg)
+---mount
     local state = sg.states["mount"]
     if state then
       local old_timeline = state.timeline
@@ -2538,6 +2585,7 @@ AddStategraphPostInit("wilson", function(sg)
         end)
       )
     end
+---play_whistle
     local whistle_onenter = sg.states["play_whistle"].onenter
     sg.states["play_whistle"].onenter = function(inst)
         local buffered_action = inst:GetBufferedAction()
@@ -2598,16 +2646,222 @@ AddStategraphPostInit("wilson", function(sg)
     --     end
     --     inst.SoundEmitter:PlaySound("dontstarve/creatures/tallbird/attack")
     -- end))
+---dash_woby_pre
+    local dash_pre_state = sg.states["dash_woby_pre"]
+    local old_onenter = dash_pre_state.onenter
+    dash_pre_state.onenter = function (inst)
+        local mount = inst.components.rider:GetMount()
+	    if mount and mount:HasTag("woby") then
+            old_onenter(inst)
+        elseif inst:HasTag("shadow_tallbird_dash") then
+            inst.components.locomotor:Stop()
+			inst.AnimState:PlayAnimation("run_pre")
+			inst.AnimState:PushAnimation("run_pst", false)
+        end
+    end
+    for i, ev in ipairs(dash_pre_state.timeline) do
+        if ev.frame == 3 then
+            local old_fn = ev.fn
+            ev.fn = function(inst)
+                local mount = inst.components.rider:GetMount()
+                if mount and mount:HasTag("woby") then
+                    old_fn(inst)
+                elseif inst:HasTag("shadow_tallbird_dash") then
+                    if not inst:PerformBufferedAction() then
+                        inst.AnimState:PlayAnimation("run_pst")
+                        inst.sg:GoToState("idle", true)
+                        
+                        return
+				    end
+                    inst.Physics:SetMotorVel(30, 0, 0)
+                    inst.AnimState:SetMultColour(0.25, 0.25, 0.25, 1)
+                end
+            end
+            break
+        end
+    end
+
+---dash_woby
+    local function ToggleOffPhysicsExceptWorld(inst)
+        inst.sg.statemem.isphysicstoggle = true
+        inst.Physics:SetCollisionMask(COLLISION.WORLD)
+    end
+    local dash_state = sg.states["dash_woby"]
+    local old_onenter = dash_state.onenter
+    dash_state.onenter = function (inst)
+        local mount = inst.components.rider:GetMount()
+	    if mount and mount:HasTag("woby") then
+            old_onenter(inst)
+        elseif inst:HasTag("shadow_tallbird_dash") then
+            inst.Physics:SetMotorVel(30, 0, 0)
+
+			inst.components.health:SetInvincible(true)
+			if inst.components.playercontroller then
+				inst.components.playercontroller:Enable(false)
+			end
+			inst.AnimState:SetMultColour(0, 0, 0, 0)
+			ToggleOffPhysicsExceptWorld(inst)
+
+			--player hidden via 0 alpha instead of Hide(), so that we can still see silhoutte child
+			inst.sg.statemem.silhoutte = SpawnPrefab("woby_dash_silhouette_fx")
+			inst.sg.statemem.silhoutte.entity:SetParent(inst.entity)
+
+			local fx = SpawnPrefab("woby_dash_shadow_fx")
+			fx.AnimState:SetFrame(3)
+			fx.Transform:SetPosition(inst.Transform:GetWorldPosition())
+			--fx:SetFxOwner(inst) --don't track owner, keep fx stationary
+			fx.SoundEmitter:PlaySound("meta5/woby/shadow_dash_out")
+
+        end
+    end
+    for i, ev in ipairs(dash_state.timeline) do
+        if ev.frame == 4 then
+            local old_fn = ev.fn
+            ev.fn = function(inst)
+                local mount = inst.components.rider:GetMount()
+                if mount and mount:HasTag("woby") then
+                    old_fn(inst)
+                elseif inst:HasTag("shadow_tallbird_dash") then
+                    inst.Physics:SetMotorVel(16, 0, 0)
+                end
+            end
+            break
+        end
+    end
+    table.insert(dash_state.timeline,1,FrameEvent(2, function(inst)
+        local mount = inst.components.rider:GetMount()
+	    if not (mount and mount:HasTag("woby")) and inst:HasTag("shadow_tallbird_dash") then
+				local x, y, z = inst.Transform:GetWorldPosition()
+				local fx = SpawnPrefab("woby_dash_shadow_fx")
+				fx.AnimState:PlayAnimation("woby_teleport_fx_small"..tostring(math.random(2)))
+				fx.Transform:SetPosition(x, y, z)
+				fx:SetFxOwner(inst)
+
+				local theta = inst.Transform:GetRotation() * DEGREES
+				local cos_theta = math.cos(theta)
+				local sin_theta = math.sin(theta)
+				local map = TheWorld.Map
+				local pt = Vector3(0, 0, 0)
+				local success = false
+				local _ispassableatpoint = GetActionPassableTestFnAt(x, y, z)
+				for i = 7, 12.5, 0.5 do
+					pt.x = x + cos_theta * (i - 0.5)
+					pt.z = z - sin_theta * (i - 0.5)
+					if _ispassableatpoint(pt:Get()) then
+						pt.x = x + cos_theta * (i + 0.5)
+						pt.z = z - sin_theta * (i + 0.5)
+						if _ispassableatpoint(pt:Get()) then
+							pt.x = x + cos_theta * i
+							pt.z = z - sin_theta * i
+							if not map:IsPointNearHole(pt) then
+								success = true
+								break
+							end
+						end
+					end
+				end
+				if not success then
+					for i = 6.5, 0.5, -0.5 do
+						pt.x = x + cos_theta * (i - 0.5)
+						pt.z = z - sin_theta * (i - 0.5)
+						if _ispassableatpoint(pt:Get()) then
+							pt.x = x + cos_theta * (i + 0.5)
+							pt.z = z - sin_theta * (i + 0.5)
+							if _ispassableatpoint(pt:Get()) then
+								pt.x = x + cos_theta * i
+								pt.z = z - sin_theta * i
+								if not map:IsPointNearHole(pt) then
+									success = true
+									break
+								end
+							end
+						end
+					end
+				end
+				inst.Physics:Stop()
+				if success then
+					x, y, z = pt:Get()
+					inst.Physics:Teleport(x, y, z)
+				end
+
+				fx = SpawnPrefab("woby_dash_shadow_fx")
+				fx.Transform:SetPosition(x, y, z)
+				--fx:SetFxOwner(inst) --don't track owner, keep fx stationary
+				fx.SoundEmitter:PlaySound("meta5/woby/shadow_dash_in")
+        end
+			end))
+    table.insert(dash_state.timeline,FrameEvent(5, function(inst)
+            if not (mount and mount:HasTag("woby")) and inst:HasTag("shadow_tallbird_dash") then
+                PlayFootstep(inst)
+                inst.SoundEmitter:PlaySound("dontstarve/beefalo/walk", nil, 0.5)
+            end
+			end))
+    table.insert(dash_state.timeline,FrameEvent(6, function(inst)
+            if not (mount and mount:HasTag("woby")) and inst:HasTag("shadow_tallbird_dash") then
+                inst.sg.statemem.dashing = true
+				inst.sg:GoToState("dash_woby_pst", true)
+				inst.sg.statemem.isphysicstoggle = true
+            end
+			end))
+    local function ToggleOnPhysics(inst)
+        inst.sg.statemem.isphysicstoggle = nil
+        inst.Physics:SetCollisionMask(
+            COLLISION.WORLD,
+            COLLISION.OBSTACLES,
+            COLLISION.SMALLOBSTACLES,
+            COLLISION.CHARACTERS,
+            COLLISION.GIANTS
+        )
+    end
+    local old_onexit = dash_state.onexit
+    dash_state.onexit = function (inst)
+        old_onexit(inst)
+        local mount = inst.components.rider:GetMount()
+	    if not (mount and mount:HasTag("woby")) and inst:HasTag("shadow_tallbird_dash") then
+           inst.components.health:SetInvincible(false)
+			if inst.components.playercontroller then
+				inst.components.playercontroller:Enable(true)
+			end
+			ToggleOnPhysics(inst)
+			inst.AnimState:SetMultColour(1, 1, 1, 1)
+			inst.Physics:Stop()
+            inst.sg.statemem.silhoutte:Remove()
+        end
+    end
+
+---dash_woby_pst
+    local dash_pst_state = sg.states["dash_woby_pst"]
+   
+    local old_onexit = dash_pst_state.onexit
+    dash_pst_state.onexit = function(inst)
+        local mount = inst.components.rider:GetMount()
+	    if mount and mount:HasTag("woby") then
+            old_onexit(inst)
+        end
+    end
+
+    for i, ev in ipairs(dash_pst_state.timeline) do
+        if ev.frame == 12 then
+            local old_fn = ev.fn
+            ev.fn = function(inst)
+                local mount = inst.components.rider:GetMount()
+                if mount and mount:HasTag("woby") then
+                    old_fn(inst)
+                end
+            end
+            break
+        end
+    end
 end)
 
 AddPrefabPostInit("purebrilliance", function(inst)
-    inst:AddTag("bird_plannaritem")
-    inst:AddComponent("bird_plannaritem")
+    inst:AddTag("bird_planaritem")
+    inst:AddComponent("bird_planaritem")
 end)
 
 AddPrefabPostInit("horrorfuel", function(inst)
-    inst:AddTag("bird_plannaritem")
-    inst:AddComponent("bird_plannaritem")
+    inst:AddTag("bird_planaritem")
+    inst:AddComponent("bird_planaritem")
 end)
 
 local WAX_fn = ACTIONS.WAX.fn
@@ -2647,32 +2901,119 @@ AddComponentAction("EQUIPPED", "wax", function(inst, doer, target, actions, righ
     end
 end)
 
-local BIRD_PLANNARITEM = Action()
-BIRD_PLANNARITEM.id = "BIRD_PLANNARITEM"
-BIRD_PLANNARITEM.strfn = function (act)
-    return "PLANNAR"
+local function tallbird_buff(inst,obj,number)
+    local name1 = number==1 and "lunar_tallbird" or "shadow_tallbird"
+    local name2 = number==1 and "shadow_tallbird" or "lunar_tallbird"
+    local followers = inst.components.leader and inst.components.leader.followers
+    if inst.components.debuffable then
+        if inst.components.debuffable:HasDebuff(name2) then
+            inst.components.debuffable:RemoveDebuff(name2)
+        end
+        inst.components.debuffable:AddDebuff(name1,"buff_"..name1)
+    end
+    for follower, _ in pairs(followers) do
+        if follower:HasTag("tallbird") and follower.components.debuffable then
+            if follower.components.debuffable:HasDebuff(name2) then
+                follower.components.debuffable:RemoveDebuff(name2)
+            end
+            follower.components.debuffable:AddDebuff(name1,"buff_"..name1)
+        end
+    end
+    if obj and obj.components.stackable then
+        if inst:HasTag("wurt_lunar_spelluser") and number==2 then
+            obj.components.stackable:Get():Remove()
+        elseif inst:HasTag("wurt_shadow_spelluser") and number==1 then
+            obj.components.stackable:Get():Remove()
+        end
+        if not inst:HasTag("merm_builder") then
+            obj.components.stackable:Get():Remove()
+        end
+    elseif obj then
+        if inst:HasTag("wurt_lunar_spelluser") and number==2 then
+            obj:Remove()
+        elseif inst:HasTag("wurt_shadow_spelluser") and number==1 then
+            obj:Remove()
+        end
+        if not inst:HasTag("merm_builder") then
+            obj:Remove()
+        end
+    end
 end
-BIRD_PLANNARITEM.priority = 20
-BIRD_PLANNARITEM.fn = function (act)
+local CASTSPELL_fn = ACTIONS.CASTSPELL.fn
+ACTIONS.CASTSPELL.fn = function (act)
+    local doer = act.doer
+    local obj = act.invobject
+    if doer:HasTag("bird_family") then
+        if obj and obj.prefab=="purebrilliance" then
+            tallbird_buff(doer,obj,1)
+            if not doer:HasTag("merm_builder") then
+                return true
+            end
+        elseif obj and obj.prefab=="horrorfuel" then
+            tallbird_buff(doer,obj,2)
+            if not doer:HasTag("merm_builder") then
+                return true
+            end
+        end
+    end
+    return CASTSPELL_fn(act)
+end
+AddComponentAction("INVENTORY", "bird_planaritem", function(inst, doer, actions, right)
+    if doer:HasTag("bird_family") then
+        table.insert(actions, ACTIONS.CASTSPELL)
+    end
+end)
+
+local SHADOW_TALLBIRD_DASH = Action()
+SHADOW_TALLBIRD_DASH.id = "SHADOW_TALLBIRD_DASH"
+SHADOW_TALLBIRD_DASH.strfn = function (act)
+    return "SHADOW_TALLBIRD_DASH"
+end
+SHADOW_TALLBIRD_DASH.distance = math.huge
+SHADOW_TALLBIRD_DASH.mount_valid = true
+SHADOW_TALLBIRD_DASH.invalid_hold_action = true
+SHADOW_TALLBIRD_DASH.fn = function(act)
+	local pt = act:GetActionPoint()
+	if pt then
+		act.doer:ForceFacePoint(pt)
+		return true
+	end
+	return false
+end
+AddAction(SHADOW_TALLBIRD_DASH)
+STRINGS.ACTIONS.SHADOW_TALLBIRD_DASH = {
+    SHADOW_TALLBIRD_DASH = "暗影冲刺"
+}
+
+AddStategraphActionHandler("wilson", ActionHandler(ACTIONS.SHADOW_TALLBIRD_DASH, "dash_woby_pre"))
+AddStategraphActionHandler("wilson_client", ActionHandler(ACTIONS.SHADOW_TALLBIRD_DASH, "dash_woby_pre"))
+
+local BIRD_PLANARITEM = Action()
+BIRD_PLANARITEM.id = "BIRD_PLANARITEM"
+BIRD_PLANARITEM.strfn = function (act)
+    return "PLANAR"
+end
+BIRD_PLANARITEM.priority = 20
+BIRD_PLANARITEM.fn = function (act)
     local obj = act.invobject
     local target = act.target
-    if obj.components.bird_plannaritem and target.components.bird_cultivate and target.components.bird_cultivate.plannar==false
+    if obj.components.bird_planaritem and target.components.bird_cultivate and target.components.bird_cultivate.planar~=true
     then
-        return obj.components.bird_plannaritem:Do(obj,target)
+        return obj.components.bird_planaritem:Do(obj,target)
     end
     return false
 end
-AddAction(BIRD_PLANNARITEM)
-STRINGS.ACTIONS.BIRD_PLANNARITEM = {
-    PLANNAR = "位面化"
+AddAction(BIRD_PLANARITEM)
+STRINGS.ACTIONS.BIRD_PLANARITEM = {
+    PLANAR = "位面化"
 }
 
-AddStategraphActionHandler("wilson", ActionHandler(ACTIONS.BIRD_PLANNARITEM, "give"))
-AddStategraphActionHandler("wilson_client", ActionHandler(ACTIONS.BIRD_PLANNARITEM, "give"))
+AddStategraphActionHandler("wilson", ActionHandler(ACTIONS.BIRD_PLANARITEM, "give"))
+AddStategraphActionHandler("wilson_client", ActionHandler(ACTIONS.BIRD_PLANARITEM, "give"))
 
-AddComponentAction("USEITEM", "bird_plannaritem", function(inst, doer, target, actions, right)
-    if inst:HasTag("bird_plannaritem") and target:HasTag("tallbird") and doer:HasTag("bird_family") and not target:HasTag("bird_plannared") then
-        table.insert(actions, ACTIONS.BIRD_PLANNARITEM)
+AddComponentAction("USEITEM", "bird_planaritem", function(inst, doer, target, actions, right)
+    if inst:HasTag("bird_planaritem") and target:HasTag("tallbird") and not target:HasTag("bird_planared") then
+        table.insert(actions, ACTIONS.BIRD_PLANARITEM)
     end
 end)
 
