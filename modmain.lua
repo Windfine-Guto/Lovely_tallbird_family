@@ -16,6 +16,7 @@ PrefabFiles = GetModConfigData('lovely_tallbird_family'..'skins') and {
     "tallbird_comb",
     "tallbird_buffs",
     "tallbird_eyefx",
+    "lunar_tallbird_laser"
 }
 or {
     "tallbird",
@@ -24,6 +25,7 @@ or {
     "tallbird_comb",
     "tallbird_buffs",
     "tallbird_eyefx",
+    "lunar_tallbird_laser"
 }
 
 local writeables = require("writeables")
@@ -120,6 +122,7 @@ TUNING.TALLBIRD_PLAYER_DAMAGE = GetModConfigData(modid..'_add_damage')
 TUNING.TALLBIRD_PLAYER_ABSOR = GetModConfigData(modid..'_add_absor')
 TUNING.TALLBIRD_PLAYER_SPEED = GetModConfigData(modid..'_add_speed')
 TUNING.TALLBIRD_PLAYER_LIMIT = GetModConfigData(modid..'_add_limit')
+TUNING.TALLBIRD_PLANAR_TIME = GetModConfigData(modid..'buff_time')
 
 local locale = GLOBAL.LOC.GetLocaleCode()
 if locale == "zh" or locale == "zht" or locale=="zhr" then
@@ -317,11 +320,7 @@ local function GetDoubleClickActions(inst, pos, dir, target)
 		end
 		return { ACTIONS.SHADOW_TALLBIRD_DASH }, pos2
     end
-    if old_doubleclickactionsfn~=nil then
-        return old_doubleclickactionsfn(inst, pos, dir, target)
-    else
-        return {}
-    end
+    return old_doubleclickactionsfn~=nil and old_doubleclickactionsfn(inst, pos, dir, target) or {}
 end
 local function OnSetOwner(inst)
 	if inst.components.playeractionpicker then
@@ -677,6 +676,7 @@ local function OnGetItemFromPlayer(inst, giver, item)
             -- yay!?
         end
         if inst.components.follower and inst.components.follower.leader==nil then
+            giver:PushEvent("makefriend")
             inst.components.follower:SetLeader(giver)
         end
     end
@@ -839,6 +839,7 @@ local function OnGetItemFromPlayer(inst, giver, item)
     --I eat food
     if item.components.edible then
         if inst.components.combat.target and inst.components.combat.target == giver then
+            giver:PushEvent("makefriend")
             inst.components.combat:SetTarget(nil)
         end
         if inst.components.eater:Eat(item, giver) then
@@ -2913,6 +2914,10 @@ local function tallbird_buff(inst,obj,number)
     end
     for follower, _ in pairs(followers) do
         if follower:HasTag("tallbird") and follower.components.debuffable then
+            if follower.components.bird_cultivate and follower.components.bird_cultivate.planar~=true then
+                follower.components.bird_cultivate.planar=true
+                follower.components.bird_cultivate:Updata()
+            end
             if follower.components.debuffable:HasDebuff(name2) then
                 follower.components.debuffable:RemoveDebuff(name2)
             end
@@ -3017,10 +3022,10 @@ AddComponentAction("USEITEM", "bird_planaritem", function(inst, doer, target, ac
     end
 end)
 
-AddPrefabPostInit("twigs", function(inst)
-    inst:AddTag("bird_follow")
-    inst:AddComponent("bird_follow")
-end)
+-- AddPrefabPostInit("twigs", function(inst)
+--     inst:AddTag("bird_follow")
+--     inst:AddComponent("bird_follow")
+-- end)
 
 AddPrefabPostInit("cutgrass", function(inst)
     inst:AddTag("bird_leave")
@@ -3044,46 +3049,46 @@ BIRD_LEAVE.fn = function (act)
 end
 AddAction(BIRD_LEAVE)
 STRINGS.ACTIONS.BIRD_LEAVE = {
-    LEAVE = "取消跟随"
+    LEAVE = "筑巢穴"
 }
 
 AddStategraphActionHandler("wilson", ActionHandler(ACTIONS.BIRD_LEAVE, "give"))
 AddStategraphActionHandler("wilson_client", ActionHandler(ACTIONS.BIRD_LEAVE, "give"))
 
 AddComponentAction("USEITEM", "bird_leave", function(inst, doer, target, actions, right)
-    if inst:HasTag("bird_leave") and target:HasTag("lovely_bird") and not target:HasTag("bird_leaver") and target:HasTag("tallbird") then
+    if inst:HasTag("bird_leave") and target:HasTag("lovely_bird") and target:HasTag("tallbird") then
         table.insert(actions, ACTIONS.BIRD_LEAVE)
     end
 end)
 
-local BIRD_FOLLOW = Action()
-BIRD_FOLLOW.id = "BIRD_FOLLOW"
-BIRD_FOLLOW.strfn = function (act)
-    return "FOLLOW"
-end
-BIRD_FOLLOW.priority = 20
-BIRD_FOLLOW.fn = function (act)
-    local obj = act.invobject
-    local target = act.target
-    local doer = act.doer
-    if obj.components.bird_follow and target.components.bird_cultivate then
-        return obj.components.bird_follow:Follow(obj,target,doer)
-    end
-    return false
-end
-AddAction(BIRD_FOLLOW)
-STRINGS.ACTIONS.BIRD_FOLLOW = {
-    FOLLOW = "跟随"
-}
+-- local BIRD_FOLLOW = Action()
+-- BIRD_FOLLOW.id = "BIRD_FOLLOW"
+-- BIRD_FOLLOW.strfn = function (act)
+--     return "FOLLOW"
+-- end
+-- BIRD_FOLLOW.priority = 20
+-- BIRD_FOLLOW.fn = function (act)
+--     local obj = act.invobject
+--     local target = act.target
+--     local doer = act.doer
+--     if obj.components.bird_follow and target.components.bird_cultivate then
+--         return obj.components.bird_follow:Follow(obj,target,doer)
+--     end
+--     return false
+-- end
+-- AddAction(BIRD_FOLLOW)
+-- STRINGS.ACTIONS.BIRD_FOLLOW = {
+--     FOLLOW = "跟随"
+-- }
 
-AddStategraphActionHandler("wilson", ActionHandler(ACTIONS.BIRD_FOLLOW, "give"))
-AddStategraphActionHandler("wilson_client", ActionHandler(ACTIONS.BIRD_FOLLOW, "give"))
+-- AddStategraphActionHandler("wilson", ActionHandler(ACTIONS.BIRD_FOLLOW, "give"))
+-- AddStategraphActionHandler("wilson_client", ActionHandler(ACTIONS.BIRD_FOLLOW, "give"))
 
-AddComponentAction("USEITEM", "bird_follow", function(inst, doer, target, actions, right)
-    if inst:HasTag("bird_follow") and doer:HasTag("bird_family") and not target:HasTag("bird_follower") and target:HasTag("tallbird") then
-        table.insert(actions, ACTIONS.BIRD_FOLLOW)
-    end
-end)
+-- AddComponentAction("USEITEM", "bird_follow", function(inst, doer, target, actions, right)
+--     if inst:HasTag("bird_follow") and doer:HasTag("bird_family") and not target:HasTag("bird_follower") and target:HasTag("tallbird") then
+--         table.insert(actions, ACTIONS.BIRD_FOLLOW)
+--     end
+-- end)
 
 local BIRD_NAMED = Action()
 BIRD_NAMED.id = "BIRD_NAMED"

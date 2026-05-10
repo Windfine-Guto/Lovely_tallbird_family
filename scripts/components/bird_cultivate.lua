@@ -4,7 +4,6 @@ local Bird_cultivate = Class(function(self, inst)
     self.wild = true
     self.planar = false
     self.gift = false
-    self.follow = true
     self.nogrow = false
     self.reputation = nil
     self.playerid = nil
@@ -124,7 +123,7 @@ function Bird_cultivate:Updata()
             self.inst:AddComponent("planardamage")
         end
         self.inst.components.planardamage:SetBaseDamage(TUNING.TALLBIRD_PLANAR_DAMAGE)
-        if self.inst.components.planardefense then
+        if self.inst.components.planardefense==nil then
             self.inst:AddComponent("planardefense")
         end
         self.inst.components.planardefense:SetBaseDefense(TUNING.TALLBIRD_PLANAR_DEFENSE)
@@ -146,17 +145,6 @@ function Bird_cultivate:Updata()
     end
     if self.inst:HasTag("tallbird") and self.inst.components.combat then
         self.inst.components.combat:SetRetargetFunction(1.5, Retarget)
-    end
-    if self.follow==true then
-        if not self.inst:HasTag("bird_follower") then
-            self.inst:AddTag("bird_follower")
-        end
-        self.inst:RemoveTag("bird_leaver")
-    else
-        if not self.inst:HasTag("bird_leaver") then
-            self.inst:AddTag("bird_leaver")
-        end
-        self.inst:RemoveTag("bird_follower")
     end
     if not self.inst:HasTag("lovely_bird") then
         self.inst:AddTag("lovely_bird")
@@ -226,14 +214,12 @@ end
 function Bird_cultivate:SetLeader(leader)
     if self.inst.components.follower and not self.inst.components.follower.leader then
         self.inst.components.follower:SetLeader(leader)
-        self.follow=true
     end
 end
 
 function Bird_cultivate:NoLeader(doer)
     if self.inst.components.follower and self.inst.components.follower.leader==doer then
         self.inst.components.follower:SetLeader(nil)
-        self.follow=false
     end
 end
 
@@ -286,7 +272,6 @@ function Bird_cultivate:OnSave()
     return {
         wild = self.wild,
         planar = self.planar,
-        follow = self.follow,
         nogrow = self.nogrow,
         reputation = self.reputation,
         playerid = self.playerid
@@ -296,7 +281,6 @@ function Bird_cultivate:OnLoad(data)
     if data~=nil then
         self.wild = data.wild
         self.planar = data.planar
-        self.follow = data.follow
         self.nogrow = data.nogrow
         self.reputation = data.reputation
         self.playerid = data.playerid

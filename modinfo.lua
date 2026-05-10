@@ -1,7 +1,7 @@
 local modid = 'lovely_tallbird_family'
 local cur = (locale == 'zh' or locale == 'zhr') and 'zh' or 'en'
 
-version = '26.05.09'
+version = '26.05.10'
 author = 'over_dragon、Guto'
 
 forumthread = ''
@@ -230,7 +230,7 @@ local LANGS = {
                 {'30',30},
                 {'35',35}
             }},
-            {modid..'_planar_absor','伤害吸收','位面伤害除外',0.2,{
+            {modid..'_planar_absor','伤害吸收','位面伤害除外',0.3,{
                 {'0%',0},
                 {'10%',0.1},
                 {'20%',0.2},
@@ -243,30 +243,43 @@ local LANGS = {
                 {'90%',0.9}
             }},
             {'释放法术每只高脚鸟提供的加成及上限'},
-            {modid..'_add_speed','移速','',0.02,{
+            {modid..'_add_speed','移速','',0.05,{
                 {'1%',0.01},
                 {'2%',0.02},
                 {'3%',0.03},
                 {'4%',0.04},
-                {'5%',0.05}
+                {'5%',0.05},
+                {'10%',0.1}
             }},
-            {modid..'_add_absor','减伤','',0.02,{
+            {modid..'_add_absor','减伤','',0.05,{
                 {'1%',0.01},
                 {'2%',0.02},
                 {'3%',0.03},
                 {'4%',0.04},
+                {'5%',0.05},
+                {'6%',0.06}
             }},
-            {modid..'_add_damage','增伤','',0.02,{
+            {modid..'_add_damage','增伤','',0.05,{
                 {'1%',0.01},
                 {'2%',0.02},
                 {'3%',0.03},
                 {'4%',0.04},
-                {'5%',0.05}
+                {'5%',0.05},
+                {'10%',0.1}
             }},
             {modid..'_add_limit','数量上限','',10,{
                 {'5',5},
                 {'8',8},
                 {'10',10},
+                {'15',15}
+            }},
+            {modid..'buff_time','持续时间','',0.5,{
+                {'1分钟',0.125},
+                {'2分钟',0.25},
+                {'4分钟',0.5},
+                {'8分钟',1},
+                {'16分钟',2},
+                {'32分钟',4}
             }},
             {'全部鸟'},
             {modid..'_birdfollow','鸟跟随上下洞穴','但是换角色时鸟会消失',true,{
@@ -499,7 +512,7 @@ local LANGS = {
                 {'30', 30},
                 {'35', 35},
             }},
-            {modid..'_planar_absor', 'Damage Absorption', 'Except Planar Damage', 0.2, {
+            {modid..'_planar_absor', 'Damage Absorption', 'Except Planar Damage', 0.3, {
                 {'0%', 0},
                 {'10%', 0.1},
                 {'20%', 0.2},
@@ -511,31 +524,44 @@ local LANGS = {
                 {'80%', 0.8},
                 {'90%', 0.9},
             }},
-            {"Bonus per Tallbird when casting the spell and the limit"},
-            {modid..'_add_speed', 'Movement Speed', '', 0.02, {
-                {'1%', 0.01},
-                {'2%', 0.02},
-                {'3%', 0.03},
-                {'4%', 0.04},
-                {'5%', 0.05},
+            {'Bonus and cap provided by each Tallbird when casting spells'},
+            {modid..'_add_speed','Move Speed','',0.05,{
+                {'1%',0.01},
+                {'2%',0.02},
+                {'3%',0.03},
+                {'4%',0.04},
+                {'5%',0.05},
+                {'10%',0.1}
             }},
-            {modid..'_add_absor', 'Damage Reduction', '', 0.02, {
-                {'1%', 0.01},
-                {'2%', 0.02},
-                {'3%', 0.03},
-                {'4%', 0.04},
+            {modid..'_add_absor','Damage Reduction','',0.05,{
+                {'1%',0.01},
+                {'2%',0.02},
+                {'3%',0.03},
+                {'4%',0.04},
+                {'5%',0.05},
+                {'6%',0.06}
             }},
-            {modid..'_add_damage', 'Damage Increase', '', 0.02, {
-                {'1%', 0.01},
-                {'2%', 0.02},
-                {'3%', 0.03},
-                {'4%', 0.04},
-                {'5%', 0.05},
+            {modid..'_add_damage','Damage Increase','',0.05,{
+                {'1%',0.01},
+                {'2%',0.02},
+                {'3%',0.03},
+                {'4%',0.04},
+                {'5%',0.05},
+                {'10%',0.1}
             }},
-            {modid..'_add_limit', 'Max Count', '', 10, {
-                {'5', 5},
-                {'8', 8},
-                {'10', 10},
+            {modid..'_add_limit','Max Count','',10,{
+                {'5',5},
+                {'8',8},
+                {'10',10},
+                {'15',15}
+            }},
+            {modid..'buff_time','Duration','',0.5,{
+                {'1 min',0.125},
+                {'2 min',0.25},
+                {'4 min',0.5},
+                {'8 min',1},
+                {'16 min',2},
+                {'32 min',4}
             }},
             {'All Bird'},
             {modid..'_birdfollow','Bird Cave Transition Follow','Disappears when switching characters',true,{

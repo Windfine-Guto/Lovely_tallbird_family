@@ -256,7 +256,7 @@ end
 
 local function OnRefuseRider(inst, data)
     inst:DoTaskInTime(0.1,function ()
-        if inst.components.sleeper:IsAsleep() and not inst.components.health:IsDead() then
+        if inst.components.sleeper and inst.components.sleeper:IsAsleep() and not inst.components.health:IsDead() then
             inst.components.sleeper:WakeUp()
         end
     end)
@@ -267,22 +267,7 @@ local function OnRefuseGiver(inst, giver, item)
     if leader and leader~=giver then
         return
     end
-    if item and item.prefab=="twigs" then
-        if talker then
-            if leader and leader==giver then
-                return
-            end
-            talker:Say(GetString(giver,"ANNOUNCE_TALLBIRD_NOFAMILY"))
-        end
-    elseif item and item.prefab=="cutgrass"  then
-        if leader and leader~=giver then
-            return
-        end
-        if talker then
-            talker:Say(GetString(giver,"ANNOUNCE_TALLBIRD_NOFAMILY"))
-        end
-    end
-    if inst.components.sleeper:IsAsleep() then
+    if inst.components.sleeper and inst.components.sleeper:IsAsleep() then
         inst.components.sleeper:WakeUp()
     end
 end
@@ -319,7 +304,34 @@ end
     -- end
 --     return true
 -- end
-
+local function AddSleeper(inst)
+    if inst.components.sleeper ~= nil then
+        inst.components.sleeper.watchlight = true
+        inst.components.sleeper:SetResistance(3)
+        inst.components.sleeper.testperiod = GetRandomWithVariance(6, 2)
+        inst.components.sleeper:SetSleepTest(ShouldSleep)
+        inst.components.sleeper:SetWakeTest(ShouldWake)
+        return
+    end
+    inst:AddComponent("sleeper")
+    inst.components.sleeper.watchlight = true
+    inst.components.sleeper:SetResistance(3)
+    inst.components.sleeper.testperiod = GetRandomWithVariance(6, 2)
+    inst.components.sleeper:SetSleepTest(ShouldSleep)
+    inst.components.sleeper:SetWakeTest(ShouldWake)
+end
+local function planar_buff(inst,name1,name2)
+    if inst.components.bird_cultivate and inst.components.bird_cultivate.planar~=true then
+        inst.components.bird_cultivate.planar=true
+        inst.components.bird_cultivate:Updata()
+    end
+    if inst.components.debuffable then
+        if inst.components.debuffable:HasDebuff(name2) then
+            inst.components.debuffable:RemoveDebuff(name2)
+        end
+        inst.components.debuffable:AddDebuff(name1,"buff_"..name1)
+    end
+end
 local function fn()
     local inst = CreateEntity()
 
@@ -415,12 +427,7 @@ local function fn()
     inst.components.eater:SetDiet({ FOODGROUP.OMNI }, { FOODGROUP.OMNI })
 
     ------------------
-    inst:AddComponent("sleeper")
-    inst.components.sleeper.watchlight = true
-    inst.components.sleeper:SetResistance(3)
-    inst.components.sleeper.testperiod = GetRandomWithVariance(6, 2)
-    inst.components.sleeper:SetSleepTest(ShouldSleep)
-    inst.components.sleeper:SetWakeTest(ShouldWake)
+    AddSleeper(inst)
     ------------------
 
     inst:AddComponent("named")
@@ -461,6 +468,18 @@ local function fn()
     end
     end)
     inst:ListenForEvent("death", OnDeath)
+    inst:ListenForEvent("sleep_immunity",function ()
+        if inst.components.sleeper then
+            if inst.components.sleeper:IsAsleep() then
+                inst.components.sleeper:WakeUp()
+                inst.sg:GoToState("idle")
+            end
+            inst:DoTaskInTime(0.2,function ()
+                inst:RemoveComponent("sleeper")
+            end)
+        end
+    end)
+    inst:ListenForEvent("remove_sleep_immunity",AddSleeper)
     ------------------
     inst.userfunctions={}
     inst.userfunctions.GetPeepChance=function ()
@@ -471,6 +490,12 @@ local function fn()
 	inst.MakeNewHome = MakeNewHome
     inst.ApplyBuildOverrides = ApplyBuildOverrides
     inst.ClearBuildOverrides = ClearBuildOverrides
+    inst.planar_buff = function (world)
+        local is_lunar = not TheWorld:HasTag("cave")
+        local name1 = is_lunar and "lunar_tallbird" or "shadow_tallbird"
+        local name2 = is_lunar and "shadow_tallbird" or "lunar_tallbird"
+        planar_buff(inst,name1,name2)
+    end
 
     inst:SetBrain(brain)
 
@@ -478,6 +503,8 @@ local function fn()
 
     inst:ListenForEvent("entitysleep", OnEntitySleep)
     inst:ListenForEvent("entitywake", OnEntityWake)
+    inst:ListenForEvent("ms_lunarrift_maxsize",inst.planar_buff,TheWorld)
+    inst:ListenForEvent("ms_shadowrift_maxsize",inst.planar_buff,TheWorld)
     return inst
 end
 
