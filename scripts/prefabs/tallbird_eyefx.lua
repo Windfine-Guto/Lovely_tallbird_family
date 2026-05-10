@@ -66,6 +66,7 @@ local function fn2()
     inst.AnimState:SetBuild("merm_actions_skills")
     inst.AnimState:PlayAnimation("flame", true)
 	inst.AnimState:SetFinalOffset(1)
+    inst.AnimState:SetMultColour(1, 1, 1, 0.3)
 
 	inst.Transform:SetNoFaced()
 
