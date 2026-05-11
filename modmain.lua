@@ -123,6 +123,8 @@ TUNING.TALLBIRD_PLAYER_ABSOR = GetModConfigData(modid..'_add_absor')
 TUNING.TALLBIRD_PLAYER_SPEED = GetModConfigData(modid..'_add_speed')
 TUNING.TALLBIRD_PLAYER_LIMIT = GetModConfigData(modid..'_add_limit')
 TUNING.TALLBIRD_PLANAR_TIME = GetModConfigData(modid..'buff_time')
+TUNING.TALLBIRD_LASER_DAMAGE = GetModConfigData(modid..'laser_damage')
+TUNING.TALLBIRD_TENTACLE_NUM = GetModConfigData(modid..'tentacle_num')
 
 local locale = GLOBAL.LOC.GetLocaleCode()
 if locale == "zh" or locale == "zht" or locale=="zhr" then

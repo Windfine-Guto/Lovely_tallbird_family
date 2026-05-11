@@ -228,7 +228,7 @@ local function common_fn(isempty)
     end
 
     inst:AddComponent("combat")
-    inst.components.combat:SetDefaultDamage(TUNING.ALTERGUARDIAN_PHASE3_LASERDAMAGE/2)
+    inst.components.combat:SetDefaultDamage(TUNING.TALLBIRD_LASER_DAMAGE)
     inst.components.combat:SetKeepTargetFunction(KeepTargetFn)
 
     inst.task = inst:DoTaskInTime(0, inst.Remove)

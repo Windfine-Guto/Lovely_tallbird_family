@@ -1,7 +1,7 @@
 local modid = 'lovely_tallbird_family'
 local cur = (locale == 'zh' or locale == 'zhr') and 'zh' or 'en'
 
-version = '26.05.10'
+version = '26.05.11'
 author = 'over_dragon、Guto'
 
 forumthread = ''
@@ -242,7 +242,7 @@ local LANGS = {
                 {'80%',0.8},
                 {'90%',0.9}
             }},
-            {'释放法术每只高脚鸟提供的加成及上限'},
+            {'释放法术每只高脚鸟提供的加成及上限等'},
             {modid..'_add_speed','移速','',0.05,{
                 {'1%',0.01},
                 {'2%',0.02},
@@ -280,6 +280,25 @@ local LANGS = {
                 {'8分钟',1},
                 {'16分钟',2},
                 {'32分钟',4}
+            }},
+            {modid..'laser_damage','每束激光伤害','',20,{
+                {'10',10},
+                {'20',20},
+                {'30',30},
+                {'40',40},
+                {'50',50},
+                {'60',60},
+                {'70',70},
+                {'80',80},
+                {'90',90},
+                {'100',100}
+            }},
+            {modid..'tentacle_num','单次攻击召唤触手数量','',1,{
+                {'1',1},
+                {'2',2},
+                {'3',3},
+                {'4',4},
+                {'5',5}
             }},
             {'全部鸟'},
             {modid..'_birdfollow','鸟跟随上下洞穴','但是换角色时鸟会消失',true,{
@@ -524,7 +543,7 @@ local LANGS = {
                 {'80%', 0.8},
                 {'90%', 0.9},
             }},
-            {'Bonus and cap provided by each Tallbird when casting spells'},
+            {'Bonus and cap provided by each Tallbird when casting spells, etc.'},
             {modid..'_add_speed','Move Speed','',0.05,{
                 {'1%',0.01},
                 {'2%',0.02},
@@ -562,6 +581,25 @@ local LANGS = {
                 {'8 min',1},
                 {'16 min',2},
                 {'32 min',4}
+            }},
+            {modid..'laser_damage','Laser Damage Per Beam','',20,{
+                {'10',10},
+                {'20',20},
+                {'30',30},
+                {'40',40},
+                {'50',50},
+                {'60',60},
+                {'70',70},
+                {'80',80},
+                {'90',90},
+                {'100',100}
+            }},
+            {modid..'tentacle_num','Tentacles Per Attack','',1,{
+                {'1',1},
+                {'2',2},
+                {'3',3},
+                {'4',4},
+                {'5',5}
             }},
             {'All Bird'},
             {modid..'_birdfollow','Bird Cave Transition Follow','Disappears when switching characters',true,{

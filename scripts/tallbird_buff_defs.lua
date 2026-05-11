@@ -11,7 +11,7 @@ local function shadow_buff(inst,data)
             pt = inst:GetPosition()
             target = nil
         end
-        for i = 1, 3 do
+        for i = 1, TUNING.TALLBIRD_TENTACLE_NUM do
             local offset = FindWalkableOffset(pt, math.random() * TWOPI, 2, 3, false, true, NoHoles, false, true)
             if offset ~= nil then
                 inst.SoundEmitter:PlaySound("dontstarve/common/shadowTentacleAttack_1")
