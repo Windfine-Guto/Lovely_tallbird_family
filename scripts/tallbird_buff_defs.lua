@@ -319,6 +319,9 @@ local buffs = {
                     target.components.health.externalabsorbmodifiers:SetModifier(inst, i*TUNING.TALLBIRD_PLAYER_ABSOR, "shadow_tallbird_absor")
                 end
             end
+            if target.components.health then
+                target.components.health:DoDelta(target.components.health.maxhealth*.2,nil,inst)
+            end
             RemoveShadowFx(target)
             CreateShadowFx(target)
             target:RemoveEventCallback("onattackother",shadow_buff)
@@ -412,6 +415,9 @@ local buffs = {
                 if target.components.health then
                     target.components.health.externalabsorbmodifiers:SetModifier(inst, i*TUNING.TALLBIRD_PLAYER_ABSOR, "lunar_tallbird_absor")
                 end
+            end
+            if target.components.health then
+                target.components.health:DoDelta(target.components.health.maxhealth*.2,nil,inst)
             end
             RemoveLunarFx(target)
             CreateLunarFx(target)

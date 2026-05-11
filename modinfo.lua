@@ -1,7 +1,7 @@
 local modid = 'lovely_tallbird_family'
 local cur = (locale == 'zh' or locale == 'zhr') and 'zh' or 'en'
 
-version = '26.05.11'
+version = '26.05.12'
 author = 'over_dragon、Guto'
 
 forumthread = ''

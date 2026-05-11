@@ -841,7 +841,6 @@ local function OnGetItemFromPlayer(inst, giver, item)
     --I eat food
     if item.components.edible then
         if inst.components.combat.target and inst.components.combat.target == giver then
-            giver:PushEvent("makefriend")
             inst.components.combat:SetTarget(nil)
         end
         if inst.components.eater:Eat(item, giver) then
@@ -849,6 +848,7 @@ local function OnGetItemFromPlayer(inst, giver, item)
             -- yay!?
         end
         if inst.components.follower and inst.components.follower.leader==nil then
+            giver:PushEvent("makefriend")
             inst.components.follower:SetLeader(giver)
         end
     end
@@ -1227,6 +1227,28 @@ local function WaitTargetDist(inst)
     )
 end
 
+local function GetLeader(inst)
+    return inst.components.follower and inst.components.follower:GetLeader()
+end
+
+local function GetLeaderPos(inst)
+    local leader = GetLeader(inst)
+    if not leader then
+        return nil
+    end
+
+    return leader:GetPosition()
+end
+
+local function DanceParty(inst)
+    inst:PushEvent("dance")
+end
+
+local function ShouldDanceParty(inst)
+    local leader = GetLeader(inst)
+    return leader ~= nil and leader.sg:HasStateTag("dancing")
+end
+
     table.insert(self.bt.root.children,4,WhileNode(function() return ShouldWaitForHelp(self.inst) end, "WaitingForHelp",
             PriorityNode({
                 Follow(self.inst, function() return GetWaitTarget(self.inst) end, MIN_FOLLOW_TARGET_DIST, WaitTargetDist, MAX_FOLLOW_TARGET_DIST),
@@ -1264,6 +1286,11 @@ end
     table.insert(self.bt.root.children,12,BrainCommon.NodeAssistLeaderDoAction(self, {
             action = "MINE", 
         }))
+    table.insert(self.bt.root.children,3,WhileNode(function() return ShouldDanceParty(self.inst) end, "Dance Party",
+        PriorityNode({
+            Leash(self.inst, GetLeaderPos, TUNING.ABIGAIL_DEFENSIVE_MED_FOLLOW, TUNING.ABIGAIL_DEFENSIVE_MED_FOLLOW),
+            ActionNode(function() DanceParty(self.inst) end),
+    })))
 end)
 AddBrainPostInit("tallbirdbrain", function(self)
 local THREAT_CANT_TAGS = {'tallbird', 'notarget','teenbird','smallbird','bird_friend'}
@@ -1286,7 +1313,7 @@ local function DefendHomeAction(inst)
     end
 end
 local function GetLeader(inst)
-    return inst.components.follower and inst.components.follower.leader
+    return inst.components.follower and inst.components.follower:GetLeader()
 end
 local function GetTraderFn(inst)
     return inst.components.follower.leader ~= nil
@@ -1309,6 +1336,24 @@ local function ShouldAttack(self)
     return target ~= nil and target:IsValid()
     and self.inst.components.combat:CanTarget(target)
     and not self.inst.components.combat:InCooldown()
+end
+
+local function GetLeaderPos(inst)
+    local leader = GetLeader(inst)
+    if not leader then
+        return nil
+    end
+
+    return leader:GetPosition()
+end
+
+local function DanceParty(inst)
+    inst:PushEvent("dance")
+end
+
+local function ShouldDanceParty(inst)
+    local leader = GetLeader(inst)
+    return leader ~= nil and leader.sg:HasStateTag("dancing")
 end
 
     table.remove(self.bt.root.children,4)
@@ -1360,96 +1405,15 @@ end
     table.insert(self.bt.root.children,14,BrainCommon.NodeAssistLeaderDoAction(self, {
             action = "MINE", 
         }))
+    table.insert(self.bt.root.children,3,WhileNode(function() return ShouldDanceParty(self.inst) end, "Dance Party",
+        PriorityNode({
+            Leash(self.inst, GetLeaderPos, TUNING.ABIGAIL_DEFENSIVE_MED_FOLLOW, TUNING.ABIGAIL_DEFENSIVE_MED_FOLLOW),
+            ActionNode(function() DanceParty(self.inst) end),
+    })))
 end)
 
 AddPrefabPostInit("tallbird", function(inst)
---     inst.userfunctions={}
---     inst.userfunctions.GetPeepChance=function ()
---         return 0.9
---     end
---     if inst.components.locomotor then
---         inst.components.locomotor.walkspeed=10
---     end
--- local RETARGET_MUST_TAGS = { "_combat", "_health" }
--- local RETARGET_CANT_TAGS_HOME={"tallbird","teenbird","smallbird","bird_friend"}
--- local RETARGET_CANT_TAGS = { "tallbird","teenbird","smallbird","player",
--- "glommer","chester","companion","beefalo","hutch","abigail" }
--- local RETARGET_ONEOF_TAGS = { "animal","monster","pig" }
--- local RETARGET_ANIMAL_ONEOF_TAGS = { "animal", "monster","character" }
--- local function Retarget(inst)
---     local function IsValidTarget(guy)
---         return not guy.components.health:IsDead()
---             and inst.components.combat:CanTarget(guy)
---             and (not inst:HasTag("smallbird") or inst:HasTag("companion"))
---     end
---     return --Threat to nest
---         inst.components.homeseeker ~= nil and
---         inst.components.homeseeker:HasHome() and
---         FindEntity(
---             inst.components.homeseeker.home,
---             SpringCombatMod(TUNING.TALLBIRD_DEFEND_DIST/2),
---             IsValidTarget,
---             RETARGET_MUST_TAGS,
---             RETARGET_CANT_TAGS_HOME,
---             RETARGET_ANIMAL_ONEOF_TAGS)
---         or
---         FindEntity(
---             inst,
---             SpringCombatMod(TUNING.TALLBIRD_TARGET_DIST*2),
---             IsValidTarget,
---             RETARGET_MUST_TAGS,
---             RETARGET_CANT_TAGS,
---             RETARGET_ONEOF_TAGS)
--- end
--- local function ShouldAcceptItem(inst, item)
---     if item.components.edible and inst.components.eater and not item:HasTag("tallbirdegg") then
---         if inst.components.health then
---             inst.components.health:DoDelta(inst.components.health.maxhealth*.2,nil,item)
---         end
---         return inst.components.eater:CanEat(item)
---     end
--- end
--- local function OnGetItemFromPlayer(inst, giver, item)
---     if inst.components.sleeper then
---         inst.components.sleeper:WakeUp()
---     end
---     if item.components.edible then
---         if inst.components.combat.target and inst.components.combat.target == giver then
---             inst.components.combat:SetTarget(nil)
---         end
---         if giver.components.leader and giver:HasTag("bird_family") then
---             if inst.components.bird_cultivate then
---                 giver.components.leader:AddFollower(inst)
---                 inst.components.bird_cultivate.follow=true
---                 inst.components.bird_cultivate.wild=false
---                 inst.components.bird_cultivate:Updata()
---             end
---         end
---     end
--- end
-
-    -- inst:AddTag("companion")
-    -- inst:AddTag("character")
-    -- inst:AddTag("notraptrigger")
-    -- inst:AddTag("trader")
-
-    -- if inst.components.combat then
-    --     inst.components.combat:SetRetargetFunction(3, Retarget)
-    -- end
-    -- if inst.components.health then
-    --     inst.components.health:StartRegen(10, 10)
-    -- end
-
-    -- inst:AddComponent("trader")
-    -- inst.components.trader:SetAcceptTest(ShouldAcceptItem)
-    -- inst.components.trader.onaccept = OnGetItemFromPlayer
-    -- if inst.components.leader then
-    --     inst:AddComponent("follower")
-    -- end
-    -- inst:AddComponent("bird_cultivate")
-    -- inst:AddComponent("drownable")
     inst:AddComponent("sanityaura")
-    -- inst:AddComponent("planardamage")
     inst.components.sanityaura.aurafn = CalcSanityAura
 
 if GetModConfigData(config_name19) then
@@ -1461,7 +1425,6 @@ else
         inst.components.bird_cultivate.nodeath = false
     end
 end
-
 
 if GetModConfigData(config_name21) then
     inst.Physics:SetCollisionMask(
@@ -1488,20 +1451,6 @@ else
         inst.components.bird_cultivate.gift = false
     end
 end
--- if inst.components.combat then
---     inst.components.combat:SetNoAggroTags({"bird_family", "smallbird","teenbird","tallbird"})
--- end
-    -- inst:ListenForEvent("leaderchanged", function(inst, data)
-    -- if inst.components.follower then
-    -- if inst.components.follower.leader
-    -- and inst.components.follower.leader:HasTag("player") then
-    --     inst.components.bird_cultivate.wild = false
-    --     if inst.components.bird_cultivate then
-    --         inst.components.bird_cultivate:Updata()
-    --     end
-    -- end
-    -- end
-    -- end)
 end)
 
 AddPrefabPostInit("featherhat", function(inst)
@@ -1595,6 +1544,13 @@ AddPrefabPostInit("alterguardianhat", function(inst)
         end)
     end
 end)
+
+AddStategraphEvent("smallbird", EventHandler("dance", function(inst)
+    if not (inst.sg:HasStateTag("busy") or
+            inst.components.health:IsDead()) then
+        inst.sg:GoToState("idle_peep")
+    end
+end))
 
 AddStategraphActionHandler("smallbird", ActionHandler(ACTIONS.DIG, "till_or_dig"))
 AddStategraphActionHandler("smallbird", ActionHandler(ACTIONS.TILL, "till_or_dig"))
@@ -2133,6 +2089,13 @@ AddStategraphState("smallbird",State{
 -- 		onexit = fns and fns.cancelhop_onexit,
 -- })
 
+AddStategraphEvent("tallbird", EventHandler("dance", function(inst)
+    if not (inst.sg:HasStateTag("dancing") or inst.sg:HasStateTag("busy") or
+            inst.components.health:IsDead()) then
+        inst.sg:GoToState("dance")
+    end
+end))
+
 local wait_for_pre = true
 local anims = { pre = "boat_jump_pre", loop = "boat_jump", pst = "boat_jump_pst"}
 local timelines = {}
@@ -2145,6 +2108,25 @@ AddStategraphActionHandler("tallbird", ActionHandler(ACTIONS.DIG, "till_or_dig")
 AddStategraphActionHandler("tallbird", ActionHandler(ACTIONS.TILL, "till_or_dig"))
 AddStategraphActionHandler("tallbird", ActionHandler(ACTIONS.CHOP, "chop"))
 AddStategraphActionHandler("tallbird", ActionHandler(ACTIONS.MINE, "mine"))
+
+AddStategraphState("tallbird",State{
+        name = "dance",
+        tags = {"idle", "dancing"},
+
+        onenter = function(inst)
+            inst.danceselect = math.random(0, 4)
+            local num = inst.danceselect
+            inst.components.locomotor:Stop()
+            inst:ClearBufferedAction()
+            inst.AnimState:PlayAnimation("pre_dance"..num)
+            inst.AnimState:PushAnimation("loop_dance"..num, true)
+        end,
+
+        onexit = function(inst)
+            local num = inst.danceselect
+			inst.AnimState:PlayAnimation("pst_dance"..num)
+		end,
+    })
 
 AddStategraphState("tallbird",State{
         name = "hop_pre",
