@@ -421,6 +421,7 @@ local function fn()
     inst:AddComponent("planardefense")
     inst:AddComponent("leader")
     inst:AddComponent("debuffable")
+    inst:AddComponent("timer")
     ------------------
 
     inst:AddComponent("eater")
