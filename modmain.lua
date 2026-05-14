@@ -1661,11 +1661,51 @@ AddStategraphEvent("smallbird", EventHandler("dance", function(inst)
     end
 end))
 
+AddStategraphEvent("smallbird", EventHandler("warm", function(inst)
+    if not (inst.sg:HasStateTag("sit") or inst.sg:HasStateTag("busy") or
+            inst.components.health:IsDead()) then
+        inst.sg:GoToState("sit_warm")
+    end
+end))
+
 AddStategraphActionHandler("smallbird", ActionHandler(ACTIONS.DIG, "till_or_dig"))
 AddStategraphActionHandler("smallbird", ActionHandler(ACTIONS.TILL, "till_or_dig"))
 AddStategraphActionHandler("smallbird", ActionHandler(ACTIONS.CHOP, "chop"))
 AddStategraphActionHandler("smallbird", ActionHandler(ACTIONS.MINE, "mine"))
 AddStategraphActionHandler("smallbird", ActionHandler(ACTIONS.INTERACT_WITH, "plant_peep"))
+
+AddStategraphState("smallbird",State{
+        name = "sit_warm",
+        tags = {"idle","sit"},
+
+        onenter = function(inst)
+            inst.components.locomotor:Stop()
+            inst:ClearBufferedAction()
+            inst.AnimState:PlayAnimation("idle",true)
+            local leader = inst.components.follower and inst.components.follower.leader
+            if leader~=nil then
+                if leader.components.temperature then
+                    leader.components.temperature:SetModifier("smallbird_warm", 25)
+                end
+                local talker = leader and leader.components.talker
+                if talker then
+                    talker:Say(GetString(inst,"ANNOUNCE_SMALLBIRD_WARM"))
+                end
+            end
+        end,
+
+        timeline =
+        {
+            TimeEvent(8*FRAMES, function(inst) inst.SoundEmitter:PlaySound("dontstarve/creatures/smallbird/chirp") end),
+        },
+
+        onexit = function(inst)
+            local leader = inst.components.follower and inst.components.follower.leader
+            if leader~=nil and leader.components.temperature then
+                leader.components.temperature:RemoveModifier("smallbird_warm")
+            end
+		end,
+    })
 
 AddStategraphState("smallbird",State{
         name = "plant_peep",
