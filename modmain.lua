@@ -331,6 +331,15 @@ local function OnSetOwner(inst)
 	end
 end
 inst:ListenForEvent("setowner", OnSetOwner)
+inst:ListenForEvent("temperaturedelta",function (inst,data)
+    local is_summer = not TheWorld:HasTag("cave") and TheWorld.state.season=="summer"
+    local is_winter = TheWorld.state.season=="winter"
+    if data.new<5 and is_winter or data.new>65 and is_summer then
+        if inst.components.timer then
+            inst.components.timer:StartTimer("tallbird_temp_protect", 20)
+        end
+    end
+end)
 end)
 
 local NOTAGS = {'INLIMBO','notarget','noattack','player','companion','abigail','glommer','friendlyfruitfly'}
@@ -655,6 +664,45 @@ AddComponentPostInit("rideable", function(self)
         end
     end
 end)
+---遮阴效果
+AddComponentPostInit("sheltered", function(self)
+    local old_setsheltered = self.SetSheltered
+    local SHELTERED_MUST_TAGS = { "tallbird" }
+    local SHELTERED_CANT_TAGS = { "FX", "NOCLICK", "DECOR", "INLIMBO", "stump", "burnt" }
+    function self:SetSheltered(issheltered, level)
+        local x, y, z = self.inst.Transform:GetWorldPosition()
+        local num_sheltered = TheSim:CountEntities(x, y, z, 3, SHELTERED_MUST_TAGS, SHELTERED_CANT_TAGS)
+        if num_sheltered<=0 then
+            return old_setsheltered(self,issheltered,level)
+        end
+        level = level<2 and num_sheltered>1 and 2 or level
+        if self.mounted and level < 2 then
+            issheltered = false
+        end
+        self.sheltered_level = level
+        if not issheltered then
+            if self.presheltered then
+                self.presheltered = false
+                self.inst.replica.sheltered:StopSheltered()
+            end
+            if self.sheltered then
+                self.sheltered = false
+                self.inst:PushEvent("sheltered", { sheltered=false, level=self.sheltered_level })
+            end
+        elseif not self.presheltered then
+            self.presheltered = true
+            self.inst.replica.sheltered:StartSheltered()
+        elseif not self.sheltered and self.inst.replica.sheltered:IsSheltered() then
+            self.sheltered = true
+            self.inst:PushEvent("sheltered", { sheltered=true, level=self.sheltered_level })
+            if self.inst.components.talker ~= nil
+                and self.announcecooldown <= 0 and (TheWorld.state.israining and self.inst.components.rainimmunity == nil or GetLocalTemperature(self.inst) >= TUNING.OVERHEAT_TEMP - 5) then
+                self.inst.components.talker:Say(GetString(self.inst, "ANNOUNCE_TALLBIRD_SHELETERED"))
+                self.announcecooldown = TUNING.TOTAL_DAY_TIME
+            end
+        end
+    end
+end)
 
 --鸟 预制体
 local function CalcSanityAura(inst, observer)
@@ -734,6 +782,7 @@ end
                 inst.components.named:SetName(new_name, writer ~= nil and writer.userid or nil)
             end
         end)
+        inst:AddComponent("timer")
     end
 local function ShouldAcceptItem(inst, item)
     if item.components.equippable ~= nil and item.components.equippable.equipslot == EQUIPSLOTS.HEAD then
@@ -1255,7 +1304,19 @@ local function ShouldAttack(self)
     and self.inst.components.combat:CanTarget(target)
     and not self.inst.components.combat:InCooldown()
 end
-
+local function GetFollowPos(inst)
+    return inst.components.follower.leader and inst.components.follower.leader:GetPosition() or
+        inst:GetPosition()
+end
+local function ShouldNear(inst)
+    local is_winter = TheWorld.state.season=="winter"
+    local leader = GetLeader(inst)
+    local temp = leader and leader.components.timer and leader.components.timer:TimerExists("tallbird_temp_protect")
+    return leader~=nil and leader:HasTag("player") and not leader.sg:HasStateTag("moving") and temp and is_winter
+end
+local function Warm(inst)
+    inst:PushEvent("warm")
+end
     table.insert(self.bt.root.children,4,WhileNode(function() return ShouldWaitForHelp(self.inst) end, "WaitingForHelp",
             PriorityNode({
                 Follow(self.inst, function() return GetWaitTarget(self.inst) end, MIN_FOLLOW_TARGET_DIST, WaitTargetDist, MAX_FOLLOW_TARGET_DIST),
@@ -1304,6 +1365,13 @@ end
     table.insert(self.bt.root.children,8,WhileNode(function() return self.inst:HasTag("teenbird") and self.inst.components.combat.target ~= nil and self.inst.components.combat:InCooldown() end, "Dodge",
             RunAway(self.inst, function() return self.inst.components.combat.target end, 5, 8)))
     table.remove(self.bt.root.children[7].children,3)
+    table.insert(self.bt.root.children,11,
+    FindFarmPlant(self.inst, ACTIONS.INTERACT_WITH, true, GetFollowPos))
+    table.insert(self.bt.root.children,9,WhileNode(function() return ShouldNear(self.inst) end, "Near Leader",
+        PriorityNode({
+            Leash(self.inst, GetLeaderPos, 1.5, 1.5),
+            ActionNode(function() Warm(self.inst) end),
+    })))
 end)
 AddBrainPostInit("tallbirdbrain", function(self)
 local THREAT_CANT_TAGS = {'tallbird', 'notarget','teenbird','smallbird','bird_friend'}
@@ -1368,6 +1436,20 @@ local function ShouldDanceParty(inst)
     local leader = GetLeader(inst)
     return leader ~= nil and leader.sg:HasStateTag("dancing")
 end
+local function GetFollowPos(inst)
+    return inst.components.follower.leader and inst.components.follower.leader:GetPosition() or
+        inst:GetPosition()
+end
+local function ShouldNear(inst)
+    local is_summer = not TheWorld:HasTag("cave") and TheWorld.state.season=="summer"
+    local is_winter = TheWorld.state.season=="winter"
+    local leader = GetLeader(inst)
+    local temp = leader and leader.components.timer and leader.components.timer:TimerExists("tallbird_temp_protect")
+    return leader and leader:HasTag("player") and not leader.sg:HasStateTag("moving") and temp and (is_summer or is_winter)
+end
+local function Warm(inst)
+    inst:PushEvent("warm")
+end
 
     table.remove(self.bt.root.children,4)
     table.insert(self.bt.root.children,4,WhileNode(function() return self.inst.components.homeseeker and self.inst.components.homeseeker:HasHome() and GetNearbyThreatFn(self.inst.components.homeseeker.home) end, "ThreatNearNest",
@@ -1393,35 +1475,40 @@ end
     MIN_FOLLOW_DIST, TARGET_FOLLOW_DIST, MAX_FOLLOW_DIST),
             }
         })
-    table.insert(self.bt.root.children,8,SequenceNode{
-            ParallelNodeAny {
-                WaitNode(math.random()*.9),
-                    Follow(self.inst, GetLeader, 
-    MIN_FOLLOW_DIST, TARGET_FOLLOW_DIST, MAX_FOLLOW_DIST),
-            }
-        })
-    table.insert(self.bt.root.children,11,BrainCommon.NodeAssistLeaderDoAction(self, {
+    table.insert(self.bt.root.children,10,BrainCommon.NodeAssistLeaderDoAction(self, {
                 action = "DIG", 
                 starter = dig_clump_starter,
                 keepgoing = dig_clump_keepgoing,
                 finder = dig_clump_finder,
         }))
-    table.insert(self.bt.root.children,12,BrainCommon.NodeAssistLeaderDoAction(self, {
+    table.insert(self.bt.root.children,11,BrainCommon.NodeAssistLeaderDoAction(self, {
                 action = "CHOP",
                 starter = dig_stump_starter,
                 keepgoing = dig_stump_keepgoing,
                 finder = dig_stump_finder,
             }))
-    table.insert(self.bt.root.children,13,BrainCommon.NodeAssistLeaderDoAction(self, {
+    table.insert(self.bt.root.children,12,BrainCommon.NodeAssistLeaderDoAction(self, {
             action = "CHOP", 
         }))
-    table.insert(self.bt.root.children,14,BrainCommon.NodeAssistLeaderDoAction(self, {
+    table.insert(self.bt.root.children,13,BrainCommon.NodeAssistLeaderDoAction(self, {
             action = "MINE", 
         }))
     table.insert(self.bt.root.children,3,WhileNode(function() return ShouldDanceParty(self.inst) end, "Dance Party",
         PriorityNode({
             Leash(self.inst, GetLeaderPos, TUNING.ABIGAIL_DEFENSIVE_MED_FOLLOW, TUNING.ABIGAIL_DEFENSIVE_MED_FOLLOW),
             ActionNode(function() DanceParty(self.inst) end),
+    })))
+    table.insert(self.bt.root.children,11,
+    FindFarmPlant(self.inst, ACTIONS.INTERACT_WITH, true, GetFollowPos))
+    table.insert(self.bt.root.children,7,WhileNode(function() return ShouldNear(self.inst) end, "Near Leader",
+        PriorityNode({
+            Leash(self.inst, GetLeaderPos, 1.5, 1.5),
+            SequenceNode({ConditionNode(function() return TheWorld.state.season=="winter" end,"Winter"),
+            ActionNode(function() Warm(self.inst) end),
+        }),
+            SequenceNode({ConditionNode(function() return not TheWorld:HasTag("cave") and TheWorld.state.season=="summer" end,"Summer"),
+            StandStill(self.inst),
+        }),
     })))
 end)
 
@@ -1558,6 +1645,15 @@ AddPrefabPostInit("alterguardianhat", function(inst)
     end
 end)
 
+local FARM_PLANT_TAGS = {"tendable_farmplant"}
+local function song_update(inst)
+    local ix, iy, iz = inst.Transform:GetWorldPosition()
+    local nearby_tendable_plants = TheSim:FindEntities(ix, iy, iz, TUNING.PHONOGRAPH_TEND_RANGE, FARM_PLANT_TAGS)
+    for _, tendable_plant in pairs(nearby_tendable_plants) do
+        tendable_plant.components.farmplanttendable:TendTo()
+    end
+end
+
 AddStategraphEvent("smallbird", EventHandler("dance", function(inst)
     if not (inst.sg:HasStateTag("busy") or
             inst.components.health:IsDead()) then
@@ -1569,6 +1665,39 @@ AddStategraphActionHandler("smallbird", ActionHandler(ACTIONS.DIG, "till_or_dig"
 AddStategraphActionHandler("smallbird", ActionHandler(ACTIONS.TILL, "till_or_dig"))
 AddStategraphActionHandler("smallbird", ActionHandler(ACTIONS.CHOP, "chop"))
 AddStategraphActionHandler("smallbird", ActionHandler(ACTIONS.MINE, "mine"))
+AddStategraphActionHandler("smallbird", ActionHandler(ACTIONS.INTERACT_WITH, "plant_peep"))
+
+AddStategraphState("smallbird",State{
+        name = "plant_peep",
+        tags = {"busy"},
+
+        onenter = function(inst)
+            inst.Physics:Stop()
+            inst.AnimState:PlayAnimation("meep")
+        end,
+
+        onexit = function(inst)
+			inst:ClearBufferedAction()
+		end,
+
+        timeline =
+        {
+            TimeEvent(3*FRAMES, function(inst)
+                inst.SoundEmitter:PlaySound("dontstarve/creatures/smallbird/chirp") 
+                inst:PerformBufferedAction()
+                song_update(inst)
+                end),
+        },
+
+        events=
+        {
+            EventHandler("animover",
+                function(inst,data)
+                    inst.sg:GoToState("idle")
+                end
+            ),
+        },
+    })
 
 AddStategraphEvent("smallbird", EventHandler("onhop",
         function(inst)
@@ -1889,6 +2018,12 @@ AddStategraphEvent("tallbird", EventHandler("dance", function(inst)
         inst.sg:GoToState("dance")
     end
 end))
+AddStategraphEvent("tallbird", EventHandler("warm", function(inst)
+    if not (inst.sg:HasStateTag("sit") or inst.sg:HasStateTag("busy") or
+            inst.components.health:IsDead()) then
+        inst.sg:GoToState("sit_warm")
+    end
+end))
 
 local wait_for_pre = true
 local anims = { pre = "boat_jump_pre", loop = "boat_jump", pst = "boat_jump_pst"}
@@ -1902,6 +2037,80 @@ AddStategraphActionHandler("tallbird", ActionHandler(ACTIONS.DIG, "till_or_dig")
 AddStategraphActionHandler("tallbird", ActionHandler(ACTIONS.TILL, "till_or_dig"))
 AddStategraphActionHandler("tallbird", ActionHandler(ACTIONS.CHOP, "chop"))
 AddStategraphActionHandler("tallbird", ActionHandler(ACTIONS.MINE, "mine"))
+AddStategraphActionHandler("tallbird", ActionHandler(ACTIONS.INTERACT_WITH, "plant_peep"))
+
+AddStategraphState("tallbird",State{
+        name = "sit_warm",
+        tags = {"idle","sit"},
+
+        onenter = function(inst)
+            inst.sitselect = math.random(1, 4)
+            local num = inst.sitselect
+            inst.components.locomotor:Stop()
+            inst:ClearBufferedAction()
+            inst.AnimState:PlayAnimation("pre_sit"..num)
+            inst.AnimState:PushAnimation("loop_sit"..num, true)
+            local leader = inst.components.follower and inst.components.follower.leader
+            if leader~=nil then
+                if leader.components.temperature then
+                    leader.components.temperature:SetModifier("tallbird_warm", 50)
+                end
+                local talker = leader and leader.components.talker
+                if talker then
+                    talker:Say(GetString(inst,"ANNOUNCE_TALLBIRD_WARM"))
+                end
+            end
+        end,
+
+        timeline =
+        {
+            TimeEvent(8*FRAMES, function(inst) inst.SoundEmitter:PlaySound("dontstarve/creatures/tallbird/chirp") end),
+        },
+
+        onexit = function(inst)
+            local num = inst.sitselect
+			inst.AnimState:PlayAnimation("pst_sit"..num)
+            local leader = inst.components.follower and inst.components.follower.leader
+            if leader~=nil and leader.components.temperature then
+                leader.components.temperature:RemoveModifier("tallbird_warm")
+            end
+		end,
+    })
+
+AddStategraphState("tallbird",State{
+        name = "plant_peep",
+        tags = {"busy"},
+
+        onenter = function(inst)
+            inst.Physics:Stop()
+            inst.AnimState:PlayAnimation("hungry", true)
+        end,
+
+        onexit = function(inst)
+			inst:ClearBufferedAction()
+		end,
+
+        timeline =
+        {
+            TimeEvent(8*FRAMES, function(inst)
+                inst.SoundEmitter:PlaySound("dontstarve/creatures/teenbird/chirp") 
+                inst:PerformBufferedAction()
+                end),
+            TimeEvent(25*FRAMES, function(inst)
+                inst.SoundEmitter:PlaySound("dontstarve/creatures/teenbird/chirp")
+                song_update(inst)
+                end),
+        },
+
+        events=
+        {
+            EventHandler("animover",
+                function(inst,data)
+                    inst.sg:GoToState("idle")
+                end
+            ),
+        },
+    })
 
 AddStategraphState("tallbird",State{
         name = "attack_leg",

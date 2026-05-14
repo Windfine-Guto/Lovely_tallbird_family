@@ -149,7 +149,6 @@ function TallbirdAtkSelect:OnUpdate(dt)
     end
 end
 function TallbirdAtkSelect:OnMouseButton(button, down, x, y)
-    -- 只处理左键松开（click）
     if button == MOUSEBUTTON_LEFT and not down then
         local retarget = "retarget"
         if self.hovered_spell=="atk_mode" then

@@ -356,6 +356,7 @@ local function fn()
     inst:AddTag("notraptrigger")
     inst:AddTag("trader")
     inst:AddTag("saddleable")
+    inst:AddTag("shelter")
 
     inst.AnimState:SetBank("tallbird")
     inst.AnimState:SetBuild("ds_tallbird_basic")
