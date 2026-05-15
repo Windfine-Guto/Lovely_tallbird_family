@@ -29,7 +29,7 @@ local MAX_CHASEAWAY_DIST = 32
 local MAX_CHASE_DIST = 256
 
 local RETARGET_MUST_TAGS = { "_combat", "_health" }
-local RETARGET_CANT_TAGS_HOME={"tallbird","teenbird","smallbird","bird_friend"}
+local RETARGET_CANT_TAGS_HOME={"tallbird","teenbird","smallbird","bird_friend","bird_family"}
 local RETARGET_CANT_TAGS = { "tallbird","teenbird","smallbird","player",
 "glommer","chester","companion","beefalo","hutch","abigail" }
 local RETARGET_ONEOF_TAGS = { "animal","monster","pig" }
@@ -79,7 +79,6 @@ local function OnGetItemFromPlayer(inst, giver, item)
             if inst.components.bird_cultivate and inst.components.follower and not inst.components.follower.leader then
                 giver:PushEvent("makefriend")
                 inst.components.bird_cultivate:SetLeader(giver)
-                inst.components.bird_cultivate.follow=true
                 inst.components.bird_cultivate.wild=false
                 inst.components.bird_cultivate:Updata()
             end
@@ -423,6 +422,9 @@ local function fn()
     inst:AddComponent("leader")
     inst:AddComponent("debuffable")
     inst:AddComponent("timer")
+    if inst.components.timer and not inst.components.timer:TimerExists("emote_cd") then
+        inst.components.timer:StartTimer("emote_cd", 3+10*math.random())
+    end
     ------------------
 
     inst:AddComponent("eater")
@@ -476,12 +478,16 @@ local function fn()
                 inst.components.sleeper:WakeUp()
                 inst.sg:GoToState("idle")
             end
-            inst:DoTaskInTime(0.2,function ()
-                inst:RemoveComponent("sleeper")
-            end)
+            -- inst:RemoveComponent("sleeper")
+        end
+        if not inst:HasTag("planar_buff_nosleep") then
+            inst:AddTag("planar_buff_nosleep")
         end
     end)
-    inst:ListenForEvent("remove_sleep_immunity",AddSleeper)
+    inst:ListenForEvent("remove_sleep_immunity",function ()
+        inst:RemoveTag("planar_buff_nosleep")
+    end)
+
     ------------------
     inst.userfunctions={}
     inst.userfunctions.GetPeepChance=function ()

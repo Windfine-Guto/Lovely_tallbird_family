@@ -106,7 +106,7 @@ local function DoDamage(inst, targets, skiptoss, skipscorch, scale, scorchscale,
                     end
                 elseif v.components.pickable ~= nil
                         and v.components.pickable:CanBePicked()
-                        and not v:HasTag("intense") then
+                        and not v:HasTag("intense") and v.prefab~="tallbirdnest" then
                     targets[v] = true
 					local success, loots = v.components.pickable:Pick(inst)
 					if loots then

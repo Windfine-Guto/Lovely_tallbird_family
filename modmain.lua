@@ -671,7 +671,7 @@ AddComponentPostInit("sheltered", function(self)
     local SHELTERED_CANT_TAGS = { "FX", "NOCLICK", "DECOR", "INLIMBO", "stump", "burnt" }
     function self:SetSheltered(issheltered, level)
         local x, y, z = self.inst.Transform:GetWorldPosition()
-        local num_sheltered = TheSim:CountEntities(x, y, z, 3, SHELTERED_MUST_TAGS, SHELTERED_CANT_TAGS)
+        local num_sheltered = TheSim:CountEntities(x, y, z, 3, SHELTERED_MUST_TAGS, SHELTERED_CANT_TAGS) or 0
         if num_sheltered<=0 then
             return old_setsheltered(self,issheltered,level)
         end
@@ -701,6 +701,16 @@ AddComponentPostInit("sheltered", function(self)
                 self.announcecooldown = TUNING.TOTAL_DAY_TIME
             end
         end
+    end
+end)
+
+AddComponentPostInit("sleeper", function(self)
+    local old_gotosleep = self.GoToSleep
+    self.GoToSleep = function(sleeptime)
+        if self.inst:HasTag("planar_buff_nosleep") then
+            return self:WakeUp()
+        end
+        return old_gotosleep(sleeptime)
     end
 end)
 
@@ -944,6 +954,9 @@ end
             end
         end)
         inst:AddComponent("timer")
+        if inst.components.timer and not inst.components.timer:TimerExists("emote_cd") then
+            inst.components.timer:StartTimer("emote_cd", 3+10*math.random())
+        end
     end
 local function ShouldAcceptItem(inst, item)
     if item.components.equippable ~= nil and item.components.equippable.equipslot == EQUIPSLOTS.HEAD then
@@ -1317,6 +1330,30 @@ end
 local function Warm(inst)
     inst:PushEvent("warm")
 end
+local function ShouldHello(inst)
+    local leader = GetLeader(inst)
+    local friend = FindEntity(inst,10,nil,{"bird_friend"})
+    inst._wave_hello_target = friend
+    local cooldown = inst.components.timer and inst.components.timer:TimerExists("wave_cd")
+    return (leader==nil or leader and not leader:HasTag("player")) and friend~=nil and not cooldown
+end
+local function GetFriendPost(inst)
+    if inst._wave_hello_target then
+        return inst._wave_hello_target:GetPosition()
+    else
+        return nil
+    end
+end
+local function Hello(inst)
+    inst:PushEvent("wave")
+end
+local function ShouldEmote(inst)
+    return inst:HasTag("teenbird") and inst.components.timer and not inst.components.timer:TimerExists("emote_cd")
+end
+local function Emote(inst)
+    inst:PushEvent("emote")
+end
+
     table.insert(self.bt.root.children,4,WhileNode(function() return ShouldWaitForHelp(self.inst) end, "WaitingForHelp",
             PriorityNode({
                 Follow(self.inst, function() return GetWaitTarget(self.inst) end, MIN_FOLLOW_TARGET_DIST, WaitTargetDist, MAX_FOLLOW_TARGET_DIST),
@@ -1372,6 +1409,14 @@ end
             Leash(self.inst, GetLeaderPos, 1.5, 1.5),
             ActionNode(function() Warm(self.inst) end),
     })))
+    table.insert(self.bt.root.children,12,WhileNode(function() return ShouldHello(self.inst) end, "Hello",
+        PriorityNode({
+            Leash(self.inst, GetFriendPost, 5, 5),
+            ActionNode(function() Hello(self.inst) end),
+    })))
+    table.insert(self.bt.root.children,18,WhileNode(function() return ShouldEmote(self.inst) end, "Emote",
+        ActionNode(function() Emote(self.inst) end)
+    ))
 end)
 AddBrainPostInit("tallbirdbrain", function(self)
 local THREAT_CANT_TAGS = {'tallbird', 'notarget','teenbird','smallbird','bird_friend'}
@@ -1450,6 +1495,29 @@ end
 local function Warm(inst)
     inst:PushEvent("warm")
 end
+local function ShouldHello(inst)
+    local leader = GetLeader(inst)
+    local friend = FindEntity(inst,10,nil,{"bird_friend"})
+    inst._wave_hello_target = friend
+    local cooldown = inst.components.timer and inst.components.timer:TimerExists("wave_cd")
+    return (leader==nil or leader and not leader:HasTag("player")) and friend~=nil and not cooldown
+end
+local function GetFriendPost(inst)
+    if inst._wave_hello_target then
+        return inst._wave_hello_target:GetPosition()
+    else
+        return nil
+    end
+end
+local function Hello(inst)
+    inst:PushEvent("wave")
+end
+local function ShouldEmote(inst)
+    return inst.components.timer and not inst.components.timer:TimerExists("emote_cd") and math.random() < 0.5
+end
+local function Emote(inst)
+    inst:PushEvent("emote")
+end
 
     table.remove(self.bt.root.children,4)
     table.insert(self.bt.root.children,4,WhileNode(function() return self.inst.components.homeseeker and self.inst.components.homeseeker:HasHome() and GetNearbyThreatFn(self.inst.components.homeseeker.home) end, "ThreatNearNest",
@@ -1510,6 +1578,14 @@ end
             StandStill(self.inst),
         }),
     })))
+    table.insert(self.bt.root.children,13,WhileNode(function() return ShouldHello(self.inst) end, "Hello",
+        PriorityNode({
+            Leash(self.inst, GetFriendPost, 5, 5),
+            ActionNode(function() Hello(self.inst) end),
+    })))
+    table.insert(self.bt.root.children,19,WhileNode(function() return ShouldEmote(self.inst) end, "Emote",
+        ActionNode(function() Emote(self.inst) end)
+    ))
 end)
 
 AddPrefabPostInit("tallbird", function(inst)
@@ -1668,11 +1744,49 @@ AddStategraphEvent("smallbird", EventHandler("warm", function(inst)
     end
 end))
 
+AddStategraphEvent("smallbird", EventHandler("wave", function(inst)
+    if not (inst.sg:HasStateTag("waving") or inst.sg:HasStateTag("busy") or
+            inst.components.health:IsDead()) then
+        inst.sg:GoToState("wave")
+    end
+end))
+
 AddStategraphActionHandler("smallbird", ActionHandler(ACTIONS.DIG, "till_or_dig"))
 AddStategraphActionHandler("smallbird", ActionHandler(ACTIONS.TILL, "till_or_dig"))
 AddStategraphActionHandler("smallbird", ActionHandler(ACTIONS.CHOP, "chop"))
 AddStategraphActionHandler("smallbird", ActionHandler(ACTIONS.MINE, "mine"))
 AddStategraphActionHandler("smallbird", ActionHandler(ACTIONS.INTERACT_WITH, "plant_peep"))
+
+AddStategraphState("smallbird",State{
+        name = "wave",
+        tags = {"idle","waving"},
+
+        onenter = function(inst)
+            inst.components.locomotor:Stop()
+            inst:ClearBufferedAction()
+            inst.AnimState:PlayAnimation("idle_blink")
+        end,
+
+        timeline =
+        {
+            TimeEvent(5*FRAMES, function(inst)
+                inst.SoundEmitter:PlaySound("dontstarve/creatures/smallbird/chirp")
+                if inst.components.timer then
+                    inst.components.timer:StartTimer("wave_cd", 30)
+                end
+                end),
+            TimeEvent(17*FRAMES, function(inst) inst.SoundEmitter:PlaySound("dontstarve/creatures/smallbird/blink") end)
+        },
+
+        events=
+        {
+            EventHandler("animover",
+                function(inst,data)
+                    inst.sg:GoToState("idle")
+                end
+            ),
+        },
+    })
 
 AddStategraphState("smallbird",State{
         name = "sit_warm",
@@ -1725,6 +1839,9 @@ AddStategraphState("smallbird",State{
             TimeEvent(3*FRAMES, function(inst)
                 inst.SoundEmitter:PlaySound("dontstarve/creatures/smallbird/chirp") 
                 inst:PerformBufferedAction()
+                song_update(inst)
+                end),
+            TimeEvent(10*FRAMES, function(inst)
                 song_update(inst)
                 end),
         },
@@ -2064,6 +2181,19 @@ AddStategraphEvent("tallbird", EventHandler("warm", function(inst)
         inst.sg:GoToState("sit_warm")
     end
 end))
+AddStategraphEvent("tallbird", EventHandler("wave", function(inst)
+    if not (inst.sg:HasStateTag("waving") or inst.sg:HasStateTag("busy") or
+            inst.components.health:IsDead()) then
+        inst.sg:GoToState("wave")
+    end
+end))
+
+AddStategraphEvent("tallbird", EventHandler("emote", function(inst)
+    if not (inst.sg:HasStateTag("emote") or inst.sg:HasStateTag("busy") or
+            inst.components.health:IsDead()) then
+        inst.sg:GoToState("idle_emote")
+    end
+end))
 
 local wait_for_pre = true
 local anims = { pre = "boat_jump_pre", loop = "boat_jump", pst = "boat_jump_pst"}
@@ -2078,6 +2208,86 @@ AddStategraphActionHandler("tallbird", ActionHandler(ACTIONS.TILL, "till_or_dig"
 AddStategraphActionHandler("tallbird", ActionHandler(ACTIONS.CHOP, "chop"))
 AddStategraphActionHandler("tallbird", ActionHandler(ACTIONS.MINE, "mine"))
 AddStategraphActionHandler("tallbird", ActionHandler(ACTIONS.INTERACT_WITH, "plant_peep"))
+
+AddStategraphState("tallbird",State{
+        name = "idle_emote",
+        tags = {"idle","emote"},
+
+        onenter = function(inst)
+            local num = math.random(1, 4)
+            inst.components.locomotor:Stop()
+            inst:ClearBufferedAction()
+            if not TheWorld.state.isday and inst.components.timer 
+            and not inst.components.timer:TimerExists("yawn_cd") and math.random() < 0.7 then
+                inst.AnimState:PlayAnimation("emote_yawn")
+                inst.components.timer:StartTimer("yawn_cd", 60+8*math.random())
+            elseif inst.components.hunger and inst.components.hunger:GetPercent()>0.9
+            and inst.components.timer and not inst.components.timer:TimerExists("happy_cd") then
+                inst.AnimState:PlayAnimation("emote_jumpcheer")
+                inst.components.timer:StartTimer("happy_cd", 60+5*math.random())
+            else
+                inst.AnimState:PlayAnimation("emote"..num)
+            end
+        end,
+
+        timeline =
+        {
+            TimeEvent(14*FRAMES, function(inst)
+                if inst:HasTag("tallbird") and math.random()<0.5 then
+                    inst.SoundEmitter:PlaySound("dontstarve/creatures/tallbird/chirp")
+                elseif math.random()<0.5 then
+                    inst.SoundEmitter:PlaySound("dontstarve/creatures/teenbird/chirp")
+                end
+                if inst.components.timer then
+                    inst.components.timer:StartTimer("emote_cd", 15+7*math.random())
+                end
+                end),
+        },
+
+        events=
+        {
+            EventHandler("animover",
+                function(inst,data)
+                    inst.sg:GoToState("idle")
+                end
+            ),
+        },
+    })
+
+AddStategraphState("tallbird",State{
+        name = "wave",
+        tags = {"idle","waving"},
+
+        onenter = function(inst)
+            local num = math.random(1, 3)
+            inst.components.locomotor:Stop()
+            inst:ClearBufferedAction()
+            inst.AnimState:PlayAnimation("waving"..num)
+        end,
+
+        timeline =
+        {
+            TimeEvent(14*FRAMES, function(inst)
+                if inst:HasTag("tallbird") then
+                    inst.SoundEmitter:PlaySound("dontstarve/creatures/tallbird/chirp")
+                else
+                    inst.SoundEmitter:PlaySound("dontstarve/creatures/teenbird/chirp")
+                end
+                if inst.components.timer then
+                    inst.components.timer:StartTimer("wave_cd", 30)
+                end
+                end),
+        },
+
+        events=
+        {
+            EventHandler("animover",
+                function(inst,data)
+                    inst.sg:GoToState("idle")
+                end
+            ),
+        },
+    })
 
 AddStategraphState("tallbird",State{
         name = "sit_warm",
@@ -2104,7 +2314,13 @@ AddStategraphState("tallbird",State{
 
         timeline =
         {
-            TimeEvent(8*FRAMES, function(inst) inst.SoundEmitter:PlaySound("dontstarve/creatures/tallbird/chirp") end),
+            TimeEvent(8*FRAMES, function(inst)
+                if inst:HasTag("tallbird") then
+                    inst.SoundEmitter:PlaySound("dontstarve/creatures/tallbird/chirp")
+                else
+                    inst.SoundEmitter:PlaySound("dontstarve/creatures/teenbird/chirp")
+                end
+                end),
         },
 
         onexit = function(inst)
@@ -2133,11 +2349,19 @@ AddStategraphState("tallbird",State{
         timeline =
         {
             TimeEvent(8*FRAMES, function(inst)
-                inst.SoundEmitter:PlaySound("dontstarve/creatures/teenbird/chirp") 
+                if inst:HasTag("tallbird") then
+                    inst.SoundEmitter:PlaySound("dontstarve/creatures/tallbird/chirp")
+                else
+                    inst.SoundEmitter:PlaySound("dontstarve/creatures/teenbird/chirp")
+                end
                 inst:PerformBufferedAction()
                 end),
             TimeEvent(25*FRAMES, function(inst)
-                inst.SoundEmitter:PlaySound("dontstarve/creatures/teenbird/chirp")
+                if inst:HasTag("tallbird") then
+                    inst.SoundEmitter:PlaySound("dontstarve/creatures/tallbird/chirp")
+                else
+                    inst.SoundEmitter:PlaySound("dontstarve/creatures/teenbird/chirp")
+                end
                 song_update(inst)
                 end),
         },
@@ -2629,6 +2853,23 @@ AddStategraphPostInit("tallbird", function(sg)
             doattack_fn(inst)
         end
     end
+    local onsleep_fn = sg.events.gotosleep.fn
+    sg.events.gotosleep.fn = function (inst)
+        if not inst:HasTag("planar_buff_nosleep") then
+            onsleep_fn(inst)
+        else
+            return
+        end
+    end
+    local old_gohome = sg.states["gohome"].onenter
+    sg.states["gohome"].tags = {"idle","gohome"}
+    -- sg.states["gohome"].onenter = function (inst)
+    --     if not inst:HasTag("planar_buff_nosleep") then
+    --         return old_gohome(inst)
+    --     else
+    --         inst.sg:GoToState("idle")
+    --     end
+    -- end
 end)
 
 AddStategraphPostInit("wilson", function(sg)
