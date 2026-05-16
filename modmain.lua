@@ -16,7 +16,8 @@ PrefabFiles = GetModConfigData('lovely_tallbird_family'..'skins') and {
     "tallbird_comb",
     "tallbird_buffs",
     "tallbird_eyefx",
-    "lunar_tallbird_laser"
+    "lunar_tallbird_laser",
+    "new_tallbirdnest",
 }
 or {
     "tallbird",
@@ -25,7 +26,8 @@ or {
     "tallbird_comb",
     "tallbird_buffs",
     "tallbird_eyefx",
-    "lunar_tallbird_laser"
+    "lunar_tallbird_laser",
+    "new_tallbirdnest",
 }
 
 local writeables = require("writeables")
@@ -172,6 +174,11 @@ AddRecipe2("tallbird_comb_follow",{Ingredient("boneshard", 5)},
 TECH.NONE,
 {atlas = "images/inventoryimages/comb2.xml",
 image = "comb2.tex"},
+{"TOOLS"})
+AddRecipe2("new_tallbirdnest_item",{Ingredient("cutgrass", 3)},
+TECH.NONE,
+{atlas = "images/inventoryimages/new_tallbirdnest.xml",
+image = "new_tallbirdnest.tex"},
 {"TOOLS"})
 
 local originalGetString = GetString
@@ -675,6 +682,7 @@ AddComponentPostInit("sheltered", function(self)
         if num_sheltered<=0 then
             return old_setsheltered(self,issheltered,level)
         end
+        level = level or 1
         level = level<2 and num_sheltered>1 and 2 or level
         if self.mounted and level < 2 then
             issheltered = false
@@ -877,12 +885,16 @@ if inst.userfunctions then
 end
 
 inst:ListenForEvent("leaderchanged", function(inst, data)
-if inst.components.follower
-and inst.components.follower.leader
-and inst.components.follower.leader:HasTag("player") then
-    inst.components.bird_cultivate.wild = false
-    if inst.components.bird_cultivate then
-        inst.components.bird_cultivate:Updata()
+if inst.components.follower then
+    local leader = inst.components.follower.leader
+    if leader then
+        local nowild = leader.components.bird_cultivate and leader.components.bird_cultivate.wild == false
+        if inst.components.bird_cultivate then
+            if leader:HasTag("player") or nowild then
+                inst.components.bird_cultivate.wild = false
+            end
+            inst.components.bird_cultivate:Updata()
+        end
     end
 end
 end)
@@ -1042,12 +1054,16 @@ if inst.components.follower then
     inst.components.follower:KeepLeaderOnAttacked()
 end
 inst:ListenForEvent("leaderchanged", function(inst, data)
-if inst.components.follower
-and inst.components.follower.leader
-and inst.components.follower.leader:HasTag("player") then
-    inst.components.bird_cultivate.wild = false
-    if inst.components.bird_cultivate then
-        inst.components.bird_cultivate:Updata()
+if inst.components.follower then
+    local leader = inst.components.follower.leader
+    if leader then
+        local nowild = leader.components.bird_cultivate and leader.components.bird_cultivate.wild == false
+        if inst.components.bird_cultivate then
+            if leader:HasTag("player") or nowild then
+                inst.components.bird_cultivate.wild = false
+            end
+            inst.components.bird_cultivate:Updata()
+        end
     end
 end
 end)
@@ -1406,7 +1422,7 @@ end
     FindFarmPlant(self.inst, ACTIONS.INTERACT_WITH, true, GetFollowPos))
     table.insert(self.bt.root.children,9,WhileNode(function() return ShouldNear(self.inst) end, "Near Leader",
         PriorityNode({
-            Leash(self.inst, GetLeaderPos, 1.5, 1.5),
+            Leash(self.inst, GetLeaderPos, 4, 1.5),
             ActionNode(function() Warm(self.inst) end),
     })))
     table.insert(self.bt.root.children,12,WhileNode(function() return ShouldHello(self.inst) end, "Hello",
@@ -1556,10 +1572,10 @@ end
                 finder = dig_stump_finder,
             }))
     table.insert(self.bt.root.children,12,BrainCommon.NodeAssistLeaderDoAction(self, {
-            action = "CHOP", 
+            action = "CHOP",
         }))
     table.insert(self.bt.root.children,13,BrainCommon.NodeAssistLeaderDoAction(self, {
-            action = "MINE", 
+            action = "MINE",
         }))
     table.insert(self.bt.root.children,3,WhileNode(function() return ShouldDanceParty(self.inst) end, "Dance Party",
         PriorityNode({
@@ -1570,7 +1586,7 @@ end
     FindFarmPlant(self.inst, ACTIONS.INTERACT_WITH, true, GetFollowPos))
     table.insert(self.bt.root.children,7,WhileNode(function() return ShouldNear(self.inst) end, "Near Leader",
         PriorityNode({
-            Leash(self.inst, GetLeaderPos, 1.5, 1.5),
+            Leash(self.inst, GetLeaderPos, 4, 1.5),
             SequenceNode({ConditionNode(function() return TheWorld.state.season=="winter" end,"Winter"),
             ActionNode(function() Warm(self.inst) end),
         }),
@@ -3867,6 +3883,42 @@ AddComponentAction("INVENTORY", "bird_leave", function(inst, doer, actions, righ
     end
 end)
 
+local BIRDS_SPAWNER = Action()
+BIRDS_SPAWNER.id = "BIRDS_SPAWNER"
+BIRDS_SPAWNER.strfn = function (act)
+    return "SPAWN"
+end
+-- BIRDS_SPAWNER.priority = 20
+BIRDS_SPAWNER.fn = function (act)
+    local target = act.target
+    local doer = act.doer
+    local talker = doer.components.talker
+    local nest_spawner = target.components.tallbird_spawner
+    if nest_spawner then
+        if nest_spawner.spawner==false then
+            nest_spawner.spawner=true
+            if talker then talker:Say(GetString(doer,"ANNOUNCE_TALLBIRD_SPAWNER")) end
+        else
+            nest_spawner.spawner=false
+            if talker then talker:Say(GetString(doer,"ANNOUNCE_TALLBIRD_NO_SPAWNER")) end
+        end
+        nest_spawner:Updata(target)
+    end
+    return true
+end
+AddAction(BIRDS_SPAWNER)
+STRINGS.ACTIONS.BIRDS_SPAWNER = {
+    SPAWN = "生成切换"
+}
+
+AddStategraphActionHandler("wilson", ActionHandler(ACTIONS.BIRDS_SPAWNER,  "doshortaction"))
+AddStategraphActionHandler("wilson_client", ActionHandler(ACTIONS.BIRDS_SPAWNER,  "doshortaction"))
+
+AddComponentAction("SCENE", "tallbird_spawner", function(inst, doer, actions, right)
+    if right and doer and inst:HasTag("new_tallbirdnest") then
+        table.insert(actions, ACTIONS.BIRDS_SPAWNER)
+    end
+end)
 -- local BIRDS_JUMP = Action()
 -- BIRDS_JUMP.id = "BIRDS_JUMP"
 -- BIRDS_JUMP.strfn = function (act)

@@ -462,13 +462,16 @@ local function fn()
 
     inst:ListenForEvent("leaderchanged", function(inst, data)
     if inst.components.follower then
-    if inst.components.follower.leader
-    and inst.components.follower.leader:HasTag("player") then
-        inst.components.bird_cultivate.wild = false
-        if inst.components.bird_cultivate then
-            inst.components.bird_cultivate:Updata()
+        local leader = inst.components.follower.leader
+        if leader then
+            local nowild = leader.components.bird_cultivate and leader.components.bird_cultivate.wild == false
+            if inst.components.bird_cultivate then
+                if leader:HasTag("player") or nowild then
+                    inst.components.bird_cultivate.wild = false
+                end
+                inst.components.bird_cultivate:Updata()
+            end
         end
-    end
     end
     end)
     inst:ListenForEvent("death", OnDeath)
