@@ -243,7 +243,7 @@ local function fn()
 
     inst.AnimState:SetBank("egg")
     inst.AnimState:SetBuild("tallbird_egg")
-    inst.AnimState:PlayAnimation("eggnest_signed1")
+    inst.AnimState:PlayAnimation("nest_signed1")
     inst.AnimState:SetFinalOffset(-1)
 
 	inst:SetDeploySmartRadius(1) --item has special NONE spacing
@@ -272,7 +272,7 @@ local function fn()
     inst.components.workable:SetWorkLeft(1)
 
     inst:AddComponent("pickable")
-    inst.components.pickable:SetUp("tallbirdegg", nil)
+    -- inst.components.pickable:SetUp("tallbirdegg", nil)
     inst.components.pickable.onpickedfn = onpicked
     inst.components.pickable.onregenfn = onregrow
     inst.components.pickable.makeemptyfn = onmakeempty

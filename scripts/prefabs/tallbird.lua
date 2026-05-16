@@ -205,7 +205,7 @@ end
 
 local function MakeNewHome(inst)
 	if inst:CanMakeNewHome() then
-		local nest = SpawnPrefab("tallbirdnest")
+		local nest = inst:HasTag("lovely_bird") and SpawnPrefab("new_tallbirdnest") or SpawnPrefab("tallbirdnest")
 		nest.Transform:SetPosition(inst.Transform:GetWorldPosition())
 		nest.components.pickable:MakeEmpty()
 		nest.components.childspawner:TakeOwnership(inst)
