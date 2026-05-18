@@ -15,12 +15,12 @@ local prefabs =
     "smallbird",
     "tallbird",
     "tallbirdegg",
-    "new_tallbirdnest",
+    "new_tallbirdnest_item",
 }
 
 local prefabs_item =
 {
-    "new_tallbirdnest_item",
+    "new_tallbirdnest",
 }
 
 local TALLBIRD_LAY_DIST = 16
@@ -65,10 +65,12 @@ local function onpicked(inst, picker)
     inst.thief = picker
     if inst.AnimState:IsCurrentAnimation("eggnest_signed1") then
         inst.AnimState:PlayAnimation("nest_signed1")
-    else
+    elseif inst.AnimState:IsCurrentAnimation("eggnest") then
         inst.AnimState:PlayAnimation("nest")
     end
-    inst.components.childspawner.noregen = true
+    if inst.components.childspawner then
+        inst.components.childspawner.noregen = true
+    end
     if inst.components.childspawner and picker then
         for k,v in pairs(inst.components.childspawner.childrenoutside) do
             if v.components.combat then
@@ -82,19 +84,23 @@ end
 local function onmakeempty(inst)
     if inst.AnimState:IsCurrentAnimation("eggnest_signed1") then
         inst.AnimState:PlayAnimation("nest_signed1")
-    else
+    elseif inst.AnimState:IsCurrentAnimation("eggnest") then
         inst.AnimState:PlayAnimation("nest")
     end
-    inst.components.childspawner.noregen = true
+    if inst.components.childspawner then
+        inst.components.childspawner.noregen = true
+    end
 end
 
 local function onregrow(inst)
     if inst.AnimState:IsCurrentAnimation("nest_signed1") then
         inst.AnimState:PlayAnimation("eggnest_signed1")
-    else
+    elseif inst.AnimState:IsCurrentAnimation("nest") then
         inst.AnimState:PlayAnimation("eggnest")
     end
-    inst.components.childspawner.noregen = false
+    if inst.components.childspawner then
+        inst.components.childspawner.noregen = false
+    end
     StopNesting(inst)
     inst.thief = nil
     inst.readytolay = nil
@@ -272,10 +278,12 @@ local function fn()
     inst.components.workable:SetWorkLeft(1)
 
     inst:AddComponent("pickable")
-    -- inst.components.pickable:SetUp("tallbirdegg", nil)
+    inst.components.pickable:SetUp("tallbirdegg", nil)
     inst.components.pickable.onpickedfn = onpicked
     inst.components.pickable.onregenfn = onregrow
+    inst.components.pickable.makefullfn = onregrow
     inst.components.pickable.makeemptyfn = onmakeempty
+    inst.components.pickable:MakeEmpty()
 
     MakeMediumBurnable(inst)
     MakeSmallPropagator(inst)
@@ -382,7 +390,7 @@ local function MakeItem(name)
         inst.components.inventoryitem.atlasname = "images/inventoryimages/new_tallbirdnest.xml"
 
         inst:AddComponent("stackable")
-        inst.components.stackable.maxsize = TUNING.STACK_SIZE_SMALLITEM/2
+        inst.components.stackable.maxsize = TUNING.STACK_SIZE_MEDITEM
 
         inst:AddComponent("deployable")
         inst.components.deployable.ondeploy = ondeploy

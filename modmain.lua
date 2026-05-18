@@ -175,7 +175,7 @@ TECH.NONE,
 {atlas = "images/inventoryimages/comb2.xml",
 image = "comb2.tex"},
 {"TOOLS"})
-AddRecipe2("new_tallbirdnest_item",{Ingredient("cutgrass", 3)},
+AddRecipe2("new_tallbirdnest_item",{Ingredient("cutgrass", 3),Ingredient("tallbirdegg", 1)},
 TECH.NONE,
 {atlas = "images/inventoryimages/new_tallbirdnest.xml",
 image = "new_tallbirdnest.tex"},
