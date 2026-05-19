@@ -3299,6 +3299,51 @@ AddComponentAction("INVENTORY", "bird_planaritem", function(inst, doer, actions,
     end
 end)
 
+local BIRD_JOUST = Action()
+BIRD_JOUST.id = "BIRD_JOUST"
+BIRD_JOUST.strfn = function (act)
+    return "BIRD_JOUST"
+end
+-- BIRD_JOUST.priority = 10
+BIRD_JOUST.rmb = true
+BIRD_JOUST.distance = math.huge
+BIRD_JOUST.mount_valid = true
+BIRD_JOUST.invalid_hold_action = true
+BIRD_JOUST.silent_generic_fail = true
+BIRD_JOUST.fn = function(act)
+	if act.doer and act.invobject then
+        local joustuser = act.doer.components.joustuser
+        if not joustuser then
+            return
+        end
+        if not act.invobject.components.joustsource then
+            return
+        end
+        if ShouldItemMimicBeRevealedFor(act.invobject, act.doer) then
+            return false, "ITEMMIMIC"
+        end
+        return joustuser:CanJoust()
+    end
+end
+AddAction(BIRD_JOUST)
+STRINGS.ACTIONS.BIRD_JOUST = {
+    BIRD_JOUST = "冲锋"
+}
+
+AddStategraphActionHandler("wilson", ActionHandler(ACTIONS.BIRD_JOUST, "joust_pre"))
+AddStategraphActionHandler("wilson_client", ActionHandler(ACTIONS.BIRD_JOUST, "joust_pre"))
+
+AddComponentAction("EQUIPPED", "joustsource", function(inst, doer, target, actions, right)
+    if right and doer:HasTag("tallbird_mount") then
+        table.insert(actions, ACTIONS.BIRD_JOUST)
+    end
+end)
+AddComponentAction("POINT", "joustsource", function(inst, doer, target, actions, right)
+    if right and doer:HasTag("tallbird_mount") then
+        table.insert(actions, ACTIONS.BIRD_JOUST)
+    end
+end)
+
 local SHADOW_TALLBIRD_DASH = Action()
 SHADOW_TALLBIRD_DASH.id = "SHADOW_TALLBIRD_DASH"
 SHADOW_TALLBIRD_DASH.strfn = function (act)
