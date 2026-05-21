@@ -98,7 +98,7 @@ local Tallbird_Mount_Health = Class(Widget, function(self, owner)
         end
     end)
 
-    self.fameText = self.root:AddChild(Text(NEWFONT, 24, "声望：0"))
+    self.fameText = self.root:AddChild(Text(NEWFONT, 24, STRINGS.TALLBIRD_FAMILY_FAME.."："))
     self.fameText:SetHAlign(0)
     self.fameText:SetPosition(80, 0, 0)  -- 放在血量右边，调整位置直到合适
     self.fameText:SetColour(1, 1, 1, 1)
@@ -108,13 +108,13 @@ local Tallbird_Mount_Health = Class(Widget, function(self, owner)
         if not self.owner.player_classified then return end
         self.owner.player_classified:ListenForEvent("birdFameNumberDirty", function(classified)
             local fame = classified.birdFameNumber:value()
-            self.fameText:SetString("声望：" .. tostring(fame))
+            self.fameText:SetString(STRINGS.TALLBIRD_FAMILY_FAME.."：" .. tostring(fame))
         end)
     end)
     self.owner:DoTaskInTime(0.2, function()
         if not self.owner.player_classified then return end
         local fame = self.owner.player_classified.birdFameNumber:value()
-        self.fameText:SetString("声望：" .. tostring(fame))
+        self.fameText:SetString(STRINGS.TALLBIRD_FAMILY_FAME.."：" .. tostring(fame))
     end)
 end)
 

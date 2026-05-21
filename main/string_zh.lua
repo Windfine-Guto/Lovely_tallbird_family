@@ -523,3 +523,31 @@ STRINGS.CHARACTERS.WURT.DESCRIBE.NEW_TALLBIRDNEST_ITEM= "孵小毛毛！浮浪�
 STRINGS.CHARACTERS.WX78.DESCRIBE.NEW_TALLBIRDNEST_ITEM= "巢穴模块 手持中。待部署。"
 ---沃拓克斯
 STRINGS.CHARACTERS.WORTOX.DESCRIBE.NEW_TALLBIRDNEST_ITEM= "一个小巢捧在手里，等找到好地方就放下。"
+
+STRINGS.TALLBIRD_NAMED_WRITEABLE = {
+    prompt = "给你的鸟起个名字",
+    noname = "无名氏",
+    text0 = "的鸟",
+    text1 = "取消",
+    text2 = "随机",
+    text3 = "确认"
+}
+
+STRINGS.TALLBIRD_ACTIONS_NAMED = {
+    JOUST = "冲锋",
+    DASH = "暗影冲刺",
+    PLANAR = "位面化",
+    LEAVE = "筑巢穴",
+    NAMED = "命名",
+    CHOP = "砍",
+    MINE = "开采",
+    DIG = "挖",
+    HAMMER = "敲",
+    SCYTHE = "收割",
+    COLLECT = "收集",
+    GATHER = "集合",
+    DISSOLVE = "解散",
+    SPAWN = "生成切换"
+}
+
+STRINGS.TALLBIRD_FAMILY_FAME = "声望"

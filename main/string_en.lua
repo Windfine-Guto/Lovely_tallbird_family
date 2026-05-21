@@ -523,3 +523,31 @@ STRINGS.CHARACTERS.WURT.DESCRIBE.NEW_TALLBIRDNEST_ITEM= "Hatch fluffies! Flurp."
 STRINGS.CHARACTERS.WX78.DESCRIBE.NEW_TALLBIRDNEST_ITEM= "NEST MODULE IN HAND. AWAITING DEPLOYMENT."
 ---沃拓克斯
 STRINGS.CHARACTERS.WORTOX.DESCRIBE.NEW_TALLBIRDNEST_ITEM= "A little nest in my hands, waiting for the perfect home."
+
+STRINGS.TALLBIRD_NAMED_WRITEABLE = {
+    prompt = "Give a name to your bird",
+    noname = "Nameless",
+    text0 = "'s bird",
+    text1 = "Cancel",
+    text2 = "Random",
+    text3 = "Confirm"
+}
+
+STRINGS.TALLBIRD_ACTIONS_NAMED = {
+    JOUST = "Charge",
+    DASH = "Shadow Dash",
+    PLANAR = "Planarize",
+    LEAVE = "Build Nest",
+    NAMED = "Name",
+    CHOP = "Chop",
+    MINE = "Mine",
+    DIG = "Dig",
+    HAMMER = "Hammer",
+    SCYTHE = "Reap",
+    COLLECT = "Collect",
+    GATHER = "Gather",
+    DISSOLVE = "Dismiss",
+    SPAWN = "Toggle Spawn"
+}
+
+STRINGS.TALLBIRD_FAMILY_FAME = "Fame"

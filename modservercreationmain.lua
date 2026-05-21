@@ -1,1 +1,1 @@
-modimport("scripts/dynamic_icon")
+modimport("main/dynamic_icon")
