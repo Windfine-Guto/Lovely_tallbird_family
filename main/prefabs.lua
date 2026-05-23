@@ -28,14 +28,14 @@ inst.OnDespawn = function(inst, migrationdata, ...)
                 follower.components.health:SetInvincible(true)
             end
             follower:DoTaskInTime(math.random() * 0.2, function(follower)
-            local fx = GLOBAL.SpawnPrefab("spawn_fx_small")
+            local fx = SpawnPrefab("spawn_fx_small")
                 fx.Transform:SetPosition(follower.Transform:GetWorldPosition())
                 if not follower.components.colourtweener then
                     follower:AddComponent("colourtweener")
                 end
                 follower.components.colourtweener:StartTween(
                     {0, 0, 0, 1}, 
-                    13 * GLOBAL.FRAMES, 
+                    13 * FRAMES, 
                     follower.Remove)
             end)
         end
@@ -55,7 +55,7 @@ inst.OnLoad = function(inst, data, ...)
     if data and data.all_followers then
         for _, savedata in pairs(data.all_followers) do
             inst:DoTaskInTime(0.2 * math.random(), function(inst)
-            local bird = GLOBAL.SpawnSaveRecord(savedata)
+            local bird = SpawnSaveRecord(savedata)
                 inst.components.leader:AddFollower(bird)
                 bird:DoTaskInTime(0, function(bird)
                     if inst:IsValid() and not bird:IsNear(inst, 8) then
@@ -63,7 +63,7 @@ inst.OnLoad = function(inst, data, ...)
                         bird.sg:GoToState("idle")
                     end
                 end)
-            local fx = GLOBAL.SpawnPrefab("spawn_fx_small")
+            local fx = SpawnPrefab("spawn_fx_small")
                 fx.Transform:SetPosition(bird.Transform:GetWorldPosition())
             end)
         end
@@ -440,6 +440,7 @@ local function SpawnAdult(inst)
 end
 if inst.userfunctions then
     inst.userfunctions.SpawnAdult=SpawnAdult
+    inst.canjoust = true
 end
 
 if GetModConfigData(modid..'_teenbirdprotect') then

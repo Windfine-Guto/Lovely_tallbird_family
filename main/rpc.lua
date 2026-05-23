@@ -4,6 +4,8 @@ local attack_mode = "tallbird"
 local retarget1 = "retarget1"
 local retarget2 = "retarget2"
 
+local back = "bird_back"
+
 local function Retarget1(inst)
     return FindEntity(inst, 16, function(ent)
 local t = ent.components.combat.target
@@ -37,7 +39,7 @@ local function Retarget2(inst)
         or
         FindEntity(
             inst,
-            SpringCombatMod(TUNING.TALLBIRD_TARGET_DIST*2),
+            SpringCombatMod(TUNING.TALLBIRD_TARGET_DIST*3),
             IsValidTarget,
             RETARGET_MUST_TAGS,
             RETARGET_CANT_TAGS,
@@ -90,6 +92,25 @@ AddModRPCHandler(retarget2..'attack', retarget2..'attack', function(inst)
                 if follower.components.combat then
                     follower.components.combat:SetRetargetFunction(1.5, Retarget2)
                 end
+            end
+        end
+    end
+end)
+
+local BIRD_TAGS = {"smallbird","teenbird","tallbird"}
+AddModRPCHandler(back..'_all', back..'_all', function(inst)
+    if inst and inst:IsValid() and not inst:HasTag("playerghost") then
+        local talker = inst.components.talker
+        if talker then
+            talker:Say(GetString(inst,"ANNOUNCE_TALLBIRD_BACK"))
+        end
+        local targets = inst.components.leader and inst.components.leader.followers
+        for follower,_ in pairs(targets) do
+            if follower:HasAnyTag(BIRD_TAGS) and not follower:IsNear(inst, 8) then
+                follower.Transform:SetPosition(inst.Transform:GetWorldPosition())
+                follower.sg:GoToState("idle")
+                local fx = SpawnPrefab("spawn_fx_small")
+                fx.Transform:SetPosition(follower.Transform:GetWorldPosition())
             end
         end
     end

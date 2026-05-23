@@ -229,10 +229,26 @@ AddComponentAction("EQUIPPED", "joustsource", function(inst, doer, target, actio
     if right and doer:HasTag("tallbird_mount") then
         table.insert(actions, ACTIONS.BIRD_JOUST)
     end
+    if right and inst:HasTag("carrotfishingrod") and (doer.replica.rider == nil or not doer.replica.rider:IsRiding()) then
+        for i, action in ipairs(actions) do
+            if action == ACTIONS.JOUST then
+                table.remove(actions, i)
+                break
+            end
+        end
+    end
 end)
-AddComponentAction("POINT", "joustsource", function(inst, doer, target, actions, right)
+AddComponentAction("POINT", "joustsource", function(inst, doer, pos, actions, right, target)
     if right and doer:HasTag("tallbird_mount") then
         table.insert(actions, ACTIONS.BIRD_JOUST)
+    end
+    if right and inst:HasTag("carrotfishingrod") and (doer.replica.rider == nil or not doer.replica.rider:IsRiding()) and TheWorld.Map:IsAboveGroundAtPoint(pos:Get()) then
+        for i, action in ipairs(actions) do
+            if action == ACTIONS.JOUST then
+                table.remove(actions, i)
+                break
+            end
+        end
     end
 end)
 

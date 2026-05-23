@@ -12,18 +12,25 @@ local CastSelect = {
         animfoc = "switch_focus"
     },
     retarget2 = {
-        pos = { -130, -75 },
+        pos = { -150, 0 },
         animbank = "spell_icons_tallbird",
         animbuild = "spell_icons_tallbird",
         animdis = "rile",
         animfoc = "rile_focus"
     },
     retarget1 = {
-        pos = { 130, -75 },
+        pos = { 150, 0 },
         animbank = "spell_icons_tallbird",
         animbuild = "spell_icons_tallbird",
         animdis = "soothe",
         animfoc = "soothe_focus"
+    },
+    bird_back = {
+        pos = { 0, -150 },
+        animbank = "spell_icons_tallbird",
+        animbuild = "spell_icons_tallbird",
+        animdis = "transfer",
+        animfoc = "transfer_focus"
     }
 }
 -- 高亮（聚焦）动画
@@ -151,6 +158,7 @@ end
 function TallbirdAtkSelect:OnMouseButton(button, down, x, y)
     if button == MOUSEBUTTON_LEFT and not down then
         local retarget = "retarget"
+        local back = "bird_back"
         if self.hovered_spell=="atk_mode" then
             local attack_mode = "tallbird"
             if self.owner._tallbird_mount_aoe_leg == true then
@@ -165,6 +173,9 @@ function TallbirdAtkSelect:OnMouseButton(button, down, x, y)
             self:Hide()
         elseif self.hovered_spell=="retarget2" then
             SendModRPCToServer(MOD_RPC[retarget..'2attack'][retarget..'2attack'])
+            self:Hide()
+        elseif self.hovered_spell=="bird_back" then
+            SendModRPCToServer(MOD_RPC[back..'_all'][back..'_all'])
             self:Hide()
         end
         return true  -- 表示已处理

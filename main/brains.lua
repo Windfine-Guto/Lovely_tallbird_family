@@ -150,14 +150,33 @@ local function dig_stump_finder(inst, leaderdist, finddist)
     end
 end
 
-
-
+local function AreDifferentPlatforms(inst, target)
+    if inst.components.locomotor.allow_platform_hopping then
+        return inst:GetCurrentPlatform() ~= target:GetCurrentPlatform()
+    end
+    return false
+end
+local function TryJoust(inst)
+    local cd = inst.components.timer and not inst.components.timer:TimerExists("joust_cd")
+	if inst.canjoust and cd then
+		local target = inst.components.combat.target
+		if target then
+			local dsq = inst:GetDistanceSqToPoint(target.Transform:GetWorldPosition())
+			local range = {min = 8, max = 28}
+			if dsq >= range.min * range.min and dsq < range.max * range.max and not AreDifferentPlatforms(inst, target) then
+				inst:PushEvent("dojoust", target)
+                inst.components.timer:StartTimer("joust_cd",15)
+			end
+		end
+	end
+end
 AddBrainPostInit("smallbirdbrain",function(self)
 local FIND_FOOD_HUNGER_PERCENT = 0.75
 local SEE_FOOD_DIST = 15
 local MIN_FOLLOW_TARGET_DIST     = 5
 local DEFAULT_FOLLOW_TARGET_DIST = 8
 local MAX_FOLLOW_TARGET_DIST     = 15
+local MAX_CHASE_TIME = 10
 local EATFOOD_CANT_TAGS = { "INLIMBO", "outofreach" }
 local function IsStarving(inst)
     return inst.components.hunger and inst.components.hunger:IsStarving()
@@ -233,7 +252,6 @@ end
 local function ShouldAttack(self)
     local target = self.inst.components.combat.target
     return target ~= nil and target:IsValid()
-    and self.inst.components.combat:CanTarget(target)
     and not self.inst.components.combat:InCooldown()
 end
 local function GetFollowPos(inst)
@@ -250,11 +268,12 @@ local function Warm(inst)
     inst:PushEvent("warm")
 end
 local function ShouldHello(inst)
+    local target = inst.components.combat.target
     local leader = GetLeader(inst)
     local friend = FindEntity(inst,10,nil,{"bird_friend"})
     inst._wave_hello_target = friend
     local cooldown = inst.components.timer and inst.components.timer:TimerExists("wave_cd")
-    return (leader==nil or leader and not leader:HasTag("player")) and friend~=nil and not cooldown
+    return target==nil and (leader==nil or leader and not leader:HasTag("player")) and friend~=nil and not cooldown
 end
 local function GetFriendPost(inst)
     if inst._wave_hello_target then
@@ -267,7 +286,8 @@ local function Hello(inst)
     inst:PushEvent("wave")
 end
 local function ShouldEmote(inst)
-    return inst:HasTag("teenbird") and inst.components.timer and not inst.components.timer:TimerExists("emote_cd")
+    local target = inst.components.combat.target
+    return inst:HasTag("teenbird") and target==nil and inst.components.timer and not inst.components.timer:TimerExists("emote_cd")
 end
 local function Emote(inst)
     inst:PushEvent("emote")
@@ -286,6 +306,15 @@ end
     table.remove(self.bt.root.children[5].children,3)
     table.insert(self.bt.root.children[5].children,3,DoAction(self.inst, function() 
         return FindFoodAction(self.inst) end))
+    table.remove(self.bt.root.children,6)
+    table.insert(self.bt.root.children,6,WhileNode(function() return ShouldAttack(self) end, "AttackMomentarily",
+			ParallelNodeAny{
+			ChaseAndAttack(self.inst, SpringCombatMod(MAX_CHASE_TIME)),
+			ConditionWaitNode(function()
+				TryJoust(self.inst)
+				return false
+			end, "Joust"),
+		}))
     table.remove(self.bt.root.children[8].children,1)
     table.insert(self.bt.root.children[8].children,1,ConditionNode(function()
         return IsHungry(self.inst) and CanSeeFood(self.inst) end, "SeesFoodToEat"))
@@ -315,9 +344,6 @@ end
             Leash(self.inst, GetLeaderPos, TUNING.ABIGAIL_DEFENSIVE_MED_FOLLOW, TUNING.ABIGAIL_DEFENSIVE_MED_FOLLOW),
             ActionNode(function() DanceParty(self.inst) end),
     })))
-    table.remove(self.bt.root.children[7].children,3)
-    table.insert(self.bt.root.children[7].children,2,WhileNode(function() return ShouldAttack(self) end, "Attack",
-            ChaseAndAttack(self.inst, SpringCombatMod(10))))
     table.insert(self.bt.root.children,8,WhileNode(function() return self.inst:HasTag("teenbird") and self.inst.components.combat.target ~= nil and self.inst.components.combat:InCooldown() end, "Dodge",
             RunAway(self.inst, function() return self.inst.components.combat.target end, 5, 8)))
     table.remove(self.bt.root.children[7].children,3)
@@ -345,7 +371,7 @@ local MIN_FOLLOW_DIST = 2
 local MAX_FOLLOW_DIST = 10
 local TARGET_FOLLOW_DIST = (MAX_FOLLOW_DIST+MIN_FOLLOW_DIST)/2
 local MAX_CHASE_TIME      = 20
-local MAX_CHASE_DIST      = 30
+local MAX_CHASE_DIST      = 40
 local RUN_AWAY_DIST       = 8
 local STOP_RUN_AWAY_DIST  = 10
 local function GetNearbyThreatFn(inst)
@@ -379,7 +405,6 @@ end
 local function ShouldAttack(self)
     local target = self.inst.components.combat.target
     return target ~= nil and target:IsValid()
-    and self.inst.components.combat:CanTarget(target)
     and not self.inst.components.combat:InCooldown()
 end
 
@@ -415,11 +440,12 @@ local function Warm(inst)
     inst:PushEvent("warm")
 end
 local function ShouldHello(inst)
+    local target = inst.components.combat.target
     local leader = GetLeader(inst)
     local friend = FindEntity(inst,10,nil,{"bird_friend"})
     inst._wave_hello_target = friend
     local cooldown = inst.components.timer and inst.components.timer:TimerExists("wave_cd")
-    return (leader==nil or leader and not leader:HasTag("player")) and friend~=nil and not cooldown
+    return target==nil and (leader==nil or leader and not leader:HasTag("player")) and friend~=nil and not cooldown
 end
 local function GetFriendPost(inst)
     if inst._wave_hello_target then
@@ -432,7 +458,8 @@ local function Hello(inst)
     inst:PushEvent("wave")
 end
 local function ShouldEmote(inst)
-    return inst.components.timer and not inst.components.timer:TimerExists("emote_cd") and math.random() < 0.5
+    local target = inst.components.combat.target
+    return target==nil and inst.components.timer and not inst.components.timer:TimerExists("emote_cd") and math.random() < 0.5
 end
 local function Emote(inst)
     inst:PushEvent("emote")
@@ -447,8 +474,14 @@ end
 				DoAction(self.inst, function() return GoHomeAction(self.inst) end, "GoHome", true)
 			))
     table.remove(self.bt.root.children,3)
-    table.insert(self.bt.root.children,3,WhileNode(function() return ShouldAttack(self) end, "Attack",
-            ChaseAndAttack(self.inst, SpringCombatMod(MAX_CHASE_TIME), SpringCombatMod(MAX_CHASE_DIST))))
+    table.insert(self.bt.root.children,3,WhileNode(function() return ShouldAttack(self) end, "AttackMomentarily",
+			ParallelNodeAny{
+				ChaseAndAttack(self.inst, SpringCombatMod(MAX_CHASE_TIME), SpringCombatMod(MAX_CHASE_DIST)),
+				ConditionWaitNode(function()
+					TryJoust(self.inst)
+					return false
+				end, "Joust"),
+		}))
     table.insert(self.bt.root.children,4,WhileNode(function() return self.inst.components.combat.target ~= nil and self.inst.components.combat:InCooldown() end, "Dodge",
             RunAway(self.inst, function() return self.inst.components.combat.target end, RUN_AWAY_DIST, STOP_RUN_AWAY_DIST)))
     table.insert(self.bt.root.children,9,Wander(self.inst, function() if not self.inst.components.follower.leader then return self.inst.components.knownlocations:GetLocation("home") end end, 16))

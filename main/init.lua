@@ -18,6 +18,7 @@ PrefabFiles = GetModConfigData('lovely_tallbird_family'..'skins') and {
     "tallbird_eyefx",
     "lunar_tallbird_laser",
     "new_tallbirdnest",
+    "beak_carrot_bird_rod",
 }
 or {
     "tallbird",
@@ -28,4 +29,5 @@ or {
     "tallbird_eyefx",
     "lunar_tallbird_laser",
     "new_tallbirdnest",
+    "beak_carrot_bird_rod",
 }

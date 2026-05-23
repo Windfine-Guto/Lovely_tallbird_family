@@ -473,6 +473,14 @@ AddStategraphEvent("tallbird", EventHandler("emote", function(inst)
     end
 end))
 
+AddStategraphEvent("tallbird", EventHandler("dojoust", function(inst, target)
+	if not (inst.components.health:IsDead() or inst.sg:HasStateTag("busy")) and
+		target and target:IsValid()
+	then
+		inst.sg:GoToState("joust_pre", target)
+	end
+end))
+
 local wait_for_pre = true
 local anims = { pre = "boat_jump_pre", loop = "boat_jump", pst = "boat_jump_pst"}
 local timelines = {}
@@ -486,6 +494,396 @@ AddStategraphActionHandler("tallbird", ActionHandler(ACTIONS.TILL, "till_or_dig"
 AddStategraphActionHandler("tallbird", ActionHandler(ACTIONS.CHOP, "chop"))
 AddStategraphActionHandler("tallbird", ActionHandler(ACTIONS.MINE, "mine"))
 AddStategraphActionHandler("tallbird", ActionHandler(ACTIONS.INTERACT_WITH, "plant_peep"))
+
+local NOTAGS3 = {'INLIMBO','notarget','noattack','player','companion','abigail','glommer','friendlyfruitfly'
+,"chester","hutch", "playerghost","DECOR", "FX" ,"structure","wall"}
+local DAMAGE_ONEOF_TAGS = { "pickable", "NPC_workable", "CHOP_workable", "HAMMER_workable", "MINE_workable", "DIG_workable" }
+local function Tallbird_Trample(inst)
+    local x,y,z = inst.Transform:GetWorldPosition()
+    for _, v in pairs(TheSim:FindEntities(x, y or 0, z, 2.5, nil, NOTAGS3, DAMAGE_ONEOF_TAGS)) do
+        if v:IsValid() and
+            not (v.components.health ~= nil and v.components.health:IsDead()) then
+            local isworkable = false
+            if v.components.workable ~= nil then
+                local work_action = v.components.workable:GetWorkAction()
+                isworkable =
+                    (   work_action == nil and v:HasTag("NPC_workable") ) or
+                    (   v.components.workable:CanBeWorked() and
+                        (   work_action == ACTIONS.CHOP or
+                             work_action == ACTIONS.HAMMER or
+                            work_action == ACTIONS.MINE or
+                            (   work_action == ACTIONS.DIG and
+                                v.components.spawner == nil and
+                                v.components.childspawner == nil and v:HasTag("stump")
+                            )
+                        )
+                    )
+            end
+            if isworkable then
+                local x1, y1, z1 = v.Transform:GetWorldPosition()
+                SpawnPrefab("collapse_small").Transform:SetPosition(x1, y1, z1)
+                v.components.workable:Destroy(inst)
+
+                if v:HasTag("stump") then
+                    v.components.workable:WorkedBy_Internal(inst, 1)
+                end
+            elseif v.components.pickable ~= nil
+                    and v.components.pickable:CanBePicked()
+                    and not v:HasTag("intense") and v.prefab~="tallbirdnest" and v.prefab~="new_tallbirdnest" then
+                local success, loots = v.components.pickable:Pick(TheWorld)
+                if loots then
+                    for i, v in ipairs(loots) do
+                        Launch(v, inst, 0.2)
+                    end
+                end
+            end
+        end
+    end
+end
+local function AreDifferentPlatforms(inst, target)
+    if inst.components.locomotor.allow_platform_hopping then
+        return inst:GetCurrentPlatform() ~= target:GetCurrentPlatform()
+    end
+    return false
+end
+local clockwork_common = require("prefabs/clockwork_common")
+local LANCE_PADDING = 0.4
+local JOUSTING_TAGS = { "jousting" }
+
+
+local function should_collide(guy, inst)
+	return DiffAngle(inst.Transform:GetRotation(), guy.Transform:GetRotation()) > 44
+end
+local function DoJoustAoe(inst, targets)
+    local NOTAGS2= {"companion","smallbird","teenbird","tallbird","bird_family"}
+    local MUSTTAGS = {"monster","hostile"}
+
+	local x, y, z = inst.Transform:GetWorldPosition()
+
+	--lance start and end points (NOTE: 2d vector using x,y,0)
+	local p1 = Vector3(0.05, -0.43, 0) --base of lance
+	local p2 = Vector3(2.6 - LANCE_PADDING, -0.06, 0) --tip of lance
+
+	--rotate to match our facing
+	local theta = -inst.Transform:GetRotation() * DEGREES
+	local cos_theta = math.cos(theta)
+	local sin_theta = math.sin(theta)
+	local tempx = p1.x
+	p1.x = x + tempx * cos_theta - p1.y * sin_theta
+	p1.y = z + p1.y * cos_theta + tempx * sin_theta
+	tempx = p2.x
+	p2.x = x + tempx * cos_theta - p2.y * sin_theta
+	p2.y = z + p2.y * cos_theta + tempx * sin_theta
+
+	local cx = (p1.x + p2.x) * 0.5
+	local cz = (p1.y + p2.y) * 0.5
+	local radius = math.sqrt(distsq(p1.x, p1.y, cx, cz))
+	local lsq = Dist2dSq(p1, p2)
+	local t = GetTime()
+
+	local function should_hit(guy, inst)
+		local last_t = targets[guy]
+		if last_t == nil or last_t + 0.75 < t then
+			local p3 = guy:GetPosition()
+			p3.y, p3.z = p3.z, 0 --convert x,0,z -> x,y,0
+			local range = LANCE_PADDING + guy:GetPhysicsRadius(0)
+			--if DistPointToSegmentXYSq(p3, p1, p2) < range * range then
+			--V2C: modified becasue we don't want to hit anything behind the back point
+			local dot = (p3.x - p1.x) * (p2.x - p1.x) + (p3.y - p1.y) * (p2.y - p1.y)
+			if dot >= 0 then
+				dot = dot / lsq
+				local dsq =
+					dot >= 1 and
+					Dist2dSq(p3, p2) or
+					Dist2dSq(p3, Vector3(p1.x + dot * (p2.x - p1.x), p1.y + dot * (p2.y - p1.y), 0))
+				if dsq < range * range then
+					targets[guy] = t
+					return true
+				end
+			end
+		end
+		return false
+	end
+
+	inst.components.combat.ignorehitrange = true
+	clockwork_common.FindAOETargetsAtXZ(inst, x, z, LANCE_PADDING + 3,
+		function(guy, inst)
+			if should_hit(guy, inst) then
+                if not guy:HasAnyTag(NOTAGS2) then
+                    if guy:HasAnyTag(MUSTTAGS) or guy.components.combat and guy.components.combat.target==inst
+                    or inst.components.combat.target==guy then
+                        if guy:HasTag("jousting") and should_collide(guy, inst) then
+                            guy:PushEventImmediate("joust_collide")
+                            inst.components.combat:DoAttack(guy)
+                        else
+                            inst.components.combat:DoAttack(guy)
+                            guy:PushEvent("knockback", { knocker = inst, radius = 6.5, forcelanded = true })
+                        end
+                    end
+				end
+			end
+		end)
+	inst.components.combat.ignorehitrange = false
+
+	-- local knight_rad = inst:GetPhysicsRadius(0)
+	-- for i, v in ipairs(TheSim:FindEntities(x, 0, z, 3, JOUSTING_TAGS)) do
+	-- 	if v ~= inst and should_hit(v, inst) and should_collide(v, inst) then
+    --         if not v:HasAnyTag(NOTAGS2) then
+    --             if v:HasAnyTag(MUSTTAGS) or v.components.combat and v.components.combat.target==inst
+    --             or inst.components.combat.target==v then
+    --                 inst.components.combat:DoAttack(v)
+    --                 v:PushEventImmediate("joust_collide")
+    --             end
+    --         end
+	-- 	end
+	-- end
+
+end
+
+AddStategraphState("tallbird",State{
+		name = "joust_pre",
+		tags = { "attack", "busy" },
+
+		onenter = function(inst, target)
+			inst.components.locomotor:StopMoving()
+			inst.Transform:SetEightFaced()
+			inst.AnimState:PlayAnimation("joust_pre")
+			-- inst.SoundEmitter:PlaySound("dontstarve/creatures/knight"..inst.kind.."/voice")
+			inst.components.combat:StartAttack()
+			if target and target:IsValid() then
+				inst.sg.statemem.target = target
+				inst.sg.statemem.maxdelta = 20
+
+				--true dir (for movement)
+				inst.sg.statemem.dir = inst:GetAngleToPoint(target.Transform:GetWorldPosition())
+			else
+				--true dir (for movement)
+				inst.sg.statemem.dir = inst.Transform:GetRotation()
+			end
+
+			--facing dir snapped to 45s (for hitbox)
+			inst.Transform:SetRotation(math.floor(inst.sg.statemem.dir / 45 + 0.5) * 45)
+		end,
+
+		onupdate = function(inst, dt)
+			if inst:IsAsleep() then
+				inst.sg:GoToState("idle")
+			elseif dt > 0 then
+				if inst.sg:HasStateTag("jumping") then
+					inst.Physics:SetMotorVelOverride(TUNING.YOTH_KNIGHT_JOUST_SPEED * inst.components.locomotor:GetSpeedMultiplier(), 0, 0)
+				else
+					local target = inst.sg.statemem.target
+					if target then
+						if target:IsValid() then
+							local rot = inst.sg.statemem.dir
+							local rot1 = inst:GetAngleToPoint(target.Transform:GetWorldPosition())
+							local delta = math.clamp(ReduceAngle(rot1 - rot), -inst.sg.statemem.maxdelta, inst.sg.statemem.maxdelta) * math.min(1, dt / FRAMES)
+							inst.sg.statemem.maxdelta = math.max(1, inst.sg.statemem.maxdelta - dt / FRAMES)
+
+							--true dir (for movement)
+							inst.sg.statemem.dir = rot + delta
+
+							--facing dir snapped to 45s (for hitbox)
+							inst.Transform:SetRotation(math.floor(inst.sg.statemem.dir / 45 + 0.5) * 45)
+						else
+							inst.sg.statemem.target = nil
+						end
+					end
+				end
+			end
+		end,
+
+		timeline =
+		{
+			FrameEvent(18, function(inst)
+				inst.sg:AddStateTag("jumping")
+
+				local theta = ReduceAngle(inst.sg.statemem.dir - inst.Transform:GetRotation()) * DEGREES
+				local speed = TUNING.YOTH_KNIGHT_JOUST_SPEED * inst.components.locomotor:GetSpeedMultiplier()
+				inst.Physics:SetMotorVelOverride(speed * math.cos(theta), 0, -speed * math.sin(theta))
+			end),
+			-- FrameEvent(21, function(inst) inst.SoundEmitter:PlaySound("dontstarve/creatures/knight"..inst.kind.."/bounce") end),
+		},
+
+		events =
+		{
+			EventHandler("animover", function(inst)
+				if inst.AnimState:AnimDone() then
+					inst.sg.statemem.jousting = true
+					inst.sg:GoToState("joust_loop", {
+						target = inst.sg.statemem.target,
+						dir = inst.sg.statemem.dir,
+					})
+				end
+			end),
+		},
+
+		onexit = function(inst)
+			if not inst.sg.statemem.jousting then
+				inst.Physics:ClearMotorVelOverride()
+				inst.Physics:Stop()
+				inst.Transform:SetFourFaced()
+			end
+		end,
+	})
+
+AddStategraphState("tallbird",State{
+		name = "joust_loop",
+		tags = { "attack", "busy", "jumping" },
+
+		onenter = function(inst, data)
+			inst.Physics:ClearCollidesWith(COLLISION.CHARACTERS)
+            inst.Physics:ClearCollidesWith(COLLISION.GIANTS)
+			inst.Transform:SetEightFaced()
+			if not inst.AnimState:IsCurrentAnimation("joust_loop") then
+				inst.AnimState:PlayAnimation("joust_loop", true)
+			end
+			inst.sg:SetTimeout(inst.AnimState:GetCurrentAnimationLength())
+			if data then
+				inst.sg.statemem.target = data.target
+				inst.sg.statemem.dir = data.dir --true dir (for movement)
+				inst.sg.statemem.loops = data.loops or 1
+				inst.sg.statemem.targets = data.targets or {}
+			else
+				inst.sg.statemem.loops = 1
+				inst.sg.statemem.targets = {}
+			end
+			inst.components.combat:RestartCooldown()
+			inst:AddTag("jousting")
+		end,
+
+		onupdate = function(inst, dt)
+			if inst:IsAsleep() then
+				inst.sg:GoToState("idle")
+			elseif dt > 0 then
+				local rot = inst.sg.statemem.dir
+				if rot then
+					local target = inst.sg.statemem.target
+					if target then
+						if target:IsValid() then
+							local rot1 = inst:GetAngleToPoint(target.Transform:GetWorldPosition())
+							if math.floor(rot / 45 + 0.5) * 45 == math.floor(rot1 / 45 + 0.5) * 45 then
+								local delta = math.clamp(ReduceAngle(rot1 - rot), -1, 1) * math.min(1, dt / FRAMES)
+								rot = rot + delta
+								inst.sg.statemem.dir = rot
+							end
+						else
+							inst.sg.statemem.target = nil
+						end
+					end
+
+					local theta = ReduceAngle(rot - inst.Transform:GetRotation()) * DEGREES
+					local speed = 20 * inst.components.locomotor:GetSpeedMultiplier()
+					inst.Physics:SetMotorVelOverride(speed * math.cos(theta), 0, -speed * math.sin(theta))
+				end
+				DoJoustAoe(inst, inst.sg.statemem.targets)
+                Tallbird_Trample(inst)
+			end
+		end,
+
+		timeline =
+		{
+			FrameEvent(0, function(inst)
+				if not (inst.sg.laststate and inst.sg.laststate.name == "joust_pre") then
+					-- inst.SoundEmitter:PlaySound("dontstarve/creatures/knight"..inst.kind.."/bounce")
+				end
+			end),
+			-- FrameEvent(15, function(inst) inst.SoundEmitter:PlaySound("dontstarve/creatures/knight"..inst.kind.."/land") end),
+		},
+
+		ontimeout = function(inst)
+			local maxloops = 3
+			local loops = inst.sg.statemem.loops
+			if loops >= maxloops then
+				inst.sg.statemem.stopping = true
+				inst.sg:GoToState("joust_pst")
+				return
+			elseif loops < maxloops - 1 then
+				local target = inst.sg.statemem.target
+				if target and target:IsValid() and DiffAngle(inst.Transform:GetRotation(), inst:GetAngleToPoint(target.Transform:GetWorldPosition())) < 90 and not AreDifferentPlatforms(inst, target) then
+					--target still in front, keep going
+					inst.sg.statemem.jousting = true
+					inst.sg:GoToState("joust_loop", {
+						target = target,
+						dir = inst.sg.statemem.dir,
+						loops = loops + 1,
+						targets = inst.sg.statemem.targets,
+					})
+					return
+				end
+			end
+			--force end after 1 more loop
+			inst.sg.statemem.jousting = true
+			inst.sg:GoToState("joust_loop", {
+				dir = inst.sg.statemem.dir,
+				loops = maxloops,
+				targets = inst.sg.statemem.targets,
+			})
+		end,
+
+		onexit = function(inst)
+			if not (inst.sg.statemem.jousting or inst.sg.statemem.stopping) then
+				inst.Physics:ClearMotorVelOverride()
+				inst.Physics:Stop()
+				inst.Transform:SetFourFaced()
+			end
+			if not inst.sg.statemem.jousting then
+				inst.Physics:CollidesWith(COLLISION.CHARACTERS)
+                inst.Physics:CollidesWith(COLLISION.GIANTS)
+				inst:RemoveTag("jousting")
+			end
+		end,
+	})
+
+AddStategraphState("tallbird",State{
+		name = "joust_pst",
+		tags = { "busy", "jumping" },
+
+		onenter = function(inst)
+			inst.Transform:SetEightFaced()
+			inst.AnimState:PlayAnimation("joust_pst")
+			-- inst.SoundEmitter:PlaySound("dontstarve/creatures/knight"..inst.kind.."/attack")
+			local _
+			inst.sg.statemem.vx, _, inst.sg.statemem.vz = inst.Physics:GetMotorVel()
+			inst.Physics:SetMotorVelOverride(inst.sg.statemem.vx * 0.64, 0, inst.sg.statemem.vz * 0.64)
+		end,
+
+		timeline =
+		{
+			FrameEvent(2, function(inst) inst.Physics:SetMotorVelOverride(inst.sg.statemem.vx * 0.32, 0, inst.sg.statemem.vz * 0.32) end),
+			FrameEvent(4, function(inst) inst.Physics:SetMotorVelOverride(inst.sg.statemem.vx * 0.16, 0, inst.sg.statemem.vz * 0.16) end),
+			FrameEvent(6, function(inst) inst.Physics:SetMotorVelOverride(inst.sg.statemem.vx * 0.08, 0, inst.sg.statemem.vz * 0.08) end),
+			FrameEvent(8, function(inst) inst.Physics:SetMotorVelOverride(inst.sg.statemem.vx * 0.04, 0, inst.sg.statemem.vz * 0.04) end),
+			FrameEvent(10, function(inst)
+				inst.Physics:ClearMotorVelOverride()
+				inst.Physics:Stop()
+				inst.sg:RemoveStateTag("jumping")
+			end),
+			FrameEvent(22, function(inst)
+				inst.sg:AddStateTag("caninterrupt")
+			end),
+			FrameEvent(28, function(inst)
+				inst.sg:RemoveStateTag("busy")
+			end),
+		},
+
+		events =
+		{
+			EventHandler("animover", function(inst)
+				if inst.AnimState:AnimDone() then
+					inst.sg:GoToState("idle")
+				end
+			end),
+		},
+
+		onexit = function(inst)
+			if inst.sg:HasStateTag("jumping") then
+				inst.Physics:ClearMotorVelOverride()
+				inst.Physics:Stop()
+			end
+			inst.Transform:SetFourFaced()
+		end,
+	})
 
 AddStategraphState("tallbird",State{
         name = "idle_emote",
@@ -676,7 +1074,7 @@ AddStategraphState("tallbird",State{
                 nil, NOTAGS)
             end
             if inst.components.timer then
-                inst.components.timer:StartTimer("attackleg_cd", 8)
+                inst.components.timer:StartTimer("attackleg_cd", 6)
             end
              end),
             TimeEvent(14*FRAMES, function(inst)

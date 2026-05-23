@@ -53,7 +53,7 @@ local function Retarget(inst)
         or
         FindEntity(
             inst,
-            SpringCombatMod(TUNING.TALLBIRD_TARGET_DIST*2),
+            SpringCombatMod(TUNING.TALLBIRD_TARGET_DIST*3),
             IsValidTarget,
             RETARGET_MUST_TAGS,
             RETARGET_CANT_TAGS,
@@ -492,6 +492,7 @@ local function fn()
     end)
 
     ------------------
+    inst.canjoust = true
     inst.userfunctions={}
     inst.userfunctions.GetPeepChance=function ()
         return 0.8
