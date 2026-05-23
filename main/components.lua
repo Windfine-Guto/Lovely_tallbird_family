@@ -78,16 +78,14 @@ AddComponentPostInit("playercontroller", function(self)
     end
 end)
 
-local NOTAGS = {'INLIMBO','notarget','noattack','player','companion','abigail','glommer','friendlyfruitfly'}
+local NOTAGS = {'INLIMBO','notarget','noattack','player','companion','abigail','glommer','friendlyfruitfly'
+,"chester","hutch", "playerghost","DECOR", "FX" ,"structure","wall"}
 local function playerdamage(inst,data)
 	local target=data.target
 	if not target:IsValid() or not target.components or not target.components.combat then
         return
     end
-	if inst.target_spdamage_processed==true then
-		return
-	end
-    inst.target_spdamage_processed=true
+
     if inst._tallbird_mount_aoe_leg==true then
         if inst.components.combat then
             inst.components.combat:DoAreaAttack(target, 4, nil, nil,
@@ -97,23 +95,14 @@ nil, NOTAGS)
         if inst.components.inventory ~= nil then
             local weapon = inst.components.inventory:GetEquippedItem(EQUIPSLOTS.HANDS)
             if inst.components.combat then
-                if weapon==nil then
-                    -- inst.components.combat:DoAttack(target,nil, nil, nil, 0.2*1)
-                    inst.target_spdamage_processed = nil
-                    return
-                elseif weapon.components.weapon == nil then
-                    inst.target_spdamage_processed = nil
-                    return
-                elseif weapon.components.projectile or weapon:HasTag("rangedweapon") then
-                    inst.target_spdamage_processed = nil
-                    return
+                if weapon==nil or weapon.components.weapon == nil then
+
                 else
                     inst.components.combat:DoAttack(target,weapon, nil, nil, 1)
                 end
             end
         end
     end
-	inst.target_spdamage_processed = nil
 end
 
 AddComponentPostInit("rider", function(self)
@@ -127,7 +116,7 @@ AddComponentPostInit("rider", function(self)
                 self.inst.DynamicShadow:SetSize(2.75, 1)
             end
             self.inst.components.locomotor:SetExternalSpeedMultiplier(self.inst,"tallbird_speed",1.25)
-            self.inst:ListenForEvent("onhitother",playerdamage)
+            self.inst:ListenForEvent("tallbird_attack",playerdamage)
             if GetModConfigData(modid..'_tallbirdwaterwalk') then
                 self.inst.Physics:SetCollisionMask(
                     COLLISION.GROUND,
@@ -154,7 +143,7 @@ AddComponentPostInit("rider", function(self)
     function self:ActualDismount(...)
         original_ActualDismount(self,...)
         if self.inst:HasTag("tallbird_mount") then
-            self.inst:RemoveEventCallback("onhitother",playerdamage)
+            self.inst:RemoveEventCallback("tallbird_attack",playerdamage)
             self.inst.components.locomotor:RemoveExternalSpeedMultiplier(self.inst,"tallbird_speed")
             if GetModConfigData(modid..'_tallbirdwaterwalk') then
             self.inst.Physics:SetCollisionMask(
@@ -259,5 +248,68 @@ AddComponentPostInit("sleeper", function(self)
             return self:WakeUp()
         end
         return old_gotosleep(sleeptime)
+    end
+end)
+
+local DAMAGE_ONEOF_TAGS = { "_combat", "pickable", "NPC_workable", "CHOP_workable", "HAMMER_workable", "MINE_workable", "DIG_workable" }
+local function Tallbird_Trample(inst,targets)
+    if inst:HasTag("tallbird_mount") then
+        local x,y,z = inst.Transform:GetWorldPosition()
+        for _, v in pairs(TheSim:FindEntities(x, y or 0, z, 2.5, nil, NOTAGS, DAMAGE_ONEOF_TAGS)) do
+            if not targets[v] and v:IsValid() and
+                not (v.components.health ~= nil and v.components.health:IsDead()) then
+                local isworkable = false
+                if v.components.workable ~= nil then
+                    local work_action = v.components.workable:GetWorkAction()
+                    isworkable =
+                        (   work_action == nil and v:HasTag("NPC_workable") ) or
+                        (   v.components.workable:CanBeWorked() and
+                            (   work_action == ACTIONS.CHOP or
+                                work_action == ACTIONS.HAMMER or
+                                work_action == ACTIONS.MINE or
+                                (   work_action == ACTIONS.DIG and
+                                    v.components.spawner == nil and
+                                    v.components.childspawner == nil and v:HasTag("stump")
+                                )
+                            )
+                        )
+                end
+                if isworkable then
+                    local x1, y1, z1 = v.Transform:GetWorldPosition()
+                    SpawnPrefab("collapse_small").Transform:SetPosition(x1, y1, z1)
+                    targets[v] = true
+                    v.components.workable:Destroy(inst)
+
+                    if v:HasTag("stump") then
+                        v.components.workable:WorkedBy_Internal(inst, 1)
+                    end
+                elseif v.components.pickable ~= nil
+                        and v.components.pickable:CanBePicked()
+                        and not v:HasTag("intense") and v.prefab~="tallbirdnest" and v.prefab~="new_tallbirdnest" then
+                    targets[v] = true
+                    local success, loots = v.components.pickable:Pick(inst)
+                    if loots then
+                        for i, v in ipairs(loots) do
+                            targets[v] = true
+                            Launch(v, inst, 0.2)
+                        end
+                    end
+                elseif v.components.combat == nil and v.components.health ~= nil then
+                    targets[v] = true
+                elseif inst.components.combat:CanTarget(v) then
+                    targets[v] = true
+                    inst.components.combat:DoAttack(v)
+                end
+            end
+        end
+    end
+end
+
+AddComponentPostInit("joustsource", function(self)
+    local old_CheckCollision = self.CheckCollision
+    function self:CheckCollision (inst, targets)
+        old_CheckCollision(self,inst,targets)
+        local new_targets = inst.sg.statemem.joustdata and inst.sg.statemem.joustdata.tallbird_targets
+        Tallbird_Trample(inst, new_targets)
     end
 end)

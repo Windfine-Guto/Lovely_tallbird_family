@@ -1151,6 +1151,33 @@ AddStategraphPostInit("tallbird", function(sg)
 end)
 
 AddStategraphPostInit("wilson", function(sg)
+---actionhandlers
+    -- local old_attack_deststate = sg.actionhandlers[ACTIONS.ATTACK].deststate
+    -- sg.actionhandlers[ACTIONS.ATTACK].deststate = function (inst, action)
+    --     if inst:HasTag("tallbird_mount") then
+    --         inst:PushEvent("tallbird_attack",{target=action.target})
+    --     end
+    --     return old_attack_deststate(inst,action)
+    -- end
+
+---attack
+    local attack_state = sg.states["attack"]
+
+    for i, ev in ipairs(attack_state.timeline) do
+        if ev.time == 8 * FRAMES then
+            local old_fn = ev.fn
+            ev.fn = function(inst)
+                if inst:HasTag("tallbird_mount") then
+                    local action = inst:GetBufferedAction()
+                    if action and action.target then
+                        inst:PushEvent("tallbird_attack", { target = action.target })
+                    end
+                end
+                return old_fn(inst)
+            end
+            break
+        end
+    end
 ---mount
     local state = sg.states["mount"]
     if state then
@@ -1444,5 +1471,155 @@ AddStategraphPostInit("wilson", function(sg)
             end
             break
         end
+    end
+
+---joust_pre
+    local function SetRideFaced(inst)
+        if inst:HasTag("tallbird_mount") then
+            inst.Transform:SetSixFaced()
+        end
+    end
+
+    local function Joust_nocollide(inst)
+        local joustdata = inst.sg.statemem.joustdata
+        local joustsource = joustdata.source and joustdata.source:IsValid() and joustdata.source.components.joustsource or nil
+        if not joustsource then
+            inst.sg.statemem.stopping = true
+            inst.sg:GoToState("joust_stop")
+            return
+        end
+        local joustuser = inst.components.joustuser
+        if joustuser then
+            joustsource:CheckCollision(inst, joustdata.targets)
+            if not inst.components.joustuser:CheckEdge() then
+                joustdata.edgecount = 0
+            elseif joustdata.edgecount < 3 then
+                joustdata.edgecount = joustdata.edgecount + 1
+            else
+                inst.sg.statemem.stopping = true
+                inst.sg:GoToState("joust_stop")
+            end
+        end
+    end
+
+    local function SpeedBuff(inst)
+        if inst:HasTag("tallbird_mount") then
+            local mount = inst.components.rider and inst.components.rider:GetMount()
+            if inst.components.locomotor then
+                inst.components.locomotor:SetExternalSpeedMultiplier(mount,"tallbird_joust_speed",2)
+            end
+        end
+    end
+
+    local function RemoveBuff(inst)
+        if inst:HasTag("tallbird_mount") then
+            local mount = inst.components.rider and inst.components.rider:GetMount()
+            if inst.components.locomotor then
+                inst.components.locomotor:RemoveExternalSpeedMultiplier(mount,"tallbird_joust_speed")
+            end
+        end
+    end
+
+    local joust_pre_state = sg.states["joust_pre"]
+    local old_joust_pre_onexit = joust_pre_state.onexit
+    joust_pre_state.onexit = function(inst)
+        old_joust_pre_onexit(inst)
+        if not inst.sg.statemem.keepeightfaced then
+			SetRideFaced(inst)
+		end
+    end
+---joust_start
+    local joust_start_state = sg.states["joust_start"]
+
+    local old_joust_start_onenter = joust_start_state.onenter
+    joust_start_state.onenter = function (inst, joustdata)
+        joustdata.tallbird_targets = {}
+        return old_joust_start_onenter(inst,joustdata)
+    end
+
+    local old_joust_start_onexit = joust_start_state.onexit
+    joust_start_state.onexit = function(inst)
+        old_joust_start_onexit(inst)
+        if not inst.sg.statemem.jousting and not inst.sg.statemem.stopping then
+			SetRideFaced(inst)
+        end
+    end
+
+    local old_joust_start_onupdate = joust_start_state.onupdate
+    joust_start_state.onupdate = function(inst)
+		if not inst:HasTag("tallbird_mount") then
+            return old_joust_start_onupdate(inst)
+        else
+            return Joust_nocollide(inst)
+        end
+    end
+---joust
+    local joust_state = sg.states["joust"]
+    local old_joust_state_onenter = joust_state.onenter
+    joust_state.onenter = function (inst, joustdata)
+        SpeedBuff(inst)
+        return old_joust_state_onenter(inst,joustdata)
+    end
+
+    local old_joust_onexit = joust_state.onexit
+    joust_state.onexit = function(inst)
+        RemoveBuff(inst)
+        old_joust_onexit(inst)
+        if not inst.sg.statemem.jousting and not inst.sg.statemem.stopping then
+			SetRideFaced(inst)
+        end
+    end
+
+    local old_joust_onupdate = joust_state.onupdate
+    joust_state.onupdate = function(inst)
+		if not inst:HasTag("tallbird_mount") then
+            return old_joust_onupdate(inst)
+        else
+            return Joust_nocollide(inst)
+        end
+    end
+
+    local old_joust_events_joust_collide = joust_state.events.joust_collide.fn
+    joust_state.events.joust_collide.fn = function(inst)
+		if not inst:HasTag("tallbird_mount") then
+            return old_joust_events_joust_collide(inst)
+        end
+    end
+---joust_stop
+    local joust_stop_state = sg.states["joust_stop"]
+
+    local old_joust_stop_onenter = joust_stop_state.onenter
+    joust_stop_state.onenter = function (inst)
+        old_joust_stop_onenter(inst)
+
+        if inst:HasTag("tallbird_mount") then
+            local theta = ReduceAngle(0) * DEGREES
+            local speed = 10
+            inst.Physics:SetMotorVel(speed * math.cos(theta), 0, -speed * math.sin(theta))
+        end
+    end
+
+    local joust_stop_state_timeline_pos = 1
+    for i, ev in ipairs(joust_stop_state.timeline) do
+        if ev.frame == 22 then
+            joust_stop_state_timeline_pos = i
+            local old_fn = ev.fn
+            ev.fn = function(inst)
+                old_fn(inst)
+                SetRideFaced(inst)
+            end
+        end
+    end
+    table.insert(joust_stop_state.timeline,joust_stop_state_timeline_pos,FrameEvent(15, function(inst)
+		if inst:HasTag("tallbird_mount") then
+            inst.Physics:Stop()
+        end
+    end))
+
+
+    local old_joust_stop_onexit = joust_stop_state.onexit
+    joust_stop_state.onexit = function(inst)
+        old_joust_stop_onexit(inst)
+		SetRideFaced(inst)
     end
 end)
