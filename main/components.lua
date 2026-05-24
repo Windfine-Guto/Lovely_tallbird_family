@@ -313,3 +313,56 @@ AddComponentPostInit("joustsource", function(self)
         Tallbird_Trample(inst, new_targets)
     end
 end)
+
+---兼容行为学队列
+AddComponentPostInit("actionqueuer", function(self)
+    if AddActionQueuerActionList then
+		AddActionQueuerActionList("noworkdelay", "BIRD_CHOP", "BIRD_MINE", "BIRD_DIG","BIRD_HAMMER")
+    end
+    if AddActionQueuerAction then
+        AddActionQueuerAction("rightclick","BIRD_DIG",function (target)
+            return target:HasTag("stump") or target.prefab=="red_mushroom"
+            or target.prefab=="blue_mushroom" or target.prefab=="green_mushroom"
+        end)
+        AddActionQueuerAction("allclick","BIRD_CHOP",function (target)
+            local attack_mode = "tallbird"
+            if self.inst._tallbird_mount_aoe_leg == true then
+                self.inst._tallbird_mount_aoe_leg = false
+                SendModRPCToServer(MOD_RPC[attack_mode..'attack'][attack_mode..'attack'],self.inst._tallbird_mount_aoe_leg)
+            end
+            return true
+        end)
+        AddActionQueuerAction("allclick","BIRD_MINE",function (target)
+            local attack_mode = "tallbird"
+            if self.inst._tallbird_mount_aoe_leg == true then
+                self.inst._tallbird_mount_aoe_leg = false
+                SendModRPCToServer(MOD_RPC[attack_mode..'attack'][attack_mode..'attack'],self.inst._tallbird_mount_aoe_leg)
+            end
+            return true
+        end)
+        AddActionQueuerAction("rightclick","BIRD_HAMMER",function (target)
+            local attack_mode = "tallbird"
+            if self.inst._tallbird_mount_aoe_leg == true then
+                self.inst._tallbird_mount_aoe_leg = false
+                SendModRPCToServer(MOD_RPC[attack_mode..'attack'][attack_mode..'attack'],self.inst._tallbird_mount_aoe_leg)
+            end
+            return true
+        end)
+        AddActionQueuerAction("rightclick","BIRD_SCYTHE",function (target)
+            local attack_mode = "tallbird"
+            if self.inst._tallbird_mount_aoe_leg == false then
+                self.inst._tallbird_mount_aoe_leg = true
+                SendModRPCToServer(MOD_RPC[attack_mode..'attack'][attack_mode..'attack'],self.inst._tallbird_mount_aoe_leg)
+            end
+            return true
+        end)
+        AddActionQueuerAction("rightclick","BIRD_COLLECT",function (target)
+            local attack_mode = "tallbird"
+            if self.inst._tallbird_mount_aoe_leg == false then
+                self.inst._tallbird_mount_aoe_leg = true
+                SendModRPCToServer(MOD_RPC[attack_mode..'attack'][attack_mode..'attack'],self.inst._tallbird_mount_aoe_leg)
+            end
+            return true
+        end)
+    end
+end)

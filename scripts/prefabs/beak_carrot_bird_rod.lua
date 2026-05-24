@@ -70,8 +70,11 @@ local function onequip(inst, owner)
                 owner.rod_tallbird_light_fx = Light_fx
             end
         end
+        if not owner:HasTag("beak_carrot_bird_rod_joust") then
+            owner:AddTag("beak_carrot_bird_rod_joust")
+        end
     else
-        owner.AnimState:ClearOverrideSymbol("carrot")
+        owner.AnimState:OverrideSymbol("carrot", "swap_chum", "fishhook")
     end
     if not owner:HasTag("beak_carrot_bird_rod_user") then
         owner:AddTag("beak_carrot_bird_rod_user")
