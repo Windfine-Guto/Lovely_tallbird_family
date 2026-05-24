@@ -1,4 +1,13 @@
 local containers=require("containers")
+
+local assets = {
+    Asset("ANIM", "anim/beak_carrot_bird_rod.zip"),
+    Asset("ANIM", "anim/swap_chum.zip"),
+    Asset("ANIM","anim/ui_beak_carrot_bird_rod_1x1.zip"),
+    Asset("IMAGE","images/inventoryimages/beak_carrot_bird_rod.tex"),
+	Asset("ATLAS", "images/inventoryimages/beak_carrot_bird_rod.xml"),
+}
+
 local params=containers.params
 
 local container_prefabs = {
@@ -8,7 +17,7 @@ local container_prefabs = {
     "wormlight_lesser",
 }
 
-params.carrotfishingrod =
+params.beak_carrot_bird_rod =
 {
     widget =
     {
@@ -19,8 +28,8 @@ params.carrotfishingrod =
         -- {
         --     { image = "spore_slot.tex", atlas = "images/hud2.xml" },
         -- },
-        animbank = "ui_alterguardianhat_1x1",
-        animbuild = "ui_alterguardianhat_1x1",
+        animbank = "ui_beak_carrot_bird_rod_1x1",
+        animbuild = "ui_beak_carrot_bird_rod_1x1",
         pos = Vector3(0, 60, 0),
     },
     acceptsstacks = true,
@@ -29,17 +38,10 @@ params.carrotfishingrod =
     excludefromcrafting = true,
 }
 
-function params.carrotfishingrod.itemtestfn(container, item, slot)
+function params.beak_carrot_bird_rod.itemtestfn(container, item, slot)
     return item:HasTag("dryable") or item.prefab=="carrot" or item.prefab=="lightbulb"
     or item.prefab=="wormlight" or item.prefab=="wormlight_lesser"
 end
-
-local assets = {
-    Asset("ANIM", "anim/beak_carrot_bird_rod.zip"),
-    Asset("ANIM", "anim/swap_chum.zip"),
-    Asset("IMAGE","images/inventoryimages/beak_carrot_bird_rod.tex"),
-	Asset("ATLAS", "images/inventoryimages/beak_carrot_bird_rod.xml"),
-}
 
 local function onequip(inst, owner)
     owner.AnimState:OverrideSymbol("swap_object", "beak_carrot_bird_rod", "swap_object")
@@ -161,7 +163,7 @@ local function fn()
 
     inst:AddTag("allow_action_on_impassable")
     inst:AddTag("nopunch")
-    inst:AddTag("carrotfishingrod")
+    inst:AddTag("beak_carrot_bird_rod")
 
 	MakeInventoryFloatable(inst, "med", 0.05, {1.8, 0.5, 1}, true, -37)
 
@@ -175,7 +177,7 @@ local function fn()
     if not TheWorld.ismastersim then
         inst.OnEntityReplicated=function (inst)
             if inst.replica.container then
-                inst.replica.container:WidgetSetup("carrotfishingrod")
+                inst.replica.container:WidgetSetup("beak_carrot_bird_rod")
             end
         end
         return inst
@@ -203,7 +205,7 @@ local function fn()
     joustsource:SetOnHitOtherFn(OnHitOther)
 
     local container = inst:AddComponent("container")
-	container:WidgetSetup("carrotfishingrod")
+	container:WidgetSetup("beak_carrot_bird_rod")
 
     inst:AddComponent("inspectable")
 
