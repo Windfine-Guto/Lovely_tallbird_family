@@ -648,7 +648,7 @@ AddStategraphState("tallbird",State{
 			inst.components.locomotor:StopMoving()
 			inst.Transform:SetEightFaced()
 			inst.AnimState:PlayAnimation("joust_pre")
-			-- inst.SoundEmitter:PlaySound("dontstarve/creatures/knight"..inst.kind.."/voice")
+			inst.SoundEmitter:PlaySound("dontstarve/creatures/tallbird/scratch_ground")
 			inst.components.combat:StartAttack()
 			if target and target:IsValid() then
 				inst.sg.statemem.target = target
@@ -702,7 +702,7 @@ AddStategraphState("tallbird",State{
 				local speed = TUNING.YOTH_KNIGHT_JOUST_SPEED * inst.components.locomotor:GetSpeedMultiplier()
 				inst.Physics:SetMotorVelOverride(speed * math.cos(theta), 0, -speed * math.sin(theta))
 			end),
-			-- FrameEvent(21, function(inst) inst.SoundEmitter:PlaySound("dontstarve/creatures/knight"..inst.kind.."/bounce") end),
+			FrameEvent(21, function(inst) inst.SoundEmitter:PlaySound("dontstarve/movement/run_horseshoes") end),
 		},
 
 		events =
@@ -785,10 +785,10 @@ AddStategraphState("tallbird",State{
 		{
 			FrameEvent(0, function(inst)
 				if not (inst.sg.laststate and inst.sg.laststate.name == "joust_pre") then
-					-- inst.SoundEmitter:PlaySound("dontstarve/creatures/knight"..inst.kind.."/bounce")
+					inst.SoundEmitter:PlaySound("dontstarve/movement/run_horseshoes")
 				end
 			end),
-			-- FrameEvent(15, function(inst) inst.SoundEmitter:PlaySound("dontstarve/creatures/knight"..inst.kind.."/land") end),
+			FrameEvent(15, function(inst) inst.SoundEmitter:PlaySound("dontstarve/movement/run_horseshoes") end),
 		},
 
 		ontimeout = function(inst)
@@ -842,7 +842,7 @@ AddStategraphState("tallbird",State{
 		onenter = function(inst)
 			inst.Transform:SetEightFaced()
 			inst.AnimState:PlayAnimation("joust_pst")
-			-- inst.SoundEmitter:PlaySound("dontstarve/creatures/knight"..inst.kind.."/attack")
+			inst.SoundEmitter:PlaySound("dontstarve/creatures/tallbird/scratch_ground")
 			local _
 			inst.sg.statemem.vx, _, inst.sg.statemem.vz = inst.Physics:GetMotorVel()
 			inst.Physics:SetMotorVelOverride(inst.sg.statemem.vx * 0.64, 0, inst.sg.statemem.vz * 0.64)
@@ -1914,6 +1914,7 @@ AddStategraphPostInit("wilson", function(sg)
             local mount = inst.components.rider and inst.components.rider:GetMount()
             if inst.components.locomotor then
                 inst.components.locomotor:RemoveExternalSpeedMultiplier(mount,"tallbird_joust_speed")
+                inst.components.locomotor:RemoveExternalSpeedMultiplier(mount,"tallbird_joust_speed2")
             end
         end
     end
@@ -1932,6 +1933,10 @@ AddStategraphPostInit("wilson", function(sg)
     local old_joust_start_onenter = joust_start_state.onenter
     joust_start_state.onenter = function (inst, joustdata)
         joustdata.tallbird_targets = {}
+        joustdata.tallbird_speed = -1
+        if inst.rod_tallbird_light_fx then
+            inst.rod_tallbird_light_fx.Follower:FollowSymbol(inst.GUID, "carrot", 0, 0, 0)
+        end
         return old_joust_start_onenter(inst,joustdata)
     end
 
@@ -1940,6 +1945,9 @@ AddStategraphPostInit("wilson", function(sg)
         old_joust_start_onexit(inst)
         if not inst.sg.statemem.jousting and not inst.sg.statemem.stopping then
 			SetRideFaced(inst)
+        end
+        if inst.rod_tallbird_light_fx then
+            inst.rod_tallbird_light_fx.Follower:FollowSymbol(inst.GUID, "swap_object", 0, 0, 0)
         end
     end
 
@@ -1956,6 +1964,18 @@ AddStategraphPostInit("wilson", function(sg)
     local old_joust_state_onenter = joust_state.onenter
     joust_state.onenter = function (inst, joustdata)
         SpeedBuff(inst)
+        if inst:HasTag("beak_carrot_bird_rod_joust") then
+            joustdata.tallbird_speed = joustdata.tallbird_speed>=0 and joustdata.tallbird_speed + 1 or 0
+            joustdata.tallbird_speed = joustdata.tallbird_speed<=TUNING.TALLBIRD_ROD_SPEED_LIMIT and joustdata.tallbird_speed or TUNING.TALLBIRD_ROD_SPEED_LIMIT
+            local mount = inst.components.rider and inst.components.rider:GetMount()
+            if mount and mount:HasTag("tallbird") and inst.components.locomotor then
+                inst.components.locomotor:SetExternalSpeedMultiplier(mount,"tallbird_joust_speed2",1+joustdata.tallbird_speed*0.1)
+            end
+            joustdata.loop = TUNING.YOTH_LANCE_RUNANIM_LOOP_COUNT
+        end
+        if inst.rod_tallbird_light_fx then
+            inst.rod_tallbird_light_fx.Follower:FollowSymbol(inst.GUID, "carrot", 0, 0, 0)
+        end
         return old_joust_state_onenter(inst,joustdata)
     end
 
@@ -1965,6 +1985,9 @@ AddStategraphPostInit("wilson", function(sg)
         old_joust_onexit(inst)
         if not inst.sg.statemem.jousting and not inst.sg.statemem.stopping then
 			SetRideFaced(inst)
+        end
+        if inst.rod_tallbird_light_fx then
+            inst.rod_tallbird_light_fx.Follower:FollowSymbol(inst.GUID, "swap_object", 0, 0, 0)
         end
     end
 
@@ -1995,6 +2018,9 @@ AddStategraphPostInit("wilson", function(sg)
             local speed = 10
             inst.Physics:SetMotorVel(speed * math.cos(theta), 0, -speed * math.sin(theta))
         end
+        if inst.rod_tallbird_light_fx then
+            inst.rod_tallbird_light_fx.Follower:FollowSymbol(inst.GUID, "carrot", 0, 0, 0)
+        end
     end
 
     local joust_stop_state_timeline_pos = 1
@@ -2017,7 +2043,25 @@ AddStategraphPostInit("wilson", function(sg)
 
     local old_joust_stop_onexit = joust_stop_state.onexit
     joust_stop_state.onexit = function(inst)
+        if inst.rod_tallbird_light_fx then
+            inst.rod_tallbird_light_fx.Follower:FollowSymbol(inst.GUID, "swap_object", 0, 0, 0)
+        end
         old_joust_stop_onexit(inst)
 		SetRideFaced(inst)
+    end
+
+---fishing_pre
+    local fishing_pre_state = sg.states["fishing_pre"]
+
+    local old_finshing_pre_events_joust_collide = fishing_pre_state.events.animqueueover.fn
+    fishing_pre_state.events.animqueueover.fn = function(inst)
+		if not inst:HasTag("beak_carrot_bird_rod_user") then
+            return old_joust_events_joust_collide(inst)
+        else
+            if inst.AnimState:AnimDone() then
+                inst.SoundEmitter:PlaySound("dontstarve/common/fishingpole_baitsplash")
+                inst.sg:GoToState("idle")
+            end
+        end
     end
 end)

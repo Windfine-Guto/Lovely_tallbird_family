@@ -1,7 +1,7 @@
 local modid = 'lovely_tallbird_family'
 local cur = (locale == 'zh' or locale == 'zhr') and 'zh' or 'en'
 
-version = '26.05.23'
+version = '26.05.24'
 author = 'over_dragon、Guto'
 
 forumthread = ''
@@ -299,6 +299,17 @@ local LANGS = {
                 {'3',3},
                 {'4',4},
                 {'5',5}
+            }},
+            {'喙萝驭鸟竿'},
+            {modid..'rod_speed','速度上限倍率','起步速度2倍',5,{
+                {'2倍',0},
+                {'2.4倍',2},
+                {'3倍',5},
+                {'3.4倍',7},
+                {'3.8倍',9},
+                {'4倍',10},
+                {'4.8倍',14},
+                {'6倍',20}
             }},
             {'全部鸟'},
             {modid..'_birdfollow','鸟跟随上下洞穴','但是换角色时鸟会消失',true,{
@@ -600,6 +611,17 @@ local LANGS = {
                 {'3',3},
                 {'4',4},
                 {'5',5}
+            }},
+            {'Beakroot Tamer Rod'},
+            {modid..'rod_speed','Speed Cap Multiplier','Initial Speed 2x',5,{
+                {'2x',0},
+                {'2.4x',2},
+                {'3x',5},
+                {'3.4x',7},
+                {'3.8x',9},
+                {'4x',10},
+                {'4.8x',14},
+                {'6x',20}
             }},
             {'All Bird'},
             {modid..'_birdfollow','Bird Cave Transition Follow','Disappears when switching characters',true,{

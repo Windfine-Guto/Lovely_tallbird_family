@@ -13,7 +13,7 @@ TECH.NONE,
 {atlas = "images/inventoryimages/new_tallbirdnest.xml",
 image = "new_tallbirdnest.tex"},
 {"TOOLS"})
-AddRecipe2("carrotfishingrod",{Ingredient("oceanfishingrod", 1),Ingredient("malbatross_beak", 1)},
+AddRecipe2("beak_carrot_bird_rod",{Ingredient("oceanfishingrod", 1),Ingredient("malbatross_beak", 1)},
 TECH.MAGIC_THREE,
 {atlas = "images/inventoryimages/beak_carrot_bird_rod.xml",
 image = "beak_carrot_bird_rod.tex"},

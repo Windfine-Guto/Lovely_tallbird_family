@@ -833,3 +833,51 @@ AddComponentAction("SCENE", "tallbird_spawner", function(inst, doer, actions, ri
         table.insert(actions, ACTIONS.BIRDS_SPAWNER)
     end
 end)
+
+local BEAK_ROD_FISHING = Action()
+BEAK_ROD_FISHING.id = "BEAK_ROD_FISHING"
+BEAK_ROD_FISHING.strfn = function (act)
+    return "BEAK_ROD_FISHING"
+end
+BEAK_ROD_FISHING.priority = 20
+BEAK_ROD_FISHING.distance = 20
+BEAK_ROD_FISHING.fn = function (act)
+    local invj = act.invobject
+    local doer = act.doer
+    local pos = act:GetActionPoint()
+
+    local schoolspawner = TheWorld.components.schoolspawner
+    if schoolspawner then
+        local item = invj.components.container and invj.components.container:GetItemInSlot(1)
+        local single = nil
+        if item.components.stackable and item.components.stackable:IsStack() then
+            single = item.components.stackable:Get(1)
+        else
+            single = invj.components.container:RemoveItemBySlot(1)
+        end
+        if single then
+            if single.components.inventoryitem then
+                single.components.inventoryitem:OnDropped(true)
+            end
+            single.Transform:SetPosition(pos:Get())
+        end
+        if math.random()<=0.2 then
+            local offset = Vector3(math.random(0,2), 0, math.random(0,2))
+            local num = schoolspawner:SpawnSchool(pos, doer, offset)
+        end
+    end
+    return true
+end
+AddAction(BEAK_ROD_FISHING)
+STRINGS.ACTIONS.BEAK_ROD_FISHING = {
+    BEAK_ROD_FISHING = STRINGS.TALLBIRD_ACTIONS_NAMED.BEAK_ROD_FISHING
+}
+
+AddStategraphActionHandler("wilson", ActionHandler(ACTIONS.BEAK_ROD_FISHING,  "fishing_pre"))
+AddStategraphActionHandler("wilson_client", ActionHandler(ACTIONS.BEAK_ROD_FISHING,  "fishing_pre"))
+
+AddComponentAction("POINT", "fencerotator", function(inst, doer, pos, actions, right, target)
+    if right and inst:HasTag("beak_rod_fishing") and TheWorld.Map:IsOceanAtPoint(pos.x, 0, pos.z) then
+        table.insert(actions, BEAK_ROD_FISHING)
+    end
+end)

@@ -548,7 +548,8 @@ STRINGS.TALLBIRD_ACTIONS_NAMED = {
     COLLECT = "收集",
     GATHER = "集合",
     DISSOLVE = "解散",
-    SPAWN = "生成切换"
+    SPAWN = "生成切换",
+    BEAK_ROD_FISHING = "打窝"
 }
 
 STRINGS.TALLBIRD_FAMILY_FAME = "声望"

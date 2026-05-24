@@ -548,7 +548,8 @@ STRINGS.TALLBIRD_ACTIONS_NAMED = {
     COLLECT = "Collect",
     GATHER = "Gather",
     DISSOLVE = "Dismiss",
-    SPAWN = "Toggle Spawn"
+    SPAWN = "Toggle Spawn",
+    BEAK_ROD_FISHING = "Chum"
 }
 
 STRINGS.TALLBIRD_FAMILY_FAME = "Fame"
