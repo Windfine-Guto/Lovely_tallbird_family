@@ -2053,15 +2053,97 @@ AddStategraphPostInit("wilson", function(sg)
 ---fishing_pre
     local fishing_pre_state = sg.states["fishing_pre"]
 
-    local old_finshing_pre_events_joust_collide = fishing_pre_state.events.animqueueover.fn
+    local old_fishing_pre_events_animqueueover = fishing_pre_state.events.animqueueover.fn
     fishing_pre_state.events.animqueueover.fn = function(inst)
 		if not inst:HasTag("beak_carrot_bird_rod_user") then
-            return old_joust_events_joust_collide(inst)
+            return old_fishing_pre_events_animqueueover(inst)
         else
             if inst.AnimState:AnimDone() then
                 inst.SoundEmitter:PlaySound("dontstarve/common/fishingpole_baitsplash")
                 inst.sg:GoToState("idle")
             end
         end
+    end
+
+---mounted_idle
+    local mounted_idle_state = sg.states["mounted_idle"]
+
+    local old_mounted_idle_onenter = mounted_idle_state.onenter
+    mounted_idle_state.onenter = function(inst, pushanim)
+        if inst:HasTag("tallbird_mount") and inst.rod_tallbird_light_fx then
+            inst.rod_tallbird_light_fx.Follower:FollowSymbol(inst.GUID, "carrot", 0, 0, 5)
+        end
+        return old_mounted_idle_onenter(inst, pushanim)
+    end
+
+    local old_mounted_idle_onexit = mounted_idle_state.onexit
+    mounted_idle_state.onexit = function(inst,...)
+        if inst:HasTag("tallbird_mount") and inst.rod_tallbird_light_fx then
+            inst.rod_tallbird_light_fx.Follower:FollowSymbol(inst.GUID, "swap_object", 0, 0, 0)
+        end
+        if old_mounted_idle_onexit then
+            return old_mounted_idle_onexit(inst,...)
+        end
+    end
+
+---run_start
+    local run_start_state = sg.states["run_start"]
+
+    local old_run_start_onenter = run_start_state.onenter
+    run_start_state.onenter = function(inst)
+        if inst:HasTag("tallbird_mount") and inst.rod_tallbird_light_fx then
+            inst.rod_tallbird_light_fx.Follower:FollowSymbol(inst.GUID, "carrot", 0, 0, 5)
+        end
+        return old_run_start_onenter(inst)
+    end
+
+    local old_run_start_onexit = run_start_state.onexit
+    run_start_state.onexit = function(inst,...)
+        if inst:HasTag("tallbird_mount") and inst.rod_tallbird_light_fx then
+            inst.rod_tallbird_light_fx.Follower:FollowSymbol(inst.GUID, "swap_object", 0, 0, 0)
+        end
+        if old_run_start_onexit then
+            return old_run_start_onexit(inst,...)
+        end
+    end
+
+---run
+    local run_state = sg.states["run"]
+
+    local old_run_onenter = run_state.onenter
+    run_state.onenter = function(inst)
+        if inst:HasTag("tallbird_mount") and inst.rod_tallbird_light_fx then
+            inst.rod_tallbird_light_fx.Follower:FollowSymbol(inst.GUID, "carrot", 0, 0, 5)
+        end
+        return old_run_onenter(inst)
+    end
+
+    local old_run_onexit = run_state.onexit
+    run_state.onexit = function(inst,...)
+        if inst:HasTag("tallbird_mount") and inst.rod_tallbird_light_fx then
+            inst.rod_tallbird_light_fx.Follower:FollowSymbol(inst.GUID, "swap_object", 0, 0, 0)
+        end
+        if old_run_onexit then
+            return old_run_onexit(inst,...)
+        end
+    end
+
+---run_stop
+    local run_stop_state = sg.states["run_stop"]
+
+    local old_run_stop_onenter = run_stop_state.onenter
+    run_stop_state.onenter = function(inst)
+        if inst:HasTag("tallbird_mount") and inst.rod_tallbird_light_fx then
+            inst.rod_tallbird_light_fx.Follower:FollowSymbol(inst.GUID, "carrot", 0, 0, 5)
+        end
+        return old_run_stop_onenter(inst)
+    end
+
+    local old_run_stop_onexit = run_stop_state.onexit
+    run_stop_state.onexit = function(inst)
+        if inst:HasTag("tallbird_mount") and inst.rod_tallbird_light_fx then
+            inst.rod_tallbird_light_fx.Follower:FollowSymbol(inst.GUID, "swap_object", 0, 0, 0)
+        end
+        return old_run_stop_onexit(inst)
     end
 end)

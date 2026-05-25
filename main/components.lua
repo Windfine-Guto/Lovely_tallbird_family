@@ -254,13 +254,16 @@ end)
 local DAMAGE_ONEOF_TAGS = { "_combat", "pickable", "NPC_workable", "CHOP_workable", "HAMMER_workable", "MINE_workable", "DIG_workable" }
 local function Tallbird_Trample(inst,targets)
     if inst:HasTag("tallbird_mount") then
+        local weapon = inst.components.inventory:GetEquippedItem(EQUIPSLOTS.HANDS)
         local x,y,z = inst.Transform:GetWorldPosition()
+        local use = 0
         for _, v in pairs(TheSim:FindEntities(x, y or 0, z, 2.5, nil, NOTAGS, DAMAGE_ONEOF_TAGS)) do
             if not targets[v] and v:IsValid() and
                 not (v.components.health ~= nil and v.components.health:IsDead()) then
                 local isworkable = false
                 if v.components.workable ~= nil then
                     local work_action = v.components.workable:GetWorkAction()
+                    use = (work_action==ACTIONS.CHOP or work_action==ACTIONS.MINE) and 10 or 1
                     isworkable =
                         (   work_action == nil and v:HasTag("NPC_workable") ) or
                         (   v.components.workable:CanBeWorked() and
@@ -278,10 +281,18 @@ local function Tallbird_Trample(inst,targets)
                     local x1, y1, z1 = v.Transform:GetWorldPosition()
                     SpawnPrefab("collapse_small").Transform:SetPosition(x1, y1, z1)
                     targets[v] = true
-                    v.components.workable:Destroy(inst)
+                    if weapon and weapon:HasTag("sharp") then
+                        v.components.workable:Destroy(inst)
+                    else
+                        v.components.workable:WorkedBy_Internal(inst, 3)
+                    end
 
                     if v:HasTag("stump") then
                         v.components.workable:WorkedBy_Internal(inst, 1)
+                    end
+                    if weapon and weapon.components.finiteuses then
+                        use = weapon:HasTag("sharp") and use or 3
+                        weapon.components.finiteuses:Use(use)
                     end
                 elseif v.components.pickable ~= nil
                         and v.components.pickable:CanBePicked()
@@ -299,6 +310,9 @@ local function Tallbird_Trample(inst,targets)
                 elseif inst.components.combat:CanTarget(v) then
                     targets[v] = true
                     inst.components.combat:DoAttack(v)
+                    if weapon and weapon.components.finiteuses then
+                        weapon.components.finiteuses:Use(1)
+                    end
                 end
             end
         end

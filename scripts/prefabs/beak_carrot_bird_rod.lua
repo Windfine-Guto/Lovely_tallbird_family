@@ -45,7 +45,7 @@ end
 
 local function onequip(inst, owner)
     owner.AnimState:OverrideSymbol("swap_object", "beak_carrot_bird_rod", "swap_object")
-    for i = 0, 24 do
+    for i = 0, 36 do
         owner.AnimState:OverrideSymbol("fishline-"..i, "beak_carrot_bird_rod", "fishline-"..i)
     end
     owner.AnimState:Show("ARM_carry")
@@ -88,7 +88,7 @@ local function onunequip(inst, owner)
     owner.AnimState:Show("ARM_normal")
 
     owner.AnimState:ClearOverrideSymbol("carrot")
-    for i = 0, 24 do
+    for i = 0, 36 do
         owner.AnimState:ClearOverrideSymbol("fishline-"..i)
     end
 
@@ -171,7 +171,7 @@ local function fn()
     inst:AddTag("lancejab")
 
     --weapon (from weapon component) added to pristine state for optimization
-
+    inst:AddTag("weapon")
     inst.entity:SetPristine()
 
     if not TheWorld.ismastersim then
