@@ -666,3 +666,116 @@ STRINGS.CHARACTERS.WURT.DESCRIBE.ARMOR_EGGSHELL = "Shell shell. Poke fish. Flurp
 STRINGS.CHARACTERS.WX78.DESCRIBE.ARMOR_EGGSHELL = "CALCIUM WASTE DEFENSE MODULE. WITH RETALIATION PROTOCOL."
 ---沃拓克斯
 STRINGS.CHARACTERS.WORTOX.DESCRIBE.ARMOR_EGGSHELL = "A coat of shards—hit 'em and they'll regret it. Now this is mischief I enjoy."
+
+STRINGS.NAMES.TALLBIRD_EGG_OVERSIZED="Giant Tallbird Egg"
+STRINGS.RECIPE_DESC.TALLBIRD_EGG_OVERSIZED= "A grindstone fused seven eggs into one. Nobody knows why this works."
+
+---威尔逊
+STRINGS.CHARACTERS.GENERIC.DESCRIBE.TALLBIRD_EGG_OVERSIZED = "Seven eggs ground into one giant egg. It defies logic, but here it is."
+---温蒂
+STRINGS.CHARACTERS.WENDY.DESCRIBE.TALLBIRD_EGG_OVERSIZED = "So vast, so heavy. Seven lives that should have hatched—now a silent monument."
+---薇诺娜
+STRINGS.CHARACTERS.WINONA.DESCRIBE.TALLBIRD_EGG_OVERSIZED = "Grindstone-compressed. Seven into one, saves shelf space. And it rolls."
+---沃尔夫冈
+STRINGS.CHARACTERS.WOLFGANG.DESCRIBE.TALLBIRD_EGG_OVERSIZED = "Big! Very big egg! Wolfgang rolls it around!"
+---薇克巴顿
+STRINGS.CHARACTERS.WICKERBOTTOM.DESCRIBE.TALLBIRD_EGG_OVERSIZED = "A grindstone-processed giant avian egg. Physics seems to take a holiday with this one."
+---旺达
+STRINGS.CHARACTERS.WANDA.DESCRIBE.TALLBIRD_EGG_OVERSIZED = "Seven eggs' worth of time bundled into one. Even my pocket watch is confused."
+---伍迪
+STRINGS.CHARACTERS.WOODIE.DESCRIBE.TALLBIRD_EGG_OVERSIZED = "Grindstone giant egg. Absurd. But I respect it."
+---沃利
+STRINGS.CHARACTERS.WARLY.DESCRIBE.TALLBIRD_EGG_OVERSIZED = "A grindstone meg-egg? Defies every culinary instinct I have… but it sure looks impressive."
+---薇格弗德
+STRINGS.CHARACTERS.WATHGRITHR.DESCRIBE.TALLBIRD_EGG_OVERSIZED = "A giant egg! Forged by the grindstone's roar! A trophy that makes enemies tremble!"
+---薇洛
+STRINGS.CHARACTERS.WILLOW.DESCRIBE.TALLBIRD_EGG_OVERSIZED = "This big egg? Roastin' it'd take forever… eh, let's just roll it."
+---沃姆伍德
+STRINGS.CHARACTERS.WORMWOOD.DESCRIBE.TALLBIRD_EGG_OVERSIZED = "Very big egg. Bigger than head. Big peep-peep would be scared."
+---麦斯威尔
+STRINGS.CHARACTERS.WAXWELL.DESCRIBE.TALLBIRD_EGG_OVERSIZED = "A grindstone spat out this aberration. The world has abandoned reason."
+---韦伯
+STRINGS.CHARACTERS.WEBBER.DESCRIBE.TALLBIRD_EGG_OVERSIZED = "Super giant egg! Let's roll it down a hill! Like a snowball!"
+---沃尔特
+STRINGS.CHARACTERS.WALTER.DESCRIBE.TALLBIRD_EGG_OVERSIZED = "Wow! Bigger than Woby! Can we roll it?"
+---沃特
+STRINGS.CHARACTERS.WURT.DESCRIBE.TALLBIRD_EGG_OVERSIZED = "Big big big egg! Flurp!"
+---WX-78
+STRINGS.CHARACTERS.WX78.DESCRIBE.TALLBIRD_EGG_OVERSIZED = "SEVEN ORGANIC OVA FUSED INTO ONE DISPLAY UNIT VIA ROTARY FRICTION. ILLOGICAL. INCONTESTABLE."
+---沃拓克斯
+STRINGS.CHARACTERS.WORTOX.DESCRIBE.TALLBIRD_EGG_OVERSIZED = "An egg this big must be fun to roll. Watch me kick it first!"
+
+STRINGS.NAMES.HAT_EGGSHELL="Eggshell Hat"
+STRINGS.RECIPE_DESC.HAT_EGGSHELL= "A giant egg shard that fits right on your head. Find the other half and you're a walking egg."
+
+---威尔逊
+STRINGS.CHARACTERS.GENERIC.DESCRIBE.HAT_EGGSHELL = "A hat from a giant eggshell. If I find the bottom half, I could pass for an egg."
+---温蒂
+STRINGS.CHARACTERS.WENDY.DESCRIBE.HAT_EGGSHELL = "Wearing it, I'm a life yet to hatch. The world outside is too loud—curling back in feels right."
+---薇诺娜
+STRINGS.CHARACTERS.WINONA.DESCRIBE.HAT_EGGSHELL = "Eggshell hat. Snug fit, lets you curl up and roll. Multi-purpose design."
+---沃尔夫冈
+STRINGS.CHARACTERS.WOLFGANG.DESCRIBE.HAT_EGGSHELL = "Eggshell hat! Wolfgang can curl into a ball and roll!"
+---薇克巴顿
+STRINGS.CHARACTERS.WICKERBOTTOM.DESCRIBE.HAT_EGGSHELL = "A fragment of giant avian shell repurposed as headgear, with mimicry and rolling locomotion functions."
+---旺达
+STRINGS.CHARACTERS.WANDA.DESCRIBE.HAT_EGGSHELL = "Half a shell on my head—curl inside and it feels like a time before I was born."
+---伍迪
+STRINGS.CHARACTERS.WOODIE.DESCRIBE.HAT_EGGSHELL = "Half an egg on my head. Find the bottom bit and I'm a full egg."
+---沃利
+STRINGS.CHARACTERS.WARLY.DESCRIBE.HAT_EGGSHELL = "An eggshell hat. Pair it with the bottom half and I could pass for an Easter egg."
+---薇格弗德
+STRINGS.CHARACTERS.WATHGRITHR.DESCRIBE.HAT_EGGSHELL = "An eggshell for a helmet! Absurd—yet rolling toward the foe is a cunning stratagem!"
+---薇洛
+STRINGS.CHARACTERS.WILLOW.DESCRIBE.HAT_EGGSHELL = "Eggshell on my head! Curl up and roll! Beats walkin'!"
+---沃姆伍德
+STRINGS.CHARACTERS.WORMWOOD.DESCRIBE.HAT_EGGSHELL = "Egg hat. Very round. Can roll and roll."
+---麦斯威尔
+STRINGS.CHARACTERS.WAXWELL.DESCRIBE.HAT_EGGSHELL = "Half an eggshell on my crown. If I find the other half, I'll be a giant Easter egg."
+---韦伯
+STRINGS.CHARACTERS.WEBBER.DESCRIBE.HAT_EGGSHELL = "Eggshell hat! Curl up and roll! More fun than walking!"
+---沃尔特
+STRINGS.CHARACTERS.WALTER.DESCRIBE.HAT_EGGSHELL = "An eggshell hat! I can curl up and roll! Woby, you can't catch me now!"
+---沃特
+STRINGS.CHARACTERS.WURT.DESCRIBE.HAT_EGGSHELL = "Shell shell hat. Curl up roll. Flurp!"
+---WX-78
+STRINGS.CHARACTERS.WX78.DESCRIBE.HAT_EGGSHELL = "EGGSHELL HEAD MODULE. SYNC WITH LOWER HALF FOR FULL RETRACTION MODE. ROLL PROTOCOL: ENGAGED."
+---沃拓克斯
+STRINGS.CHARACTERS.WORTOX.DESCRIBE.HAT_EGGSHELL = "Eggshell hat! Curl up, roll around, scare passersby—oops, hit a tree."
+
+STRINGS.NAMES.ARMOR_HALFSHELL="Half-shell Egg"
+
+---威尔逊
+STRINGS.CHARACTERS.GENERIC.DESCRIBE.ARMOR_HALFSHELL = "Half an egg on my back. Put the hat on and I'm a whole egg—with storage."
+---温蒂
+STRINGS.CHARACTERS.WENDY.DESCRIBE.ARMOR_HALFSHELL = "Carrying this empty half-shell feels like preparing a grave in advance. But when I curl inside, the world goes quiet."
+---薇诺娜
+STRINGS.CHARACTERS.WINONA.DESCRIBE.ARMOR_HALFSHELL = "Half-shell backpack. Stores stuff and seals up for rolling. Efficient design."
+---沃尔夫冈
+STRINGS.CHARACTERS.WOLFGANG.DESCRIBE.ARMOR_HALFSHELL = "Half egg shell! Hat on, roll away! Can also hold stuff!"
+---薇克巴顿
+STRINGS.CHARACTERS.WICKERBOTTOM.DESCRIBE.ARMOR_HALFSHELL = "The lower segment of a giant egg, serving as both storage container and mimetic carapace."
+---旺达
+STRINGS.CHARACTERS.WANDA.DESCRIBE.ARMOR_HALFSHELL = "Half a shell slung behind me. Snap the lid shut and I'm a time capsule, ready for delivery."
+---伍迪
+STRINGS.CHARACTERS.WOODIE.DESCRIBE.ARMOR_HALFSHELL = "Half a shell on my back. Stuff it full and roll. Even a Canada goose ain't this loaded."
+---沃利
+STRINGS.CHARACTERS.WARLY.DESCRIBE.ARMOR_HALFSHELL = "Half a shell strapped on—my mobile pantry. Seal it up and I can roll to my next delivery."
+---薇格弗德
+STRINGS.CHARACTERS.WATHGRITHR.DESCRIBE.ARMOR_HALFSHELL = "Half a shell on my back—undignified, but it rolls, stores, and hides. Practical warfare."
+---薇洛
+STRINGS.CHARACTERS.WILLOW.DESCRIBE.ARMOR_HALFSHELL = "Half-shell on my back! Stuff it, cap it, roll it!"
+---沃姆伍德
+STRINGS.CHARACTERS.WORMWOOD.DESCRIBE.ARMOR_HALFSHELL = "Half shell on back. Put things inside. Put hat on top—become egg."
+---麦斯威尔
+STRINGS.CHARACTERS.WAXWELL.DESCRIBE.ARMOR_HALFSHELL = "Half an eggshell strapped to my back as luggage. Top it with the hat and I'm a rolling, hoarding novelty egg."
+---韦伯
+STRINGS.CHARACTERS.WEBBER.DESCRIBE.ARMOR_HALFSHELL = "Eggshell backpack! Fill it up, seal it, and roll everywhere!"
+---沃尔特
+STRINGS.CHARACTERS.WALTER.DESCRIBE.ARMOR_HALFSHELL = "Eggshell backpack! It stores stuff and we can roll! Woby, wanna hop inside?"
+---沃特
+STRINGS.CHARACTERS.WURT.DESCRIBE.ARMOR_HALFSHELL = "Half shell. Fill with fish. Curl up roll. Flurp!"
+---WX-78
+STRINGS.CHARACTERS.WX78.DESCRIBE.ARMOR_HALFSHELL = "LOWER HALF CARAPACE MODULE. COMBINE WITH HEAD UNIT FOR FULL RETRACTION. 12-UNIT STORAGE BAY INTEGRATED."
+---沃拓克斯
+STRINGS.CHARACTERS.WORTOX.DESCRIBE.ARMOR_HALFSHELL = "Half a shell slung behind me, stuffed full and sealed shut—nobody guesses there's a person in here."
