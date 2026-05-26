@@ -628,3 +628,41 @@ STRINGS.CHARACTERS.WURT.DESCRIBE.TALLBIRD_YOLK = "Raw egg. Glub glub glub! Ugh�
 STRINGS.CHARACTERS.WX78.DESCRIBE.TALLBIRD_YOLK = "RAW PROTEIN SOLUTION. NUTRITIOUS. TEXTURE: OFFENSIVE."
 ---沃拓克斯
 STRINGS.CHARACTERS.WORTOX.DESCRIBE.TALLBIRD_YOLK = "Raw and sticky… not the kind of mischief I enjoy."
+
+STRINGS.NAMES.ARMOR_EGGSHELL="Eggshell Suit"
+STRINGS.RECIPE_DESC.ARMOR_EGGSHELL= "What breaks out is life. What breaks together is armor. Each shard whispers: the fragile can still wound."
+
+---威尔逊
+STRINGS.CHARACTERS.GENERIC.DESCRIBE.ARMOR_EGGSHELL = "Eggshell armor. Gets 'em back when they hit you. Pretty useful."
+---温蒂
+STRINGS.CHARACTERS.WENDY.DESCRIBE.ARMOR_EGGSHELL = "Clad in their remnants, I feel almost fortified. Even broken things can cling together and become armor."
+---薇诺娜
+STRINGS.CHARACTERS.WINONA.DESCRIBE.ARMOR_EGGSHELL = "Recycled eggshells that bounce damage back. Good efficiency."
+---沃尔夫冈
+STRINGS.CHARACTERS.WOLFGANG.DESCRIBE.ARMOR_EGGSHELL = "Eggshell clothes! Whoever hits Wolfgang gets poked!"
+---薇克巴顿
+STRINGS.CHARACTERS.WICKERBOTTOM.DESCRIBE.ARMOR_EGGSHELL = "A calcium-waste thorn armor. Crude principle, reliable result."
+---旺达
+STRINGS.CHARACTERS.WANDA.DESCRIBE.ARMOR_EGGSHELL = "Eggshells as armor. All these years taught me: never underestimate anything."
+---伍迪
+STRINGS.CHARACTERS.WOODIE.DESCRIBE.ARMOR_EGGSHELL = "Eggshell armor? Whoever hits me gets a handful of shards."
+---沃利
+STRINGS.CHARACTERS.WARLY.DESCRIBE.ARMOR_EGGSHELL = "Eggshell armor. I'd rather make soufflés… but those edges are sharp."
+---薇格弗德
+STRINGS.CHARACTERS.WATHGRITHR.DESCRIBE.ARMOR_EGGSHELL = "A shell for battle! Let the foe taste the shards!"
+---薇洛
+STRINGS.CHARACTERS.WILLOW.DESCRIBE.ARMOR_EGGSHELL = "Made of eggshells? Gonna break walkin'… oh, it's actually tough."
+---沃姆伍德
+STRINGS.CHARACTERS.WORMWOOD.DESCRIBE.ARMOR_EGGSHELL = "Big peep-peep shell clothes. Like the one I grow… but not same."
+---麦斯威尔
+STRINGS.CHARACTERS.WAXWELL.DESCRIBE.ARMOR_EGGSHELL = "A coat of broken shells. Vulgar, but whoever strikes me regrets it."
+---韦伯
+STRINGS.CHARACTERS.WEBBER.DESCRIBE.ARMOR_EGGSHELL = "Eggshell armor! Hard and pokey! Like an angry spider!"
+---沃尔特
+STRINGS.CHARACTERS.WALTER.DESCRIBE.ARMOR_EGGSHELL = "Armor made of eggshells! Woby look, it bounces back!"
+---沃特
+STRINGS.CHARACTERS.WURT.DESCRIBE.ARMOR_EGGSHELL = "Shell shell. Poke fish. Flurp!"
+---WX-78
+STRINGS.CHARACTERS.WX78.DESCRIBE.ARMOR_EGGSHELL = "CALCIUM WASTE DEFENSE MODULE. WITH RETALIATION PROTOCOL."
+---沃拓克斯
+STRINGS.CHARACTERS.WORTOX.DESCRIBE.ARMOR_EGGSHELL = "A coat of shards—hit 'em and they'll regret it. Now this is mischief I enjoy."
