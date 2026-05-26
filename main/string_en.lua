@@ -591,3 +591,40 @@ STRINGS.CHARACTERS.WURT.DESCRIBE.BEAK_CARROT_BIRD_ROD= "Beak on stick. Big fish 
 STRINGS.CHARACTERS.WX78.DESCRIBE.BEAK_CARROT_BIRD_ROD= "USING EXTINCT PARTS TO CONTROL A LIVING UNIT. EFFICIENT."
 ---沃拓克斯
 STRINGS.CHARACTERS.WORTOX.DESCRIBE.BEAK_CARROT_BIRD_ROD= "Dangle a treat, make it charge. Heh. I like this mischief."
+
+STRINGS.NAMES.TALLBIRD_YOLK="Raw Tallbird Yolk"
+
+---威尔逊
+STRINGS.CHARACTERS.GENERIC.DESCRIBE.TALLBIRD_YOLK = "It's raw. Straight from the cracked shell, uncooked."
+---温蒂
+STRINGS.CHARACTERS.WENDY.DESCRIBE.TALLBIRD_YOLK = "Cold and viscous. A life that ended before it began."
+---薇诺娜
+STRINGS.CHARACTERS.WINONA.DESCRIBE.TALLBIRD_YOLK = "Once cracked, use it fast. It won't keep long."
+---沃尔夫冈
+STRINGS.CHARACTERS.WOLFGANG.DESCRIBE.TALLBIRD_YOLK = "Raw! Wolfgang wants to cook it first!"
+---薇克巴顿
+STRINGS.CHARACTERS.WICKERBOTTOM.DESCRIBE.TALLBIRD_YOLK = "An uncooked avian egg. Not advisable to consume raw."
+---旺达
+STRINGS.CHARACTERS.WANDA.DESCRIBE.TALLBIRD_YOLK = "Still warm… like I've smashed a ticking clock."
+---伍迪
+STRINGS.CHARACTERS.WOODIE.DESCRIBE.TALLBIRD_YOLK = "Raw egg. Gettin' all over my hands. Better cook it."
+---沃利
+STRINGS.CHARACTERS.WARLY.DESCRIBE.TALLBIRD_YOLK = "Slippery raw yolk… I've already got eighteen recipes in mind."
+---薇格弗德
+STRINGS.CHARACTERS.WATHGRITHR.DESCRIBE.TALLBIRD_YOLK = "Raw egg! A warrior drinks from nature's chalice—urgh, close enough."
+---薇洛
+STRINGS.CHARACTERS.WILLOW.DESCRIBE.TALLBIRD_YOLK = "Raw? Just put it over fire, problem solved."
+---沃姆伍德
+STRINGS.CHARACTERS.WORMWOOD.DESCRIBE.TALLBIRD_YOLK = "Not-cooked egg. Slippery. Sticky."
+---麦斯威尔
+STRINGS.CHARACTERS.WAXWELL.DESCRIBE.TALLBIRD_YOLK = "The raw yolk wobbles. Reminds me of possibilities I've crushed."
+---韦伯
+STRINGS.CHARACTERS.WEBBER.DESCRIBE.TALLBIRD_YOLK = "Tried a little… bleh! Tastes better cooked!"
+---沃尔特
+STRINGS.CHARACTERS.WALTER.DESCRIBE.TALLBIRD_YOLK = "A raw bird egg! I wonder if Woby drinks them raw…"
+---沃特
+STRINGS.CHARACTERS.WURT.DESCRIBE.TALLBIRD_YOLK = "Raw egg. Glub glub glub! Ugh… not good."
+---WX-78
+STRINGS.CHARACTERS.WX78.DESCRIBE.TALLBIRD_YOLK = "RAW PROTEIN SOLUTION. NUTRITIOUS. TEXTURE: OFFENSIVE."
+---沃拓克斯
+STRINGS.CHARACTERS.WORTOX.DESCRIBE.TALLBIRD_YOLK = "Raw and sticky… not the kind of mischief I enjoy."
