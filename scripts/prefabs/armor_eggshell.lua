@@ -32,9 +32,11 @@ local function OnBlocked(owner, data, inst)
 end
 
 local function OnAttackOther(owner, inst)
-    DoThorns(inst, owner)
-    if inst.components.armor then
-        inst.components.armor:TakeDamage(inst._attack_condition)
+    if inst.components.cooldown and inst.components.cooldown:IsCharged() then
+        DoThorns(inst, owner)
+        if inst.components.armor then
+            inst.components.armor:TakeDamage(inst._attack_condition)
+        end
     end
 end
 
@@ -45,6 +47,10 @@ local function onequip(inst, owner)
         owner.AnimState:OverrideItemSkinSymbol("swap_body", skin_build, "swap_body", inst.GUID, "armor_bramble")
     else
 		owner.AnimState:OverrideSymbol("swap_body", "armor_eggshell", "swap_body")
+    end
+
+    if inst.components.cooldown then
+        inst.components.cooldown:FinishCharging()
     end
 
     inst:ListenForEvent("blocked", inst._onblocked, owner)
@@ -110,6 +116,9 @@ local function fn()
 
     inst.components.equippable:SetOnEquip(onequip)
     inst.components.equippable:SetOnUnequip(onunequip)
+
+    inst:AddComponent("cooldown")
+    inst.components.cooldown.cooldown_duration = 2
 
     MakeHauntableLaunch(inst)
 

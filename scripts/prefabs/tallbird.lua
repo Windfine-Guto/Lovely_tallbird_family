@@ -83,16 +83,17 @@ local function OnGetItemFromPlayer(inst, giver, item)
                 inst.components.bird_cultivate:Updata()
             end
         end
+
         if inst.components.eater:CanEat(item) then
             inst.components.eater:Eat(item, giver)
         end
+
         if inst.components.rideable:IsBeingRidden() then
             giver.AnimState:PlayAnimation("graze_loop")
             return
         end
-        if not inst.sg:HasStateTag("busy") then
-            inst.sg:GoToState("eat")
-        end
+
+        inst:PushEvent("otherfeed")
     end
     if item.components.equippable ~= nil and item.components.equippable.equipslot == EQUIPSLOTS.HEAD then
         local current = inst.components.inventory:GetEquippedItem(EQUIPSLOTS.HEAD)

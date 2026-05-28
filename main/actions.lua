@@ -894,6 +894,9 @@ ARMOR_SHELL_THORN.fn = function (act)
     local doer = act.doer
     if invj._onattackother then
         invj._onattackother(doer, invj)
+        if invj.components.cooldown and not invj.components.cooldown:IsCharging() then
+            invj.components.cooldown:StartCharging()
+        end
     end
     return true
 end
@@ -906,5 +909,30 @@ AddComponentAction("INVENTORY", "armor", function(inst, doer, actions)
     if inst:HasTag("armor_eggshell") and inst.replica.equippable and
         inst.replica.equippable:IsEquipped() then
         table.insert(actions, ACTIONS.ARMOR_SHELL_THORN)
+    end
+end)
+
+local EGGSHELL_REPAIR = Action()
+EGGSHELL_REPAIR.id = "EGGSHELL_REPAIR"
+EGGSHELL_REPAIR.strfn = function (act)
+    return "EGGSHELL_REPAIR"
+end
+-- EGGSHELL_REPAIR.priority = 20
+EGGSHELL_REPAIR.fn = function (act)
+    local obj = act.invobject
+    local target = act.target
+    return obj.components.eggshell_repair and obj.components.eggshell_repair:Repair(obj, target)
+end
+AddAction(EGGSHELL_REPAIR)
+STRINGS.ACTIONS.EGGSHELL_REPAIR = {
+    EGGSHELL_REPAIR = STRINGS.TALLBIRD_ACTIONS_NAMED.EGGSHELL_REPAIR
+}
+
+AddStategraphActionHandler("wilson", ActionHandler(ACTIONS.EGGSHELL_REPAIR, "dolongaction"))
+AddStategraphActionHandler("wilson_client", ActionHandler(ACTIONS.EGGSHELL_REPAIR, "dolongaction"))
+
+AddComponentAction("USEITEM", "eggshell_repair", function(inst, doer, target, actions, right)
+    if target:HasTag("armor_eggshell") and inst:HasTag("tallbird_eggshell") then
+        table.insert(actions, ACTIONS.EGGSHELL_REPAIR)
     end
 end)

@@ -551,6 +551,7 @@ STRINGS.TALLBIRD_ACTIONS_NAMED = {
     SPAWN = "Toggle Spawn",
     BEAK_ROD_FISHING = "Chum",
     ARMOR_SHELL_THORN = "Launch",
+    EGGSHELL_REPAIR = "Repair",
 }
 
 STRINGS.TALLBIRD_FAMILY_FAME = "Fame"

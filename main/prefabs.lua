@@ -694,7 +694,12 @@ AddPrefabPostInit("tallbirdegg", function(inst)
         LaunchAt(shell2, inst, hammerman, loot_data.SPEED, loot_data.HEIGHT, nil, loot_data.ANGLE)
 
         if inst.components.stackable then
-            inst.components.stackable:Get():Remove()
+            local current = inst.components.stackable:StackSize()
+            if num_worked >= current then
+                inst:Remove()
+            else
+                inst.components.stackable:SetStackSize(current - num_worked)
+            end
         else
             inst:Remove()
         end

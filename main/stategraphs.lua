@@ -481,6 +481,10 @@ AddStategraphEvent("tallbird", EventHandler("dojoust", function(inst, target)
 	end
 end))
 
+AddStategraphEvent("tallbird", EventHandler("otherfeed", function(inst)
+    inst.sg:GoToState("otherfeed")
+end))
+
 local wait_for_pre = true
 local anims = { pre = "boat_jump_pre", loop = "boat_jump", pst = "boat_jump_pst"}
 local timelines = {}
@@ -639,6 +643,22 @@ local function DoJoustAoe(inst, targets)
 	-- end
 
 end
+
+AddStategraphState("tallbird",State{
+        name = "otherfeed",
+        tags = {"idle","eat"},
+
+        onenter = function(inst)
+            inst.Physics:Stop()
+            inst.AnimState:PlayAnimation("steal")
+            inst.SoundEmitter:PlaySound("dontstarve/creatures/smallbird/scratch_ground")
+        end,
+
+        events=
+        {
+            EventHandler("animover", function(inst) inst.sg:GoToState("idle") end ),
+        },
+    })
 
 AddStategraphState("tallbird",State{
 		name = "joust_pre",

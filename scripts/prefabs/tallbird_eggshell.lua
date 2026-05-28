@@ -42,6 +42,7 @@ local function fn(data)
     inst.components.stackable.maxsize = TUNING.STACK_SIZE_LARGEITEM
 
     inst:AddComponent("bird_named")
+    inst:AddComponent("eggshell_repair")
 
     MakeHauntableLaunch(inst)
 
