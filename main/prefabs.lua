@@ -646,3 +646,77 @@ AddPrefabPostInit("cutgrass", function(inst)
     inst:AddTag("bird_leave")
     inst:AddComponent("bird_leave")
 end)
+
+local function OnEaten(inst, eater)
+    local item1 = SpawnPrefab("tallbird_eggshell1")
+    local item2 = SpawnPrefab("tallbird_eggshell2")
+
+    local container = inst.components.inventoryitem:GetContainer()
+    if container ~= nil then
+        if inst.components.stackable then
+            inst.components.stackable:Get():Remove()
+        else
+            inst:Remove()
+        end
+        container:GiveItem(item1)
+        container:GiveItem(item2)
+    else
+        if inst.components.stackable then
+            inst.components.stackable:Get():Remove()
+        else
+            inst:Remove()
+        end
+        Launch(item1, eater, 0.2)
+        Launch(item2, eater, 0.2)
+    end
+
+end
+AddPrefabPostInit("tallbirdegg", function(inst)
+    local function on_hammer(inst, hammerman, workleft, workdone)
+        local loot_data = TUNING.ROCK_FRUIT_LOOT
+        local num_worked = inst.components.stackable and math.clamp(math.ceil(workdone), 1, inst.components.stackable:StackSize()) or 1
+        local yolk = SpawnPrefab("tallbird_yolk")
+        local shell1 = SpawnPrefab("tallbird_eggshell1")
+        local shell2 = SpawnPrefab("tallbird_eggshell2")
+
+        if yolk.components.stackable then
+            yolk.components.stackable:SetStackSize(num_worked)
+        end
+        if shell1.components.stackable then
+            shell1.components.stackable:SetStackSize(num_worked)
+        end
+        if shell2.components.stackable then
+            shell2.components.stackable:SetStackSize(num_worked)
+        end
+
+        LaunchAt(yolk, inst, hammerman, loot_data.SPEED, loot_data.HEIGHT, nil, loot_data.ANGLE)
+        LaunchAt(shell1, inst, hammerman, loot_data.SPEED, loot_data.HEIGHT, nil, loot_data.ANGLE)
+        LaunchAt(shell2, inst, hammerman, loot_data.SPEED, loot_data.HEIGHT, nil, loot_data.ANGLE)
+
+        if inst.components.stackable then
+            inst.components.stackable:Get():Remove()
+        else
+            inst:Remove()
+        end
+    end
+
+    if inst.components.edible then
+        inst.components.edible:SetOnEatenFn(OnEaten)
+    end
+
+    inst:AddComponent("workable")
+    inst.components.workable:SetWorkAction(ACTIONS.HAMMER)
+    local work_num = inst.components.stackable and inst.components.stackable.stacksize or 1
+    inst.components.workable:SetWorkLeft(1 *work_num )
+    inst.components.workable:SetOnWorkCallback(on_hammer)
+end)
+
+AddPrefabPostInit("tallbirdegg_cracked", function(inst)
+    if inst.components.edible then
+        local old_oneaten = inst.components.edible.oneaten
+        inst.components.edible:SetOnEatenFn(function (inst,eater)
+            OnEaten(inst,eater)
+            return old_oneaten(inst,eater)
+        end)
+    end
+end)

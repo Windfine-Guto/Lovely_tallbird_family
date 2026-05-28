@@ -1,5 +1,5 @@
 local FARM_PLANT_TAGS = {"tendable_farmplant"}
-local NOTAGS = {'INLIMBO','notarget','noattack','player','companion','abigail','glommer','friendlyfruitfly'}
+local NOTAGS = {'INLIMBO','notarget','noattack','player','companion','abigail','glommer','friendlyfruitfly','wall'}
 local function song_update(inst)
     local ix, iy, iz = inst.Transform:GetWorldPosition()
     local nearby_tendable_plants = TheSim:FindEntities(ix, iy, iz, TUNING.PHONOGRAPH_TEND_RANGE, FARM_PLANT_TAGS)
@@ -529,7 +529,7 @@ local function Tallbird_Trample(inst)
                 end
             elseif v.components.pickable ~= nil
                     and v.components.pickable:CanBePicked()
-                    and not v:HasTag("intense") and v.prefab~="tallbirdnest" and v.prefab~="new_tallbirdnest" then
+                    and not v:HasTag("intense") and v.prefab~="tallbirdnest" and v.prefab~="new_tallbirdnest" and not v:HasTag("flower") then
                 local success, loots = v.components.pickable:Pick(TheWorld)
                 if loots then
                     for i, v in ipairs(loots) do

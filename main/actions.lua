@@ -881,3 +881,30 @@ AddComponentAction("POINT", "fencerotator", function(inst, doer, pos, actions, r
         table.insert(actions, BEAK_ROD_FISHING)
     end
 end)
+
+local ARMOR_SHELL_THORN = Action()
+ARMOR_SHELL_THORN.id = "ARMOR_SHELL_THORN"
+ARMOR_SHELL_THORN.strfn = function (act)
+    return "ARMOR_SHELL_THORN"
+end
+-- ARMOR_SHELL_THORN.priority = 20
+ARMOR_SHELL_THORN.instant = true
+ARMOR_SHELL_THORN.fn = function (act)
+    local invj = act.invobject
+    local doer = act.doer
+    if invj._onattackother then
+        invj._onattackother(doer, invj)
+    end
+    return true
+end
+AddAction(ARMOR_SHELL_THORN)
+STRINGS.ACTIONS.ARMOR_SHELL_THORN = {
+    ARMOR_SHELL_THORN = STRINGS.TALLBIRD_ACTIONS_NAMED.ARMOR_SHELL_THORN
+}
+
+AddComponentAction("INVENTORY", "armor", function(inst, doer, actions)
+    if inst:HasTag("armor_eggshell") and inst.replica.equippable and
+        inst.replica.equippable:IsEquipped() then
+        table.insert(actions, ACTIONS.ARMOR_SHELL_THORN)
+    end
+end)

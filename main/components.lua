@@ -288,7 +288,11 @@ local function Tallbird_Trample(inst,targets)
                     end
 
                     if v:HasTag("stump") then
-                        v.components.workable:WorkedBy_Internal(inst, 1)
+                        if v.components.workable then
+                            v.components.workable:WorkedBy_Internal(inst, 1)
+                        else
+                            v:Remove()
+                        end
                     end
                     if weapon and weapon.components.finiteuses then
                         use = weapon:HasTag("sharp") and use or 3

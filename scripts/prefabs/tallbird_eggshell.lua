@@ -30,8 +30,8 @@ local function fn(data)
     end
     inst:AddComponent("edible")
     inst.components.edible.foodtype = FOODTYPE.SEEDS
-    inst.components.edible.healthvalue = 1
-    inst.components.edible.hungervalue = 5
+    inst.components.edible.healthvalue = 0
+    inst.components.edible.hungervalue = 1
 
     inst:AddComponent("inspectable")
     inst:AddComponent("inventoryitem")
