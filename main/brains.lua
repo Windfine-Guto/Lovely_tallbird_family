@@ -168,6 +168,9 @@ local function TryJoust(inst)
                 inst.components.timer:StartTimer("joust_cd",15)
 			end
 		end
+        return true
+    else
+        return false
 	end
 end
 AddBrainPostInit("smallbirdbrain",function(self)
@@ -311,8 +314,7 @@ end
 			ParallelNodeAny{
 			ChaseAndAttack(self.inst, SpringCombatMod(MAX_CHASE_TIME)),
 			ConditionWaitNode(function()
-				TryJoust(self.inst)
-				return false
+				return TryJoust(self.inst)
 			end, "Joust"),
 		}))
     table.remove(self.bt.root.children[8].children,1)
@@ -478,8 +480,7 @@ end
 			ParallelNodeAny{
 				ChaseAndAttack(self.inst, SpringCombatMod(MAX_CHASE_TIME), SpringCombatMod(MAX_CHASE_DIST)),
 				ConditionWaitNode(function()
-					TryJoust(self.inst)
-					return false
+					return TryJoust(self.inst)
 				end, "Joust"),
 		}))
     table.insert(self.bt.root.children,4,WhileNode(function() return self.inst.components.combat.target ~= nil and self.inst.components.combat:InCooldown() end, "Dodge",

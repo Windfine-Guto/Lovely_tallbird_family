@@ -482,7 +482,10 @@ AddStategraphEvent("tallbird", EventHandler("dojoust", function(inst, target)
 end))
 
 AddStategraphEvent("tallbird", EventHandler("otherfeed", function(inst)
-    inst.sg:GoToState("otherfeed")
+    if not (inst.sg:HasStateTag("eat") or inst.sg:HasStateTag("busy") or
+            inst.components.health:IsDead()) then
+        inst.sg:GoToState("otherfeed")
+    end
 end))
 
 local wait_for_pre = true
@@ -500,7 +503,7 @@ AddStategraphActionHandler("tallbird", ActionHandler(ACTIONS.MINE, "mine"))
 AddStategraphActionHandler("tallbird", ActionHandler(ACTIONS.INTERACT_WITH, "plant_peep"))
 
 local NOTAGS3 = {'INLIMBO','notarget','noattack','player','companion','abigail','glommer','friendlyfruitfly'
-,"chester","hutch", "playerghost","DECOR", "FX" ,"structure","wall"}
+,"chester","hutch", "playerghost","DECOR", "FX" ,"structure","wall","waxedplant","ancienttree"}
 local DAMAGE_ONEOF_TAGS = { "pickable", "NPC_workable", "CHOP_workable", "HAMMER_workable", "MINE_workable", "DIG_workable" }
 local function Tallbird_Trample(inst)
     local x,y,z = inst.Transform:GetWorldPosition()
@@ -1469,6 +1472,289 @@ AddStategraphEvent("tallbird", EventHandler("onhop",
             end
         end))
 
+local function DoTalkSound(inst)
+    if inst.talksoundoverride ~= nil then
+        inst.SoundEmitter:PlaySound(inst.talksoundoverride, "talk")
+        return true
+    elseif not inst:HasTag("mime") then
+        inst.SoundEmitter:PlaySound((inst.talker_path_override or "dontstarve/characters/")..(inst.soundsname or inst.prefab).."/talk_LP", "talk")
+        return true
+    end
+end
+
+local function StopTalkSound(inst, instant)
+    if not instant and inst.endtalksound ~= nil and inst.SoundEmitter:PlayingSound("talk") then
+        inst.SoundEmitter:PlaySound(inst.endtalksound)
+    end
+    inst.SoundEmitter:KillSound("talk")
+end
+
+local function CancelTalk_Override(inst, instant)
+	if inst.sg.statemem.talktask ~= nil then
+		inst.sg.statemem.talktask:Cancel()
+		inst.sg.statemem.talktask = nil
+		StopTalkSound(inst, instant)
+	end
+end
+
+local function OnTalk_Override(inst)
+	CancelTalk_Override(inst, true)
+	if DoTalkSound(inst) then
+		inst.sg.statemem.talktask = inst:DoTaskInTime(1.5 + math.random() * .5, CancelTalk_Override)
+	end
+	return true
+end
+
+local function OnDoneTalking_Override(inst)
+	CancelTalk_Override(inst)
+	return true
+end
+
+local function GetUnequipState(inst, data)
+    return (inst:HasTag("wereplayer") and "item_in")
+        or (data.eslot ~= EQUIPSLOTS.HANDS and "item_hat")
+        or (not data.slip and "item_in")
+        or (data.item ~= nil and data.item:IsValid() and "tool_slip")
+        or "toolbroke"
+        , data.item
+end
+
+AddStategraphState("wilson",State{
+        name = "gaint_shell_enter",
+        tags = { "hiding", "notalking", "gaint_shell", "nomorph", "busy", "nopredict" },
+
+        onenter = function(inst)
+            inst.components.locomotor:Stop()
+            inst.AnimState:PlayAnimation("hide")
+
+            inst.sg:SetTimeout(15 * FRAMES)
+        end,
+
+        timeline =
+        {
+            TimeEvent(6 * FRAMES, function(inst)
+                inst.SoundEmitter:PlaySound("dontstarve/movement/foley/hideshell")
+            end),
+        },
+
+        events =
+        {
+			EventHandler("ontalk", OnTalk_Override),
+			EventHandler("donetalking", OnDoneTalking_Override),
+            EventHandler("unequip", function(inst, data)
+                -- We need to handle this because the default unequip
+                -- handler is ignored while we are in a "busy" state.
+                inst.sg:GoToState(GetUnequipState(inst, data))
+            end),
+        },
+
+        ontimeout = function(inst)
+            --Transfer talk task to shell_idle state
+            local talktask = inst.sg.statemem.talktask
+            inst.sg.statemem.talktask = nil
+            inst.sg:GoToState("gaint_shell_idle", talktask)
+        end,
+
+		onexit = CancelTalk_Override,
+    })
+
+AddStategraphState("wilson",State{
+        name = "gaint_shell_idle",
+        tags = { "hiding", "notalking", "gaint_shell", "nomorph", "idle" },
+
+        onenter = function(inst, talktask)
+            inst.components.locomotor:Stop()
+            inst.AnimState:PushAnimation("hide_idle", false)
+
+            --Transferred over from shell_idle so it doesn't cut off abrubtly
+            inst.sg.statemem.talktask = talktask
+        end,
+
+        events =
+        {
+            EventHandler("ontalk", function(inst)
+                inst.AnimState:PushAnimation("hide_idle", false)
+				return OnTalk_Override(inst)
+            end),
+			EventHandler("donetalking", OnDoneTalking_Override),
+        },
+
+		onexit = CancelTalk_Override,
+    })
+
+AddStategraphState("wilson",State{
+        name = "gaint_shell_hit",
+        tags = { "hiding", "gaint_shell", "nomorph", "busy", "pausepredict" },
+
+        onenter = function(inst)
+            inst.components.locomotor:Stop()
+            inst:ClearBufferedAction()
+
+            inst.AnimState:PlayAnimation("gaint_shell_hit")
+
+            inst.SoundEmitter:PlaySound("dontstarve/wilson/hit")
+
+            local stun_frames = 3
+            if inst.components.playercontroller ~= nil then
+                --Specify min frames of pause since "busy" tag may be
+                --removed too fast for our network update interval.
+                inst.components.playercontroller:RemotePausePrediction(stun_frames)
+            end
+            inst.sg:SetTimeout(stun_frames * FRAMES)
+        end,
+
+        events =
+        {
+            EventHandler("unequip", function(inst, data)
+                -- We need to handle this because the default unequip
+                -- handler is ignored while we are in a "busy" state.
+                inst.sg.statemem.unequipped = true
+            end),
+        },
+
+        ontimeout = function(inst)
+            inst.sg:GoToState(inst.sg.statemem.unequipped and "idle" or "gaint_shell_idle")
+        end,
+    })
+
+AddStategraphState("wilson",State{
+        name = "shell_roll_start",
+        tags = { "moving", "running", "canrotate", "autopredict","gaint_shell" },
+
+        onenter = function(inst)
+            inst.Transform:SetEightFaced()
+            inst.components.locomotor:RunForward()
+			inst.AnimState:PlayAnimation("egg_roll_pre")
+            inst._shell_roll_speed = 0
+        end,
+
+        onupdate = function(inst)
+            inst.components.locomotor:RunForward()
+        end,
+
+        timeline =
+        {
+
+        },
+
+        events =
+        {
+            EventHandler("unequip", function(inst, data)
+				local item = data and data.item
+                local slot = item and item.components.equippable.equipslot
+				if slot and (slot == EQUIPSLOTS.HEAD or slot == EQUIPSLOTS.BODY) then
+					inst.sg:GoToState("idle")
+				end
+			end),
+			EventHandler("animover", function(inst)
+                if inst.AnimState:AnimDone() then
+                    inst.sg:GoToState("shell_roll")
+                end
+            end),
+        },
+
+        onexit = function (inst)
+            inst.Transform:SetFourFaced()
+        end
+    })
+
+AddStategraphState("wilson",State{
+        name = "shell_roll",
+        tags = { "moving", "running", "canrotate", "autopredict","gaint_shell" },
+
+        onenter = function(inst)
+            inst.Transform:SetEightFaced()
+            inst.components.locomotor:RunForward()
+
+            if not inst.AnimState:IsCurrentAnimation("egg_roll_loop") then
+                inst.AnimState:PlayAnimation("egg_roll_loop", true)
+            end
+
+            inst._shell_roll_speed = inst._shell_roll_speed + 1
+            inst._shell_roll_speed = inst._shell_roll_speed<=5
+            and inst._shell_roll_speed or 5
+            local speed = inst._shell_roll_speed
+            if inst.components.locomotor then
+                inst.components.locomotor:SetExternalSpeedMultiplier(inst,"shell_roll_speed",1+speed*0.1)
+            end
+
+            inst.sg:SetTimeout(inst.AnimState:GetCurrentAnimationLength())
+        end,
+
+        onupdate = function(inst)
+            inst.components.locomotor:RunForward()
+        end,
+
+        timeline =
+        {
+            --unmounted
+            TimeEvent(7 * FRAMES, function(inst)
+                inst.SoundEmitter:PlaySound("tallbird_egg_oversized/tallbird_egg_oversized/eggroll-1")
+            end),
+            TimeEvent(15 * FRAMES, function(inst)
+                inst.SoundEmitter:PlaySound("tallbird_egg_oversized/tallbird_egg_oversized/eggroll-2")
+            end),
+        },
+
+        events =
+        {
+            EventHandler("unequip", function(inst, data)
+				local item = data and data.item
+                local slot = item and item.components.equippable.equipslot
+				if slot and (slot == EQUIPSLOTS.HEAD or slot == EQUIPSLOTS.BODY) then
+					inst.sg:GoToState("idle")
+				end
+			end),
+        },
+
+        ontimeout = function(inst)
+            inst.sg:GoToState("shell_roll")
+        end,
+
+        onexit = function (inst)
+            inst.Transform:SetFourFaced()
+            if inst.components.locomotor then
+                inst.components.locomotor:RemoveExternalSpeedMultiplier(inst,"shell_roll_speed")
+            end
+        end
+    })
+
+AddStategraphState("wilson",State{
+        name = "shell_roll_stop",
+        tags = { "canrotate", "idle", "autopredict","gaint_shell" },
+
+        onenter = function(inst)
+            inst.Transform:SetEightFaced()
+            inst.components.locomotor:Stop()
+			inst.AnimState:PlayAnimation("egg_roll_pst")
+        end,
+
+        timeline =
+        {
+
+        },
+
+        events =
+        {
+            EventHandler("unequip", function(inst, data)
+				local item = data and data.item
+                local slot = item and item.components.equippable.equipslot
+				if slot and (slot == EQUIPSLOTS.HEAD or slot == EQUIPSLOTS.BODY) then
+					inst.sg:GoToState("idle")
+				end
+			end),
+            EventHandler("animover", function(inst)
+                if inst.AnimState:AnimDone() then
+                    inst.sg:GoToState("gaint_shell_idle")
+                end
+            end),
+        },
+
+        onexit = function(inst)
+            inst.Transform:SetFourFaced()
+        end,
+    })
+
 AddStategraphPostInit("smallbird", function(sg)
     local hatch_fn = sg.states["hatch"].onenter
     sg.states["hatch"].onenter = function (inst)
@@ -1480,9 +1766,7 @@ AddStategraphPostInit("smallbird", function(sg)
             inst.components.lootdropper:FlingItem(shell2)
         end
     end
-end)
 
-AddStategraphPostInit("smallbird", function(sg)
     local function SoundPath(event)
         return "waterlogged1/creatures/spider_water/" .. event
     end
@@ -1570,13 +1854,51 @@ end)
 
 AddStategraphPostInit("wilson", function(sg)
 ---actionhandlers
-    -- local old_attack_deststate = sg.actionhandlers[ACTIONS.ATTACK].deststate
-    -- sg.actionhandlers[ACTIONS.ATTACK].deststate = function (inst, action)
-    --     if inst:HasTag("tallbird_mount") then
-    --         inst:PushEvent("tallbird_attack",{target=action.target})
-    --     end
-    --     return old_attack_deststate(inst,action)
-    -- end
+
+---events
+
+---locomote
+    local old_locomote_fn = sg.events.locomote.fn
+    sg.events.locomote.fn = function(inst, data)
+        if inst.sg:HasAnyStateTag("busy", "overridelocomote") and not inst.sg:HasStateTag("gaint_shell") then
+            return
+        end
+        local is_moving = inst.sg:HasStateTag("moving")
+        local should_move = inst.components.locomotor:WantsToMoveForward()
+
+        if is_moving and not should_move and inst.sg:HasStateTag("gaint_shell") then
+            inst.sg:GoToState("shell_roll_stop")
+        elseif not is_moving and should_move and inst.sg:HasStateTag("gaint_shell") then
+			if data and data.dir then
+				inst.components.locomotor:SetMoveDir(data.dir)
+			end
+            inst.sg:GoToState("shell_roll_start")
+        else
+            return old_locomote_fn(inst,data)
+        end
+    end
+
+---blocked
+    local old_blocked_fn = sg.events.blocked.fn
+    sg.events.blocked.fn = function(inst, data)
+        if not inst.components.health:IsDead() and inst.sg:HasStateTag("gaint_shell") then
+            inst.sg:GoToState("gaint_shell_hit")
+        else
+            return old_blocked_fn(inst, data)
+        end
+    end
+
+---attacked
+    local old_attacked_fn = sg.events.attacked.fn
+    sg.events.attacked.fn = function(inst, data)
+        if inst.components.health and not inst.components.health:IsDead() and
+        not inst.sg:HasAnyStateTag("drowning", "falling")
+        and inst.sg:HasStateTag("gaint_shell") then
+            inst.sg:GoToState("gaint_shell_hit")
+        else
+            return old_attacked_fn(inst, data)
+        end
+    end
 
 ---attack
     local attack_state = sg.states["attack"]
@@ -2165,5 +2487,176 @@ AddStategraphPostInit("wilson", function(sg)
             inst.rod_tallbird_light_fx.Follower:FollowSymbol(inst.GUID, "swap_object", 0, 0, 0)
         end
         return old_run_stop_onexit(inst)
+    end
+end)
+
+---延迟补偿
+AddStategraphState("wilson_client",State{
+        name = "shell_roll_start",
+        tags = { "moving", "running", "canrotate", "autopredict","gaint_shell" },
+
+        onenter = function(inst)
+            inst.Transform:SetEightFaced()
+            inst.components.locomotor:RunForward()
+			inst.AnimState:PlayAnimation("egg_roll_pre")
+            inst._shell_roll_speed = 0
+        end,
+
+        onupdate = function(inst)
+            inst.components.locomotor:RunForward()
+        end,
+
+        timeline =
+        {
+
+        },
+
+        events =
+        {
+            EventHandler("unequip", function(inst, data)
+				local item = data and data.item
+                local slot = item and item.components.equippable.equipslot
+				if slot and (slot == EQUIPSLOTS.HEAD or slot == EQUIPSLOTS.BODY) then
+					inst.sg:GoToState("idle")
+				end
+			end),
+			EventHandler("animover", function(inst)
+                if inst.AnimState:AnimDone() then
+                    inst.sg:GoToState("shell_roll")
+                end
+            end),
+        },
+
+        onexit = function (inst)
+            inst.Transform:SetFourFaced()
+        end
+    })
+
+AddStategraphState("wilson_client",State{
+        name = "shell_roll",
+        tags = { "moving", "running", "canrotate", "autopredict","gaint_shell" },
+
+        onenter = function(inst)
+            inst.Transform:SetEightFaced()
+            inst.components.locomotor:RunForward()
+
+            if not inst.AnimState:IsCurrentAnimation("egg_roll_loop") then
+                inst.AnimState:PlayAnimation("egg_roll_loop", true)
+            end
+
+            inst._shell_roll_speed = inst._shell_roll_speed + 1
+            inst._shell_roll_speed = inst._shell_roll_speed<=5
+            and inst._shell_roll_speed or 5
+            local speed = inst._shell_roll_speed
+            if inst.components.locomotor then
+                inst.components.locomotor:SetExternalSpeedMultiplier(inst,"shell_roll_speed",1+speed*0.1)
+            end
+
+            inst.sg:SetTimeout(inst.AnimState:GetCurrentAnimationLength())
+        end,
+
+        onupdate = function(inst)
+            inst.components.locomotor:RunForward()
+        end,
+
+        timeline =
+        {
+            TimeEvent(7 * FRAMES, function(inst)
+                inst.SoundEmitter:PlaySound("tallbird_egg_oversized/tallbird_egg_oversized/eggroll-1")
+            end),
+            TimeEvent(15 * FRAMES, function(inst)
+                inst.SoundEmitter:PlaySound("tallbird_egg_oversized/tallbird_egg_oversized/eggroll-2")
+            end),
+        },
+
+        events =
+        {
+            EventHandler("unequip", function(inst, data)
+				local item = data and data.item
+                local slot = item and item.components.equippable.equipslot
+				if slot and (slot == EQUIPSLOTS.HEAD or slot == EQUIPSLOTS.BODY) then
+					inst.sg:GoToState("idle")
+				end
+			end),
+        },
+
+        ontimeout = function(inst)
+            inst.sg:GoToState("shell_roll")
+        end,
+
+        onexit = function (inst)
+            inst.Transform:SetFourFaced()
+            if inst.components.locomotor then
+                inst.components.locomotor:RemoveExternalSpeedMultiplier(inst,"shell_roll_speed")
+            end
+        end
+    })
+
+AddStategraphState("wilson_client",State{
+        name = "shell_roll_stop",
+        tags = { "canrotate", "idle", "autopredict","gaint_shell" },
+
+        onenter = function(inst)
+            inst.Transform:SetEightFaced()
+            inst.components.locomotor:Stop()
+			inst.AnimState:PlayAnimation("egg_roll_pst")
+        end,
+
+        timeline =
+        {
+
+        },
+
+        events =
+        {
+            EventHandler("unequip", function(inst, data)
+				local item = data and data.item
+                local slot = item and item.components.equippable.equipslot
+				if slot and (slot == EQUIPSLOTS.HEAD or slot == EQUIPSLOTS.BODY) then
+					inst.sg:GoToState("idle")
+				end
+			end),
+            EventHandler("animover", function(inst)
+                if inst.AnimState:AnimDone() then
+                    inst.sg:GoToState("gaint_shell_idle")
+                end
+            end),
+        },
+
+        onexit = function(inst)
+            inst.Transform:SetFourFaced()
+        end,
+    })
+
+AddStategraphPostInit("wilson_client", function(sg)
+---events
+
+---locomote
+    local old_locomote_fn = sg.events.locomote.fn
+    sg.events.locomote.fn = function(inst, data)
+        if (inst.sg:HasStateTag("busy") or inst:HasTag("busy")) and
+			not (inst.sg:HasStateTag("boathopping") or inst:HasTag("boathopping")) and not inst.sg:HasStateTag("gaint_shell") then
+			return
+		elseif inst.sg:HasStateTag("overridelocomote") and not inst.sg:HasStateTag("gaint_shell") then
+			return
+		end
+
+        local is_moving = inst.sg:HasStateTag("moving")
+        local should_move = inst.components.locomotor:WantsToMoveForward()
+
+        if is_moving and not should_move and inst.sg:HasStateTag("gaint_shell") then
+            inst.sg:GoToState("shell_roll_stop")
+        elseif not is_moving and should_move and inst.sg:HasStateTag("gaint_shell") then
+			if data and data.dir then
+				if inst.components.locomotor then
+					inst.components.locomotor:SetMoveDir(data.dir)
+				else
+					inst.Transform:SetRotation(data.dir)
+				end
+			end
+            inst.sg:GoToState("shell_roll_start")
+        else
+            return old_locomote_fn(inst,data)
+        end
     end
 end)

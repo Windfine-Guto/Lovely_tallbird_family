@@ -27,6 +27,10 @@ local function commonfn()
 
     inst:AddTag("cookable")
 
+    inst:AddTag("show_spoilage") --保鲜度动画
+    inst:AddTag("icebox_valid")		--放进冰箱
+    inst:AddTag("saltbox_valid")		--放进盐盒
+
     MakeInventoryFloatable(inst)
 
     inst.entity:SetPristine()

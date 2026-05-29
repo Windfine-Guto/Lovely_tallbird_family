@@ -17,12 +17,12 @@ TECH.SCIENCE_TWO,
 image = "tallbird_saddle.tex"},
 {"RIDING"})
 AddRecipe2("tallbird_comb_follow",{Ingredient("boneshard", 5)},
-TECH.NONE,
+TECH.SCIENCE_TWO,
 {atlas = "images/inventoryimages/comb2.xml",
 image = "comb2.tex"},
 {"TOOLS"})
 AddRecipe2("new_tallbirdnest_item",{Ingredient("cutgrass", 3),Ingredient("tallbirdegg", 1)},
-TECH.NONE,
+TECH.SCIENCE_ONE,
 {atlas = "images/inventoryimages/new_tallbirdnest.xml",
 image = "new_tallbirdnest.tex"},
 {"TOOLS"})

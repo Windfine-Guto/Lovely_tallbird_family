@@ -191,6 +191,28 @@ AddComponentAction("INVENTORY", "bird_planaritem", function(inst, doer, actions,
     end
 end)
 
+local USEITEM_fn = ACTIONS.USEITEM.fn
+ACTIONS.USEITEM.fn = function(act)
+    local obj = act.invobject
+    local doer = act.doer
+    if obj:HasTag("hat_eggshell") then
+        local talker = doer.components.talker
+        local equippedArmor = doer.components.inventory ~= nil and doer.components.inventory:GetEquippedItem(EQUIPSLOTS.BODY) or nil
+        if equippedArmor and equippedArmor:HasTag("armor_halfshell") then
+            return USEITEM_fn(act)
+        else
+            if talker then
+                doer:DoTaskInTime(0,function ()
+                    talker:Say(GetString(doer,"ANNOUNCE_NO_SHELL_HALF"))
+                end)
+            end
+            return false
+        end
+    else
+        return USEITEM_fn(act)
+    end
+end
+
 local BIRD_JOUST = Action()
 BIRD_JOUST.id = "BIRD_JOUST"
 BIRD_JOUST.strfn = function (act)
