@@ -909,7 +909,7 @@ ARMOR_SHELL_THORN.id = "ARMOR_SHELL_THORN"
 ARMOR_SHELL_THORN.strfn = function (act)
     return "ARMOR_SHELL_THORN"
 end
--- ARMOR_SHELL_THORN.priority = 20
+ARMOR_SHELL_THORN.priority = 10
 ARMOR_SHELL_THORN.instant = true
 ARMOR_SHELL_THORN.fn = function (act)
     local invj = act.invobject
