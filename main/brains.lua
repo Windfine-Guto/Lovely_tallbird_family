@@ -166,9 +166,9 @@ local function TryJoust(inst)
 			if dsq >= range.min * range.min and dsq < range.max * range.max and not AreDifferentPlatforms(inst, target) then
 				inst:PushEvent("dojoust", target)
                 inst.components.timer:StartTimer("joust_cd",15)
+                return true
 			end
 		end
-        return true
     else
         return false
 	end

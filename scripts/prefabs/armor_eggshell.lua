@@ -120,6 +120,7 @@ local function fn()
 
     inst:AddComponent("cooldown")
     inst.components.cooldown.cooldown_duration = 2
+    inst.components.cooldown:StartCharging()
 
     MakeHauntableLaunch(inst)
 

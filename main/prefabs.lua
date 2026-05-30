@@ -548,7 +548,7 @@ AddPrefabPostInit("featherhat", function(inst)
             if old_onequip then
                 old_onequip(inst, owner, from_ground)
             end
-            if owner:HasTag("tallbird") and inst.components.fueled then
+            if (owner:HasTag("tallbird") or owner:HasTag("smallbird")) and inst.components.fueled then
                 inst.components.fueled:StopConsuming()
             end
         end)
@@ -722,6 +722,39 @@ AddPrefabPostInit("tallbirdegg_cracked", function(inst)
         inst.components.edible:SetOnEatenFn(function (inst,eater)
             OnEaten(inst,eater)
             return old_oneaten(inst,eater)
+        end)
+    end
+end)
+
+AddPrefabPostInit("dreadstonehat", function(inst)
+    local function Repair(inst)
+        if inst.components.armor then
+            inst.components.armor:Repair(inst.components.armor.maxcondition *0.01)
+        end
+    end
+    local old_onequip
+    local old_onunequip
+    if inst.components.equippable then
+        old_onequip = inst.components.equippable.onequipfn
+        inst.components.equippable:SetOnEquip(function(inst, owner, from_ground)
+            if old_onequip then
+                old_onequip(inst, owner, from_ground)
+            end
+            if owner:HasTag("tallbird") or owner:HasTag("smallbird") then
+                inst.bird_armor_repair = inst:DoPeriodicTask(1,Repair)
+            end
+        end)
+        old_onunequip = inst.components.equippable.onunequipfn
+        inst.components.equippable:SetOnUnequip(function (inst,owner,from_ground)
+            if old_onunequip then
+                old_onunequip(inst,owner,from_ground)
+            end
+            if owner:HasTag("tallbird") or owner:HasTag("smallbird") then
+                if inst.bird_armor_repair then
+                    inst.bird_armor_repair:Cancel()
+                    inst.bird_armor_repair=nil
+                end
+            end
         end)
     end
 end)
