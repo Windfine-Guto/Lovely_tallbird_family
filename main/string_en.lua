@@ -632,12 +632,12 @@ STRINGS.CHARACTERS.WX78.DESCRIBE.TALLBIRD_YOLK = "RAW PROTEIN SOLUTION. NUTRITIO
 STRINGS.CHARACTERS.WORTOX.DESCRIBE.TALLBIRD_YOLK = "Raw and sticky… not the kind of mischief I enjoy."
 
 STRINGS.NAMES.ARMOR_EGGSHELL="Eggshell Suit"
-STRINGS.RECIPE_DESC.ARMOR_EGGSHELL= "What breaks out is life. What breaks together is armor. Each shard whispers: the fragile can still wound."
+STRINGS.RECIPE_DESC.ARMOR_EGGSHELL= "What breaks out is life. What breaks together is armor. The fragile can still wound."
 
 ---威尔逊
 STRINGS.CHARACTERS.GENERIC.DESCRIBE.ARMOR_EGGSHELL = "Eggshell armor. Gets 'em back when they hit you. Pretty useful."
 ---温蒂
-STRINGS.CHARACTERS.WENDY.DESCRIBE.ARMOR_EGGSHELL = "Clad in their remnants, I feel almost fortified. Even broken things can cling together and become armor."
+STRINGS.CHARACTERS.WENDY.DESCRIBE.ARMOR_EGGSHELL = "Clad in their remnants, I feel almost fortified."
 ---薇诺娜
 STRINGS.CHARACTERS.WINONA.DESCRIBE.ARMOR_EGGSHELL = "Recycled eggshells that bounce damage back. Good efficiency."
 ---沃尔夫冈
@@ -713,7 +713,7 @@ STRINGS.RECIPE_DESC.HAT_EGGSHELL= "A giant egg shard that fits right on your hea
 ---威尔逊
 STRINGS.CHARACTERS.GENERIC.DESCRIBE.HAT_EGGSHELL = "A hat from a giant eggshell. If I find the bottom half, I could pass for an egg."
 ---温蒂
-STRINGS.CHARACTERS.WENDY.DESCRIBE.HAT_EGGSHELL = "Wearing it, I'm a life yet to hatch. The world outside is too loud—curling back in feels right."
+STRINGS.CHARACTERS.WENDY.DESCRIBE.HAT_EGGSHELL = "Wearing it, I'm a life yet to hatch."
 ---薇诺娜
 STRINGS.CHARACTERS.WINONA.DESCRIBE.HAT_EGGSHELL = "Eggshell hat. Snug fit, lets you curl up and roll. Multi-purpose design."
 ---沃尔夫冈

@@ -632,12 +632,12 @@ STRINGS.CHARACTERS.WX78.DESCRIBE.TALLBIRD_YOLK = "生的蛋白质溶液。营养
 STRINGS.CHARACTERS.WORTOX.DESCRIBE.TALLBIRD_YOLK = "生的，黏黏的……这可不是我喜欢的恶作剧材料。"
 
 STRINGS.NAMES.ARMOR_EGGSHELL="蛋壳甲"
-STRINGS.RECIPE_DESC.ARMOR_EGGSHELL= "破壳而出的，是生命。破壳拼成的，是铠甲。每一片碎壳都在说：脆弱之物，亦可伤人。"
+STRINGS.RECIPE_DESC.ARMOR_EGGSHELL= "破壳而出的是生命。破壳拼成的是铠甲。脆弱之物，亦可伤人。"
 
 ---威尔逊
 STRINGS.CHARACTERS.GENERIC.DESCRIBE.ARMOR_EGGSHELL = "碎蛋壳铠甲。被打会扎回去，挺实用。"
 ---温蒂
-STRINGS.CHARACTERS.WENDY.DESCRIBE.ARMOR_EGGSHELL = "披上它们的遗骸，我竟也觉得坚硬了些。原来破碎之物也可以彼此依偎成铠甲。"
+STRINGS.CHARACTERS.WENDY.DESCRIBE.ARMOR_EGGSHELL = "披上它们的遗骸，我竟也觉得坚硬了些。"
 ---薇诺娜
 STRINGS.CHARACTERS.WINONA.DESCRIBE.ARMOR_EGGSHELL = "蛋壳废物利用，还能弹伤敌人。效率不错。"
 ---沃尔夫冈
@@ -712,7 +712,7 @@ STRINGS.NAMES.HAT_EGGSHELL="蛋壳帽"
 ---威尔逊
 STRINGS.CHARACTERS.GENERIC.DESCRIBE.HAT_EGGSHELL = "巨型蛋壳碎片做的帽子。如果再找到下半截，我就能完美伪装成一颗蛋了。"
 ---温蒂
-STRINGS.CHARACTERS.WENDY.DESCRIBE.HAT_EGGSHELL = "戴上它，我就是一个尚未破壳的生命。外面的世界太吵了，偶尔缩回去也不错。"
+STRINGS.CHARACTERS.WENDY.DESCRIBE.HAT_EGGSHELL = "戴上它，我就是一个尚未破壳的生命。"
 ---薇诺娜
 STRINGS.CHARACTERS.WINONA.DESCRIBE.HAT_EGGSHELL = "碎蛋壳帽。戴上去正好扣住脑袋，还能缩进蛋壳里赶路。多用途设计。"
 ---沃尔夫冈
