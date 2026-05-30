@@ -125,6 +125,7 @@ local function fn()
     inst:AddTag("hat")
     inst:AddTag("hat_eggshell")
     inst:AddTag("hardarmor")
+    inst:AddTag("tallbirdeggshell_repair")
 
     inst.entity:SetPristine()
 

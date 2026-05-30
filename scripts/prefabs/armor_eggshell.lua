@@ -80,6 +80,7 @@ local function fn()
 
     inst:AddTag("bramble_resistant")
     inst:AddTag("armor_eggshell")
+    inst:AddTag("tallbirdeggshell_repair")
 
     inst.AnimState:SetBank("armor_eggshell")
     inst.AnimState:SetBuild("armor_eggshell")

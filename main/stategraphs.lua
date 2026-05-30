@@ -676,7 +676,6 @@ AddStategraphState("tallbird",State{
 			inst.Transform:SetEightFaced()
 			inst.AnimState:PlayAnimation("joust_pre")
 			inst.SoundEmitter:PlaySound("dontstarve/creatures/tallbird/scratch_ground")
-			inst.components.combat:StartAttack()
 			if target and target:IsValid() then
 				inst.sg.statemem.target = target
 				inst.sg.statemem.maxdelta = 20

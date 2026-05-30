@@ -36,14 +36,25 @@ local function KeepTargetFn()
     return false
 end
 
+local function Sound(inst)
+	local x,y,z = inst.Transform:GetWorldPosition()
+	return TheWorld.Map:IsOceanAtPoint(x, 0, z) and "turnoftides/common/together/water/swim/walk_water_med" or "tallbird_egg_oversized/tallbird_egg_oversized/eggroll-"..math.random(1,5)
+end
+
 local function OnStartPushing(inst, doer)
 	inst.Transform:SetRotation(doer:GetAngleToPoint(inst.Transform:GetWorldPosition()))
 	inst.AnimState:PlayAnimation("egg_roll_loop", true)
+
+    inst.push_sound = inst:DoPeriodicTask(0.3,function()
+        inst.SoundEmitter:PlaySound(Sound(inst))
+    end)
 end
 
 local function OnStopPushing(inst)
 	inst.Physics:Stop()
 	inst.AnimState:PlayAnimation("egg_roll_pst")
+    inst.push_sound:Cancel()
+    inst.push_sound = nil
 end
 
 local function fn()

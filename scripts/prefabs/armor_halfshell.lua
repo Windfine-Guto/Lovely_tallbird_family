@@ -1,9 +1,37 @@
+local containers=require("containers")
+
 local assets =
 {
     Asset("ANIM", "anim/armor_halfshell.zip"),
     Asset("IMAGE", "images/inventoryimages/armor_halfshell.tex"),
     Asset("ATLAS", "images/inventoryimages/armor_halfshell.xml")
 }
+
+local params=containers.params
+
+params.halfshell_back =
+{
+    widget =
+    {
+        slotpos = {},
+        animbank = "ui_piggyback_2x6",
+        animbuild = "ui_piggyback_2x6",
+--        pos = Vector3(-5, -50, 0),
+        pos = Vector3(-5, -90, 0),
+    },
+    issidewidget = true,
+    type = "pack",
+    openlimit = 1,
+}
+
+for y = 0, 5 do
+    table.insert(params.halfshell_back.widget.slotpos, Vector3(-162, -75 * y + 170, 0))
+    table.insert(params.halfshell_back.widget.slotpos, Vector3(-162 + 75, -75 * y + 170, 0))
+end
+
+function params.halfshell_back.itemtestfn(container, item, slot)
+    return not item:HasTag("armor_halfshell")
+end
 
 local function ProtectionLevels(inst, data)
     local equippedHat = inst.components.inventory ~= nil and inst.components.inventory:GetEquippedItem(EQUIPSLOTS.HEAD) or nil
@@ -52,6 +80,12 @@ local function onunequip(inst, owner)
     end
 end
 
+local function OnArmorBroken(inst)
+    if inst.components.container then
+        inst.components.container:DropEverything()
+    end
+end
+
 local function fn()
     local inst = CreateEntity()
 
@@ -68,6 +102,7 @@ local function fn()
     inst:AddTag("shell")
 	inst:AddTag("hardarmor")
     inst:AddTag("armor_halfshell")
+    inst:AddTag("tallbirdeggshell_repair")
 
     inst.foleysound = "dontstarve/movement/foley/shellarmour"
 
@@ -78,14 +113,14 @@ local function fn()
     if not TheWorld.ismastersim then
         inst.OnEntityReplicated=function (inst)
             if inst.replica.container then
-                inst.replica.container:WidgetSetup("piggyback")
+                inst.replica.container:WidgetSetup("halfshell_back")
             end
         end
         return inst
     end
 
     inst:AddComponent("container")
-    inst.components.container:WidgetSetup("piggyback")
+    inst.components.container:WidgetSetup("halfshell_back")
 
     inst:AddComponent("inspectable")
     inst:AddComponent("inventoryitem")
@@ -101,6 +136,7 @@ local function fn()
 
     inst:AddComponent("armor")
     inst.components.armor:InitCondition(400, TUNING.ARMORSNURTLESHELL_ABSORPTION)
+    inst.components.armor:SetOnFinished(OnArmorBroken)
 
     inst:AddComponent("equippable")
     inst.components.equippable.equipslot = EQUIPSLOTS.BODY

@@ -939,7 +939,7 @@ EGGSHELL_REPAIR.id = "EGGSHELL_REPAIR"
 EGGSHELL_REPAIR.strfn = function (act)
     return "EGGSHELL_REPAIR"
 end
--- EGGSHELL_REPAIR.priority = 20
+EGGSHELL_REPAIR.priority = 5
 EGGSHELL_REPAIR.fn = function (act)
     local obj = act.invobject
     local target = act.target
@@ -950,11 +950,11 @@ STRINGS.ACTIONS.EGGSHELL_REPAIR = {
     EGGSHELL_REPAIR = STRINGS.TALLBIRD_ACTIONS_NAMED.EGGSHELL_REPAIR
 }
 
-AddStategraphActionHandler("wilson", ActionHandler(ACTIONS.EGGSHELL_REPAIR, "dolongaction"))
-AddStategraphActionHandler("wilson_client", ActionHandler(ACTIONS.EGGSHELL_REPAIR, "dolongaction"))
+AddStategraphActionHandler("wilson", ActionHandler(ACTIONS.EGGSHELL_REPAIR, "doshortaction"))
+AddStategraphActionHandler("wilson_client", ActionHandler(ACTIONS.EGGSHELL_REPAIR, "doshortaction"))
 
 AddComponentAction("USEITEM", "eggshell_repair", function(inst, doer, target, actions, right)
-    if target:HasTag("armor_eggshell") and inst:HasTag("tallbird_eggshell") then
+    if target:HasTag("tallbirdeggshell_repair") and inst:HasTag("tallbird_eggshell") then
         table.insert(actions, ACTIONS.EGGSHELL_REPAIR)
     end
 end)

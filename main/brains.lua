@@ -400,7 +400,7 @@ local function KeepTraderFn(inst, target)
 end
 local function GoHomeAction(inst)
     if inst.components.homeseeker and
-       inst.components.homeseeker:HasHome() and not inst.components.follower.leader then
+       inst.components.homeseeker:HasHome() and not inst.components.follower.leader and not inst:IsNear(inst.components.homeseeker.home, 2) then
         return BufferedAction(inst, inst.components.homeseeker.home, ACTIONS.GOHOME, nil, nil, nil, 0.2)
     end
 end
