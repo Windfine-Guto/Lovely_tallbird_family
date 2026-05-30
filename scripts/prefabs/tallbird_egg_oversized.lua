@@ -1,15 +1,19 @@
-local assets = 
+local assets =
 {
-    Asset("ANIM", "anim/gaint_egg_roll.zip"),
-    Asset("IMAGE", "images/inventoryimages/gaint_egg_roll.tex"),
-    Asset("ATLAS", "images/inventoryimages/gaint_egg_roll.xml"),
-    Asset("INV_IMAGE", "gaint_egg_roll"),
+    Asset("ANIM", "anim/tallbird_egg_oversized.zip"),
+    Asset("IMAGE", "images/inventoryimages/tallbird_egg_oversized.tex"),
+    Asset("ATLAS", "images/inventoryimages/tallbird_egg_oversized.xml"),
+    Asset("INV_IMAGE", "tallbird_egg_oversized"),
 }
 local prefabs = {}
+local loots = {"hat_eggshell","armor_halfshell"}
+for i = 1, 7 do
+    table.insert(loots,"tallbird_yolk")
+end
 local PHYSICS_RADIUS = 0.45
 
 local function onequip(inst, owner)
-    owner.AnimState:OverrideSymbol("swap_body", "gaint_egg_roll", "swap_body")
+    owner.AnimState:OverrideSymbol("swap_body", "tallbird_egg_oversized", "swap_body")
 end
 
 local function onunequip(inst, owner)
@@ -17,21 +21,29 @@ local function onunequip(inst, owner)
 end
 
 local function onhammered(inst, worker)
-    if inst.components.burnable ~= nil and inst.components.burnable:IsBurning() then
-        inst.components.burnable:Extinguish()
-    end
-
     inst.components.lootdropper:DropLoot()
-
     local fx = SpawnPrefab("collapse_small")
     fx.Transform:SetPosition(inst.Transform:GetWorldPosition())
-    fx:SetMaterial("rock")
     inst:Remove()
 end
 
 local function onhit(inst, worker)
-    inst.AnimState:PlayAnimation("hit")
-    inst.AnimState:PushAnimation("idle_full")
+    inst.components.inventoryitem.canbepickedup = not inst.components.inventoryitem.canbepickedup
+    inst:PushEvent("doroll",worker)
+end
+
+local function KeepTargetFn()
+    return false
+end
+
+local function OnStartPushing(inst, doer)
+	inst.Transform:SetRotation(doer:GetAngleToPoint(inst.Transform:GetWorldPosition()))
+	inst.AnimState:PlayAnimation("egg_roll_loop", true)
+end
+
+local function OnStopPushing(inst)
+	inst.Physics:Stop()
+	inst.AnimState:PlayAnimation("egg_roll_pst")
 end
 
 local function fn()
@@ -45,13 +57,19 @@ local function fn()
     MakeHeavyObstaclePhysics(inst, PHYSICS_RADIUS)
     inst:SetPhysicsRadiusOverride(PHYSICS_RADIUS)
 
-    inst:AddTag("heavy")
-    inst.gymweight = 1
+    MakeInventoryFloatable(inst, "med", 0.5)
 
-    inst.AnimState:SetBank("gaint_egg_roll")
-    inst.AnimState:SetBuild("gaint_egg_roll")
-    inst.AnimState:PlayAnimation("hide_idle")
-    inst.scrapbook_anim = "hide_idle"
+    inst:AddTag("heavy")
+    inst:AddTag("heavylift_lmb")
+	inst:AddTag("pushing_roll")
+    inst:AddTag("tallbird_egg_oversized")
+    inst.gymweight = 2
+    inst.Transform:SetEightFaced()
+
+    inst.AnimState:SetBank("tallbird_egg_oversized")
+    inst.AnimState:SetBuild("tallbird_egg_oversized")
+    inst.AnimState:PlayAnimation("idle")
+    inst.scrapbook_anim = "idle"
 
     inst.entity:SetPristine()
 
@@ -61,16 +79,33 @@ local function fn()
 
     inst:AddComponent("heavyobstaclephysics")
     inst.components.heavyobstaclephysics:SetRadius(PHYSICS_RADIUS)
+    inst.components.heavyobstaclephysics:AddPushingStates()
 
     inst:AddComponent("inspectable")
 
     inst:AddComponent("inventoryitem")
     inst.components.inventoryitem.cangoincontainer = false
-    
-    inst.components.inventoryitem:ChangeImageName("gaint_egg_roll")
+    inst.components.inventoryitem.imagename = "tallbird_egg_oversized"
+    inst.components.inventoryitem.atlasname = "images/inventoryimages/tallbird_egg_oversized.xml"
+
+    inst:AddComponent("locomotor")
+    inst.components.locomotor.walkspeed = 9
+    inst.components.locomotor.runspeed = 9
+
+    inst:AddComponent("combat")
+    inst.components.combat:SetDefaultDamage(20)
+    inst.components.combat:SetKeepTargetFunction(KeepTargetFn)
 
     inst:AddComponent("symbolswapdata")
-    inst.components.symbolswapdata:SetData("gaint_egg_roll", "swap_body")
+    inst.components.symbolswapdata:SetData("tallbird_egg_oversized", "swap_body")
+
+    inst:AddComponent("pushable")
+    inst.components.pushable:SetOnStartPushingFn(OnStartPushing)
+    inst.components.pushable:SetOnStopPushingFn(OnStopPushing)
+    inst.components.pushable:SetPushingSpeed(2)
+    inst.components.pushable:SetTargetDist(1.15)
+	inst.components.pushable:SetMinDist(0.75)
+	inst.components.pushable:SetMaxDist(1.95)
 
     inst:AddComponent("hauntable")
     inst.components.hauntable:SetHauntValue(TUNING.HAUNT_TINY)
@@ -81,19 +116,19 @@ local function fn()
     inst.components.equippable:SetOnUnequip(onunequip)
     inst.components.equippable.walkspeedmult = TUNING.HEAVY_SPEED_MULT
 
-    inst:AddComponent("submersible")
-
     inst:AddComponent("lootdropper")
+    inst.components.lootdropper.droprecipeloot = false
+    inst.components.lootdropper:SetLoot(loots)
+
     inst:AddComponent("workable")
     inst.components.workable:SetWorkAction(ACTIONS.HAMMER)
-    inst.components.workable:SetWorkLeft(2)
+    inst.components.workable:SetWorkLeft(7)
     inst.components.workable:SetOnFinishCallback(onhammered)
     inst.components.workable:SetOnWorkCallback(onhit)
 
-    MakeMediumBurnable(inst)
-    MakeMediumPropagator(inst)
+    inst:SetStateGraph("SGtallbird_egg_oversized")
 
     return inst
 end
 
-return Prefab("gaint_egg_roll", fn, assets, prefabs)
+return Prefab("tallbird_egg_oversized", fn, assets, prefabs)

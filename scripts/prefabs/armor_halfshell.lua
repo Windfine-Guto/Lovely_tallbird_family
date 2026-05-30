@@ -8,7 +8,7 @@ local assets =
 local function ProtectionLevels(inst, data)
     local equippedHat = inst.components.inventory ~= nil and inst.components.inventory:GetEquippedItem(EQUIPSLOTS.HEAD) or nil
     local equippedArmor = inst.components.inventory ~= nil and inst.components.inventory:GetEquippedItem(EQUIPSLOTS.BODY) or nil
-    if equippedHat ~= nil then
+    if equippedHat ~= nil and equippedHat:HasTag("hat_eggshell") then
         if inst.sg:HasStateTag("gaint_shell") then
             equippedHat.components.armor:SetAbsorption(TUNING.FULL_ABSORPTION)
         else

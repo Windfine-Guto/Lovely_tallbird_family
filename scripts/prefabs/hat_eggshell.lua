@@ -19,7 +19,7 @@ local function ProtectionLevels(inst, data)
             equippedHat.components.useableitem:StopUsingItem()
         end
     end
-    if equippedArmor ~= nil then
+    if equippedArmor ~= nil and equippedArmor:HasTag("armor_halfshell") then
         if inst.sg:HasStateTag("gaint_shell") then
             equippedArmor.components.armor:SetAbsorption(TUNING.FULL_ABSORPTION)
         else

@@ -503,7 +503,7 @@ AddStategraphActionHandler("tallbird", ActionHandler(ACTIONS.MINE, "mine"))
 AddStategraphActionHandler("tallbird", ActionHandler(ACTIONS.INTERACT_WITH, "plant_peep"))
 
 local NOTAGS3 = {'INLIMBO','notarget','noattack','player','companion','abigail','glommer','friendlyfruitfly'
-,"chester","hutch", "playerghost","DECOR", "FX" ,"structure","wall","waxedplant","ancienttree"}
+,"chester","hutch", "playerghost","DECOR", "FX" ,"structure","wall","waxedplant","ancienttree","tallbird_egg_oversized"}
 local DAMAGE_ONEOF_TAGS = { "pickable", "NPC_workable", "CHOP_workable", "HAMMER_workable", "MINE_workable", "DIG_workable" }
 local function Tallbird_Trample(inst)
     local x,y,z = inst.Transform:GetWorldPosition()
@@ -532,7 +532,11 @@ local function Tallbird_Trample(inst)
                 v.components.workable:Destroy(inst)
 
                 if v:HasTag("stump") then
-                    v.components.workable:WorkedBy_Internal(inst, 1)
+                    if v.components.workable then
+                        v.components.workable:WorkedBy_Internal(inst, 1)
+                    else
+                        v:Remove()
+                    end
                 end
             elseif v.components.pickable ~= nil
                     and v.components.pickable:CanBePicked()
@@ -771,7 +775,6 @@ AddStategraphState("tallbird",State{
 				inst.sg.statemem.loops = 1
 				inst.sg.statemem.targets = {}
 			end
-			inst.components.combat:RestartCooldown()
 			inst:AddTag("jousting")
 		end,
 
@@ -1510,15 +1513,6 @@ local function OnDoneTalking_Override(inst)
 	return true
 end
 
-local function GetUnequipState(inst, data)
-    return (inst:HasTag("wereplayer") and "item_in")
-        or (data.eslot ~= EQUIPSLOTS.HANDS and "item_hat")
-        or (not data.slip and "item_in")
-        or (data.item ~= nil and data.item:IsValid() and "tool_slip")
-        or "toolbroke"
-        , data.item
-end
-
 AddStategraphState("wilson",State{
         name = "gaint_shell_enter",
         tags = { "hiding", "notalking", "gaint_shell", "nomorph", "busy", "nopredict" },
@@ -1526,7 +1520,7 @@ AddStategraphState("wilson",State{
         onenter = function(inst)
             inst.components.locomotor:Stop()
             inst.AnimState:PlayAnimation("hide")
-
+            inst:AddTag("gaint_shell")
             inst.sg:SetTimeout(15 * FRAMES)
         end,
 
@@ -1542,10 +1536,18 @@ AddStategraphState("wilson",State{
 			EventHandler("ontalk", OnTalk_Override),
 			EventHandler("donetalking", OnDoneTalking_Override),
             EventHandler("unequip", function(inst, data)
-                -- We need to handle this because the default unequip
-                -- handler is ignored while we are in a "busy" state.
-                inst.sg:GoToState(GetUnequipState(inst, data))
-            end),
+				local slot = data and data.eslot
+				if slot and (slot == EQUIPSLOTS.HEAD or slot == EQUIPSLOTS.BODY) then
+                    inst:RemoveTag("gaint_shell")
+					inst.sg:GoToState("idle")
+				end
+			end),
+            -- EventHandler("equip", function(inst, data)
+			-- 	local slot = data and data.eslot
+			-- 	if slot and (slot == EQUIPSLOTS.HEAD or slot == EQUIPSLOTS.BODY) then
+			-- 		inst.sg:GoToState("idle")
+			-- 	end
+			-- end),
         },
 
         ontimeout = function(inst)
@@ -1565,13 +1567,25 @@ AddStategraphState("wilson",State{
         onenter = function(inst, talktask)
             inst.components.locomotor:Stop()
             inst.AnimState:PushAnimation("hide_idle", false)
-
+            inst:AddTag("gaint_shell")
             --Transferred over from shell_idle so it doesn't cut off abrubtly
             inst.sg.statemem.talktask = talktask
         end,
 
         events =
         {
+            -- EventHandler("equip", function(inst, data)
+			-- 	local slot = data and data.eslot
+			-- 	if slot and (slot == EQUIPSLOTS.HEAD or slot == EQUIPSLOTS.BODY) then
+			-- 		inst.sg:GoToState("idle")
+			-- 	end
+			-- end),
+            EventHandler("unequip", function(inst, data)
+				local slot = data and data.eslot
+				if slot and (slot == EQUIPSLOTS.HEAD or slot == EQUIPSLOTS.BODY) then
+					inst.sg:GoToState("idle")
+				end
+			end),
             EventHandler("ontalk", function(inst)
                 inst.AnimState:PushAnimation("hide_idle", false)
 				return OnTalk_Override(inst)
@@ -1579,7 +1593,10 @@ AddStategraphState("wilson",State{
 			EventHandler("donetalking", OnDoneTalking_Override),
         },
 
-		onexit = CancelTalk_Override,
+		onexit = function (inst,instant)
+            inst:RemoveTag("gaint_shell")
+            CancelTalk_Override(inst,instant)
+        end,
     })
 
 AddStategraphState("wilson",State{
@@ -1589,7 +1606,7 @@ AddStategraphState("wilson",State{
         onenter = function(inst)
             inst.components.locomotor:Stop()
             inst:ClearBufferedAction()
-
+            inst:AddTag("gaint_shell")
             inst.AnimState:PlayAnimation("gaint_shell_hit")
 
             inst.SoundEmitter:PlaySound("dontstarve/wilson/hit")
@@ -1605,15 +1622,26 @@ AddStategraphState("wilson",State{
 
         events =
         {
+            -- EventHandler("equip", function(inst, data)
+			-- 	local slot = data and data.eslot
+			-- 	if slot and (slot == EQUIPSLOTS.HEAD or slot == EQUIPSLOTS.BODY) then
+			-- 		inst.sg:GoToState("idle")
+			-- 	end
+			-- end),
             EventHandler("unequip", function(inst, data)
-                -- We need to handle this because the default unequip
-                -- handler is ignored while we are in a "busy" state.
-                inst.sg.statemem.unequipped = true
-            end),
+				local slot = data and data.eslot
+				if slot and (slot == EQUIPSLOTS.HEAD or slot == EQUIPSLOTS.BODY) then
+					inst.sg.statemem.unequipped = true
+				end
+			end),
         },
 
         ontimeout = function(inst)
             inst.sg:GoToState(inst.sg.statemem.unequipped and "idle" or "gaint_shell_idle")
+        end,
+
+        onexit = function (inst)
+            inst:RemoveTag("gaint_shell")
         end,
     })
 
@@ -1626,6 +1654,7 @@ AddStategraphState("wilson",State{
             inst.components.locomotor:RunForward()
 			inst.AnimState:PlayAnimation("egg_roll_pre")
             inst._shell_roll_speed = 0
+            inst:AddTag("gaint_shell")
         end,
 
         onupdate = function(inst)
@@ -1634,14 +1663,21 @@ AddStategraphState("wilson",State{
 
         timeline =
         {
-
+            TimeEvent(7 * FRAMES, function(inst)
+                inst.SoundEmitter:PlaySound("tallbird_egg_oversized/tallbird_egg_oversized/eggroll-3")
+            end)
         },
 
         events =
         {
+            -- EventHandler("equip", function(inst, data)
+			-- 	local slot = data and data.eslot
+			-- 	if slot and (slot == EQUIPSLOTS.HEAD or slot == EQUIPSLOTS.BODY) then
+			-- 		inst.sg:GoToState("idle")
+			-- 	end
+			-- end),
             EventHandler("unequip", function(inst, data)
-				local item = data and data.item
-                local slot = item and item.components.equippable.equipslot
+				local slot = data and data.eslot
 				if slot and (slot == EQUIPSLOTS.HEAD or slot == EQUIPSLOTS.BODY) then
 					inst.sg:GoToState("idle")
 				end
@@ -1654,6 +1690,7 @@ AddStategraphState("wilson",State{
         },
 
         onexit = function (inst)
+            inst:RemoveTag("gaint_shell")
             inst.Transform:SetFourFaced()
         end
     })
@@ -1679,6 +1716,7 @@ AddStategraphState("wilson",State{
             end
 
             inst.sg:SetTimeout(inst.AnimState:GetCurrentAnimationLength())
+            inst:AddTag("gaint_shell")
         end,
 
         onupdate = function(inst)
@@ -1698,9 +1736,14 @@ AddStategraphState("wilson",State{
 
         events =
         {
+            -- EventHandler("equip", function(inst, data)
+			-- 	local slot = data and data.eslot
+			-- 	if slot and (slot == EQUIPSLOTS.HEAD or slot == EQUIPSLOTS.BODY) then
+			-- 		inst.sg:GoToState("idle")
+			-- 	end
+			-- end),
             EventHandler("unequip", function(inst, data)
-				local item = data and data.item
-                local slot = item and item.components.equippable.equipslot
+				local slot = data and data.eslot
 				if slot and (slot == EQUIPSLOTS.HEAD or slot == EQUIPSLOTS.BODY) then
 					inst.sg:GoToState("idle")
 				end
@@ -1712,6 +1755,7 @@ AddStategraphState("wilson",State{
         end,
 
         onexit = function (inst)
+            inst:RemoveTag("gaint_shell")
             inst.Transform:SetFourFaced()
             if inst.components.locomotor then
                 inst.components.locomotor:RemoveExternalSpeedMultiplier(inst,"shell_roll_speed")
@@ -1727,18 +1771,26 @@ AddStategraphState("wilson",State{
             inst.Transform:SetEightFaced()
             inst.components.locomotor:Stop()
 			inst.AnimState:PlayAnimation("egg_roll_pst")
+            inst:AddTag("gaint_shell")
         end,
 
         timeline =
         {
-
+            TimeEvent(7 * FRAMES, function(inst)
+                inst.SoundEmitter:PlaySound("tallbird_egg_oversized/tallbird_egg_oversized/eggroll-4")
+            end)
         },
 
         events =
         {
+            -- EventHandler("equip", function(inst, data)
+			-- 	local slot = data and data.eslot
+			-- 	if slot and (slot == EQUIPSLOTS.HEAD or slot == EQUIPSLOTS.BODY) then
+			-- 		inst.sg:GoToState("idle")
+			-- 	end
+			-- end),
             EventHandler("unequip", function(inst, data)
-				local item = data and data.item
-                local slot = item and item.components.equippable.equipslot
+				local slot = data and data.eslot
 				if slot and (slot == EQUIPSLOTS.HEAD or slot == EQUIPSLOTS.BODY) then
 					inst.sg:GoToState("idle")
 				end
@@ -1751,6 +1803,7 @@ AddStategraphState("wilson",State{
         },
 
         onexit = function(inst)
+            inst:RemoveTag("gaint_shell")
             inst.Transform:SetFourFaced()
         end,
     })
@@ -1860,15 +1913,15 @@ AddStategraphPostInit("wilson", function(sg)
 ---locomote
     local old_locomote_fn = sg.events.locomote.fn
     sg.events.locomote.fn = function(inst, data)
-        if inst.sg:HasAnyStateTag("busy", "overridelocomote") and not inst.sg:HasStateTag("gaint_shell") then
+        if inst.sg:HasAnyStateTag("busy", "overridelocomote") and not inst:HasTag("gaint_shell") then
             return
         end
         local is_moving = inst.sg:HasStateTag("moving")
         local should_move = inst.components.locomotor:WantsToMoveForward()
 
-        if is_moving and not should_move and inst.sg:HasStateTag("gaint_shell") then
+        if is_moving and not should_move and inst:HasTag("gaint_shell") then
             inst.sg:GoToState("shell_roll_stop")
-        elseif not is_moving and should_move and inst.sg:HasStateTag("gaint_shell") then
+        elseif not is_moving and should_move and inst:HasTag("gaint_shell") then
 			if data and data.dir then
 				inst.components.locomotor:SetMoveDir(data.dir)
 			end
@@ -1899,6 +1952,39 @@ AddStategraphPostInit("wilson", function(sg)
             return old_attacked_fn(inst, data)
         end
     end
+
+---unequip
+    local old_unequip_fn = sg.events.unequip.fn
+    sg.events.unequip.fn = function (inst,data)
+        local slot = data and data.eslot
+        if inst:HasTag("gaint_shell") then
+            if slot and (slot == EQUIPSLOTS.HEAD or slot == EQUIPSLOTS.BODY) then
+                inst.sg:GoToState("idle")
+            else
+                return
+            end
+        else
+            return old_unequip_fn(inst,data)
+        end
+    end
+
+---equip
+    local old_equip_fn = sg.events.equip.fn
+    sg.events.equip.fn = function (inst,data)
+        local slot = data and data.eslot
+        if inst:HasTag("gaint_shell") then
+           if slot and (slot == EQUIPSLOTS.HEAD or slot == EQUIPSLOTS.BODY) then
+                inst:RemoveTag("gaint_shell")
+                inst.sg:GoToState("idle")
+            else
+                return
+            end
+        else
+            return old_equip_fn(inst,data)
+        end
+    end
+
+---state
 
 ---attack
     local attack_state = sg.states["attack"]
@@ -2508,14 +2594,21 @@ AddStategraphState("wilson_client",State{
 
         timeline =
         {
-
+            TimeEvent(7 * FRAMES, function(inst)
+                inst.SoundEmitter:PlaySound("tallbird_egg_oversized/tallbird_egg_oversized/eggroll-3")
+            end)
         },
 
         events =
         {
+            EventHandler("equip", function(inst, data)
+				local slot = data and data.eslot
+				if slot and (slot == EQUIPSLOTS.HEAD or slot == EQUIPSLOTS.BODY) then
+					inst.sg:GoToState("idle")
+				end
+			end),
             EventHandler("unequip", function(inst, data)
-				local item = data and data.item
-                local slot = item and item.components.equippable.equipslot
+				local slot = data and data.eslot
 				if slot and (slot == EQUIPSLOTS.HEAD or slot == EQUIPSLOTS.BODY) then
 					inst.sg:GoToState("idle")
 				end
@@ -2547,10 +2640,6 @@ AddStategraphState("wilson_client",State{
             inst._shell_roll_speed = inst._shell_roll_speed + 1
             inst._shell_roll_speed = inst._shell_roll_speed<=5
             and inst._shell_roll_speed or 5
-            local speed = inst._shell_roll_speed
-            if inst.components.locomotor then
-                inst.components.locomotor:SetExternalSpeedMultiplier(inst,"shell_roll_speed",1+speed*0.1)
-            end
 
             inst.sg:SetTimeout(inst.AnimState:GetCurrentAnimationLength())
         end,
@@ -2571,9 +2660,14 @@ AddStategraphState("wilson_client",State{
 
         events =
         {
+            EventHandler("equip", function(inst, data)
+				local slot = data and data.eslot
+				if slot and (slot == EQUIPSLOTS.HEAD or slot == EQUIPSLOTS.BODY) then
+					inst.sg:GoToState("idle")
+				end
+			end),
             EventHandler("unequip", function(inst, data)
-				local item = data and data.item
-                local slot = item and item.components.equippable.equipslot
+				local slot = data and data.eslot
 				if slot and (slot == EQUIPSLOTS.HEAD or slot == EQUIPSLOTS.BODY) then
 					inst.sg:GoToState("idle")
 				end
@@ -2586,9 +2680,6 @@ AddStategraphState("wilson_client",State{
 
         onexit = function (inst)
             inst.Transform:SetFourFaced()
-            if inst.components.locomotor then
-                inst.components.locomotor:RemoveExternalSpeedMultiplier(inst,"shell_roll_speed")
-            end
         end
     })
 
@@ -2604,14 +2695,21 @@ AddStategraphState("wilson_client",State{
 
         timeline =
         {
-
+            TimeEvent(7 * FRAMES, function(inst)
+                inst.SoundEmitter:PlaySound("tallbird_egg_oversized/tallbird_egg_oversized/eggroll-4")
+            end)
         },
 
         events =
         {
+            EventHandler("equip", function(inst, data)
+				local slot = data and data.eslot
+				if slot and (slot == EQUIPSLOTS.HEAD or slot == EQUIPSLOTS.BODY) then
+					inst.sg:GoToState("idle")
+				end
+			end),
             EventHandler("unequip", function(inst, data)
-				local item = data and data.item
-                local slot = item and item.components.equippable.equipslot
+                local slot = data and data.eslot
 				if slot and (slot == EQUIPSLOTS.HEAD or slot == EQUIPSLOTS.BODY) then
 					inst.sg:GoToState("idle")
 				end
@@ -2635,18 +2733,18 @@ AddStategraphPostInit("wilson_client", function(sg)
     local old_locomote_fn = sg.events.locomote.fn
     sg.events.locomote.fn = function(inst, data)
         if (inst.sg:HasStateTag("busy") or inst:HasTag("busy")) and
-			not (inst.sg:HasStateTag("boathopping") or inst:HasTag("boathopping")) and not inst.sg:HasStateTag("gaint_shell") then
+			not (inst.sg:HasStateTag("boathopping") or inst:HasTag("boathopping")) and not inst:HasTag("gaint_shell") then
 			return
-		elseif inst.sg:HasStateTag("overridelocomote") and not inst.sg:HasStateTag("gaint_shell") then
+		elseif inst.sg:HasStateTag("overridelocomote") and not inst:HasTag("gaint_shell") then
 			return
 		end
 
         local is_moving = inst.sg:HasStateTag("moving")
         local should_move = inst.components.locomotor:WantsToMoveForward()
 
-        if is_moving and not should_move and inst.sg:HasStateTag("gaint_shell") then
+        if is_moving and not should_move and inst:HasTag("gaint_shell") then
             inst.sg:GoToState("shell_roll_stop")
-        elseif not is_moving and should_move and inst.sg:HasStateTag("gaint_shell") then
+        elseif not is_moving and should_move and inst:HasTag("gaint_shell") then
 			if data and data.dir then
 				if inst.components.locomotor then
 					inst.components.locomotor:SetMoveDir(data.dir)

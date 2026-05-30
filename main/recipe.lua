@@ -36,3 +36,9 @@ TECH.SCIENCE_TWO,
 {atlas = "images/inventoryimages/armor_eggshell.xml",
 image = "armor_eggshell.tex"},
 {"ARMOUR"})
+AddRecipe2("tallbird_egg_oversized",{Ingredient("tallbirdegg", 7),Ingredient("nightmarefuel", 7)},
+TECH.SCULPTING_ONE,
+{nounlock = true, actionstr="SCULPTING",
+atlas = "images/inventoryimages/tallbird_egg_oversized.xml",
+image = "tallbird_egg_oversized.tex"},
+{"CRAFTING_STATION"})

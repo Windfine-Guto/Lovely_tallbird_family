@@ -79,7 +79,7 @@ AddComponentPostInit("playercontroller", function(self)
 end)
 
 local NOTAGS = {'INLIMBO','notarget','noattack','player','companion','abigail','glommer','friendlyfruitfly'
-,"chester","hutch", "playerghost","DECOR", "FX" ,"structure","wall","waxedplant","ancienttree"}
+,"chester","hutch", "playerghost","DECOR", "FX" ,"structure","wall","waxedplant","ancienttree","tallbird_egg_oversized"}
 local function playerdamage(inst,data)
 	local target=data.target
 	if not target:IsValid() or not target.components or not target.components.combat then
