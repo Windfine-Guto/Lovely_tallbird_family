@@ -18,6 +18,8 @@ modimport("main/patches/animation_patch")
 
 modimport("main/patches/braincommon_patch")
 
+modimport("main/patches/sculptingtable_patch")
+
 modimport("main/components")
 
 modimport("main/prefabs")

@@ -28,6 +28,7 @@ PrefabFiles = GetModConfigData('lovely_tallbird_family'..'skins') and {
     "hat_eggshell",
     "armor_halfshell",
     "tallbird_egg_oversized",
+    "tallbird_egg_oversized_builder",
 }
 or {
     "tallbird",
@@ -45,4 +46,5 @@ or {
     "hat_eggshell",
     "armor_halfshell",
     "tallbird_egg_oversized",
+    "tallbird_egg_oversized_builder",
 }

@@ -670,7 +670,7 @@ STRINGS.CHARACTERS.WX78.DESCRIBE.ARMOR_EGGSHELL = "CALCIUM WASTE DEFENSE MODULE.
 STRINGS.CHARACTERS.WORTOX.DESCRIBE.ARMOR_EGGSHELL = "A coat of shards—hit 'em and they'll regret it. Now this is mischief I enjoy."
 
 STRINGS.NAMES.TALLBIRD_EGG_OVERSIZED="Giant Tallbird Egg"
-STRINGS.RECIPE_DESC.TALLBIRD_EGG_OVERSIZED= "A grindstone fused seven eggs into one. Nobody knows why this works."
+STRINGS.RECIPE_DESC.TALLBIRD_EGG_OVERSIZED= "Seven eggs blended into one on the wheel. Nobody knows why this works."
 
 ---威尔逊
 STRINGS.CHARACTERS.GENERIC.DESCRIBE.TALLBIRD_EGG_OVERSIZED = "Seven eggs ground into one giant egg. It defies logic, but here it is."
