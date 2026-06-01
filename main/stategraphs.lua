@@ -1645,6 +1645,28 @@ AddStategraphState("wilson",State{
     })
 
 AddStategraphState("wilson",State{
+    name = "launch_thorn",
+    tags = { "busy", "nomorph", "nopredict", "notalking", "pausepredict" },
+    onenter = function(inst)
+        inst.components.locomotor:Stop()
+        inst:ClearBufferedAction()
+        inst.AnimState:SetDeltaTimeMultiplier(1.5)
+        inst.AnimState:PlayAnimation("hit")
+    end,
+    events = {
+        EventHandler("animover", function(inst)
+            inst.sg:GoToState("idle")
+        end),
+    },
+    ontimeout = function(inst)
+        inst.sg:GoToState("idle")
+    end,
+    onexit = function(inst)
+        inst.AnimState:SetDeltaTimeMultiplier(1)
+    end,
+})
+
+AddStategraphState("wilson",State{
         name = "shell_roll_start",
         tags = { "moving", "running", "canrotate", "autopredict","gaint_shell" },
 

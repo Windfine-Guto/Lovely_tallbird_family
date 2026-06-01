@@ -34,6 +34,9 @@ end
 local function OnAttackOther(owner, inst)
     if inst.components.cooldown and inst.components.cooldown:IsCharged() then
         DoThorns(inst, owner)
+        if owner.sg ~= nil then
+            owner.sg:GoToState("launch_thorn")
+        end
         if inst.components.armor then
             inst.components.armor:TakeDamage(inst._attack_condition)
         end
@@ -119,7 +122,7 @@ local function fn()
     inst.components.equippable:SetOnUnequip(onunequip)
 
     inst:AddComponent("cooldown")
-    inst.components.cooldown.cooldown_duration = 2
+    inst.components.cooldown.cooldown_duration = 1
     inst.components.cooldown:StartCharging()
 
     MakeHauntableLaunch(inst)
