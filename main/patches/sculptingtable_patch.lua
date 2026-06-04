@@ -40,24 +40,34 @@ AddPrefabPostInit("sculptingtable", function(inst)
     inst.CreateItem = function(inst, item)
         local base_ingredient = inst.components.pickable.caninteractwith and inst.components.pickable.product or nil
         if base_ingredient == "tallbirdegg" then
-            inst.components.pickable:SetUp("tallbird_egg_oversized", 1000000)
-            inst.components.pickable:Pause()
-            if not inst.components.pickable.caninteractwith then
-                inst.components.pickable.caninteractwith = true
-                inst.SoundEmitter:PlaySound("dontstarve/common/together/moonbase/moonstaff_place")
+            if item == "tallbird_egg_oversized" then
+                inst.components.pickable:SetUp("tallbird_egg_oversized", 1000000)
+                inst.components.pickable:Pause()
+                if not inst.components.pickable.caninteractwith then
+                    inst.components.pickable.caninteractwith = true
+                    inst.SoundEmitter:PlaySound("dontstarve/common/together/moonbase/moonstaff_place")
+                end
+
+                inst.AnimState:ClearOverrideSymbol("cutstone01")
+                inst.AnimState:ClearOverrideSymbol("swap_body")
+                inst.AnimState:OverrideSymbol("swap_body", "tallbird_egg_oversized", "swap_body")
+
+                inst.components.prototyper.trees.SCULPTING = TECH.SCULPTING_ONE.SCULPTING
+
+                local fx = SpawnPrefab("collapse_small")
+                local x, y, z = inst.Transform:GetWorldPosition()
+                fx.Transform:SetPosition(x, y + 1.2, z)
+                fx:SetMaterial("stone")
+                inst.SoundEmitter:PlaySound("dontstarve/common/together/sculpting_table/craft")
+            else
+                inst.components.lootdropper:SpawnLootPrefab("rocks")
+                inst.components.lootdropper:SpawnLootPrefab("rocks")
+                local x, y, z = inst.Transform:GetWorldPosition()
+                local player = FindClosestPlayerInRange(x, y, z, 20, true)
+                if player then
+                    player.components.talker:Say(GetString(player, "ANNOUNCE_CRAFTING_FAIL"))
+                end
             end
-
-            inst.AnimState:ClearOverrideSymbol("cutstone01")
-            inst.AnimState:ClearOverrideSymbol("swap_body")
-            inst.AnimState:OverrideSymbol("swap_body", "tallbird_egg_oversized", "swap_body")
-
-            inst.components.prototyper.trees.SCULPTING = TECH.SCULPTING_ONE.SCULPTING
-
-            local fx = SpawnPrefab("collapse_small")
-            local x, y, z = inst.Transform:GetWorldPosition()
-            fx.Transform:SetPosition(x, y + 1.2, z)
-            fx:SetMaterial("stone")
-            inst.SoundEmitter:PlaySound("dontstarve/common/together/sculpting_table/craft")
         else
             return old_CreateItem(inst, item)
         end
