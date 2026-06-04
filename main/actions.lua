@@ -408,18 +408,18 @@ local function PlayMiningFX(inst, target, nosound)
     end
 end
 
-local function HarvestPickable( ent, doer)
+local function HarvestPickable(ent, doer)
         if ent.components.pickable.picksound ~= nil then
             doer.SoundEmitter:PlaySound(ent.components.pickable.picksound)
         end
 
-        local success, loot = ent.components.pickable:Pick(TheWorld)
+        local success, loot = ent.components.pickable:Pick(doer)
 
-        if loot ~= nil then
-            for i, item in ipairs(loot) do
-                Launch(item, doer, 1.5)
-            end
-        end
+        -- if loot ~= nil then
+        --     for i, item in ipairs(loot) do
+        --         Launch(item, doer, 1.5)
+        --     end
+        -- end
     end
 
 local function IsEntityInFront( entity, doer_rotation, doer_pos)
@@ -539,6 +539,7 @@ BIRD_CHOP.strfn = function (act)
     return "BIRD_CHOP"
 end
 -- BIRD_CHOP.priority = 20
+BIRD_CHOP.distance = 3
 BIRD_CHOP.mount_valid =true
 BIRD_CHOP.fn = function (act)
     return DoMountedToolWork(act, ACTIONS.CHOP)
@@ -554,6 +555,7 @@ BIRD_MINE.strfn = function (act)
     return "BIRD_MINE"
 end
 -- BIRD_MINE.priority = 20
+BIRD_MINE.distance = 3
 BIRD_MINE.mount_valid =true
 BIRD_MINE.fn = function (act)
     return DoMountedToolWork(act, ACTIONS.MINE)
@@ -569,6 +571,7 @@ BIRD_DIG.strfn = function (act)
     return "BIRD_DIG"
 end
 -- BIRD_DIG.priority = 20
+BIRD_DIG.distance = 3
 BIRD_DIG.mount_valid =true
 BIRD_DIG.fn = function (act)
     return DoMountedToolWork(act, ACTIONS.DIG)
@@ -584,6 +587,7 @@ BIRD_HAMMER.strfn = function (act)
     return "BIRD_HAMMER"
 end
 -- BIRD_HAMMER.priority = 20
+BIRD_HAMMER.distance = 3
 BIRD_HAMMER.mount_valid =true
 BIRD_HAMMER.fn = function (act)
     return DoMountedToolWork(act, ACTIONS.HAMMER)
@@ -599,6 +603,7 @@ BIRD_SCYTHE.strfn = function (act)
     return "BIRD_SCYTHE"
 end
 BIRD_SCYTHE.priority = 20
+BIRD_SCYTHE.distance = 2
 BIRD_SCYTHE.mount_valid =true
 BIRD_SCYTHE.fn = function (act)
     local target = act.target
@@ -671,6 +676,7 @@ BIRD_COLLECT.strfn = function (act)
     return "COLLECT"
 end
 BIRD_COLLECT.priority = 20
+BIRD_COLLECT.distance = 2
 BIRD_COLLECT.mount_valid =true
 BIRD_COLLECT.fn = function (act)
     local doer = act.doer

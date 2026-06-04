@@ -5,7 +5,7 @@ local Bird_cultivate = Class(function(self, inst)
     self.planar = false
     self.gift = false
     self.nogrow = false
-    self.reputation = nil
+    self.king = false
     self.playerid = nil
 end,
 nil,
@@ -114,7 +114,27 @@ local function Retarget(inst)
             RETARGET_ONEOF_TAGS)
 end
 
+local function King_Buff(inst)
+    if inst.components.debuffable then
+        if inst.components.debuffable:HasDebuff("king_tallbird") then
+            inst.components.debuffable:RemoveDebuff("king_tallbird")
+        end
+        inst.components.debuffable:AddDebuff("king_tallbird", "buff_king_tallbird")
+    end
+end
+
 function Bird_cultivate:Updata()
+    if self.king==true then
+        self.inst.King_Buff = self.inst:DoPeriodicTask(3,function()
+            King_Buff(self.inst)
+        end)
+    else
+        if self.inst.King_Buff then
+            self.inst.King_Buff:Cancel()
+            self.inst.King_Buff = nil
+        end
+    end
+
     if self.planar==true then
         if self.inst.components.planarentity==nil then
             self.inst:AddComponent("planarentity")
@@ -134,12 +154,14 @@ function Bird_cultivate:Updata()
             self.inst:AddTag("bird_planared")
         end
     end
+
     if self.nogrow==true and self.inst.components.growable then
         self.inst:RemoveComponent("growable")
         if not self.inst:HasTag("nogrow") then
             self.inst:AddTag("nogrow")
         end
     end
+
     if self.wild==true then
         return
     end
@@ -224,18 +246,16 @@ function Bird_cultivate:NoLeader(doer)
 end
 
 function Bird_cultivate:Trusteeship(giver)
-    self.reputation = giver.components.bird_family and giver.components.bird_family.number or nil
     self.playerid = giver.userid or nil
     local targets = giver.components.leader and giver.components.leader.followers or {}
     for follower,_ in pairs(targets) do
-        if follower:IsValid() and follower:HasTag("smallbird") and follower.components.follower and follower.components.follower.leader==giver then
+        if follower:IsValid() and (follower:HasTag("smallbird") or follower:HasTag("tallbird") ) then
             follower.components.follower:SetLeader(self.inst)
-            follower.sg:GoToState("idle_blink")
+
+            if not follower.sg:HasStateTag("busy") then
+                follower.sg:GoToState("idle_blink")
+            end
         end
-    end
-    if self.reputation~=nil and giver.components.bird_family then
-        giver.components.bird_family.number = 0
-        giver.components.bird_family:Updata()
     end
     if self.inst.components.follower and self.inst.components.follower.leader==giver then
         self.inst.components.follower:SetLeader(nil)
@@ -244,25 +264,24 @@ end
 
 function Bird_cultivate:Get_Back(giver)
     if giver.userid==self.playerid then
-        if giver.components.bird_family then
-            giver.components.bird_family.number = self.reputation or 0
-            giver.components.bird_family:Updata()
-        end
         local targets = self.inst.components.leader and self.inst.components.leader.followers or {}
         for follower,_ in pairs(targets) do
-            if follower:IsValid() and follower:HasTag("smallbird") and follower.components.follower and follower.components.follower.leader==self.inst then
+            if follower:IsValid() and (follower:HasTag("smallbird") or follower:HasTag("tallbird") )  then
                 follower.components.follower:SetLeader(giver)
-                if follower.prefab=="smallbird" then
-                    follower.sg:GoToState("idle_peep")
-                else
-                    follower.sg:GoToState("idle_blink")
+
+                if not follower.sg:HasStateTag("busy") then
+                    if follower.prefab=="smallbird" then
+                        follower.sg:GoToState("idle_peep")
+                    else
+                        follower.sg:GoToState("idle_blink")
+                    end
                 end
+                
             end
         end
         -- if self.inst.components.follower and self.inst.components.follower.leader==nil then
         --     self.inst.components.follower:SetLeader(giver)
         -- end
-        self.reputation = nil
         self.playerid = nil
     end
     
@@ -273,7 +292,6 @@ function Bird_cultivate:OnSave()
         wild = self.wild,
         planar = self.planar,
         nogrow = self.nogrow,
-        reputation = self.reputation,
         playerid = self.playerid
     }
 end
@@ -282,7 +300,6 @@ function Bird_cultivate:OnLoad(data)
         self.wild = data.wild
         self.planar = data.planar
         self.nogrow = data.nogrow
-        self.reputation = data.reputation
         self.playerid = data.playerid
     end
     self:Updata()

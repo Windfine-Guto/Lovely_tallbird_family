@@ -13,11 +13,15 @@ local function is_bird_follower(inst)
 end
 ---玩家
 AddPlayerPostInit(function(inst)
+
+inst:AddComponent("bird_family")
+
 if GetModConfigData(modid..'_birdfollow') then
 local old_on_despawn = inst.OnDespawn
 inst.all_followers = {}
 inst.OnDespawn = function(inst, migrationdata, ...)
-    for follower, _ in pairs(inst.components.leader.followers) do
+    local followers = inst.components.leader and inst.components.leader.followers or {}
+    for follower, _ in pairs(followers) do
         if is_bird_follower(follower) then
             local savedata = follower:GetSaveRecord()
             table.insert(inst.all_followers, savedata)
@@ -34,8 +38,8 @@ inst.OnDespawn = function(inst, migrationdata, ...)
                     follower:AddComponent("colourtweener")
                 end
                 follower.components.colourtweener:StartTween(
-                    {0, 0, 0, 1}, 
-                    13 * FRAMES, 
+                    {0, 0, 0, 1},
+                    13 * FRAMES,
                     follower.Remove)
             end)
         end
@@ -73,8 +77,47 @@ if old_on_load ~= nil then
 end
 end
 end
+
+local old_saveforreroll = inst.SaveForReroll
+inst.SaveForReroll = function (inst,...)
+    local data = old_saveforreroll(inst,...)
+    if data then
+        data.all_tallbird_followers = inst.all_followers
+        data.tallbird_fame = inst.components.bird_family and inst.components.bird_family:OnSave() or nil
+    end
+    return data
+end
+
+local old_loadforreroll = inst.LoadForReroll
+inst.LoadForReroll = function (inst, data, ...)
+    if data and data.tallbird_fame and inst.components.bird_family then
+        inst.components.bird_family:OnLoad(data.tallbird_fame)
+    end
+
+    if data and data.all_tallbird_followers then
+        for _, savedata in pairs(data.all_tallbird_followers) do
+            inst:DoTaskInTime(0.2 * math.random(), function(inst)
+            local bird = SpawnSaveRecord(savedata)
+                inst.components.leader:AddFollower(bird)
+                bird:DoTaskInTime(0, function(bird)
+                    if inst:IsValid() and not bird:IsNear(inst, 8) then
+                        bird.Transform:SetPosition(inst.Transform:GetWorldPosition())
+                        bird.sg:GoToState("idle")
+                    end
+                end)
+            local fx = SpawnPrefab("spawn_fx_small")
+                fx.Transform:SetPosition(bird.Transform:GetWorldPosition())
+            end)
+        end
+    end
+
+    if old_loadforreroll then
+        return old_loadforreroll(inst, data, ...)
+    end
+end
+
 inst._tallbird_mount_aoe_leg = true
-inst:AddComponent("bird_family")
+
 
 local old_doubleclickactionsfn
 local function GetDoubleClickActions(inst, pos, dir, target)

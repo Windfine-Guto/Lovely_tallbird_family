@@ -466,10 +466,10 @@ AddStategraphEvent("tallbird", EventHandler("wave", function(inst)
     end
 end))
 
-AddStategraphEvent("tallbird", EventHandler("emote", function(inst)
+AddStategraphEvent("tallbird", EventHandler("emote", function(inst,data)
     if not (inst.sg:HasStateTag("emote") or inst.sg:HasStateTag("busy") or
             inst.components.health:IsDead()) then
-        inst.sg:GoToState("idle_emote")
+        inst.sg:GoToState("idle_emote",data)
     end
 end))
 
@@ -914,11 +914,15 @@ AddStategraphState("tallbird",State{
         name = "idle_emote",
         tags = {"idle","emote"},
 
-        onenter = function(inst)
+        onenter = function(inst,data)
             local num = math.random(1, 4)
             inst.components.locomotor:Stop()
             inst:ClearBufferedAction()
-            if not TheWorld.state.isday and inst.components.timer 
+            if data and data.emote=="pose" then
+                inst.AnimState:PlayAnimation("emote4")
+                return
+            end
+            if not TheWorld.state.isday and inst.components.timer
             and not inst.components.timer:TimerExists("yawn_cd") and math.random() < 0.7 then
                 inst.AnimState:PlayAnimation("emote_yawn")
                 inst.components.timer:StartTimer("yawn_cd", 60+8*math.random())
@@ -2576,6 +2580,43 @@ AddStategraphPostInit("wilson", function(sg)
 end)
 
 ---延迟补偿
+
+AddStategraphState("wilson_client",State{
+        name = "gaint_shell_idle",
+        tags = { "hiding", "notalking", "gaint_shell", "idle" },
+
+        onenter = function(inst, talktask)
+            inst.components.locomotor:Stop()
+            inst.AnimState:PushAnimation("hide_idle", false)
+            inst.sg.statemem.talktask = talktask
+        end,
+
+        events =
+        {
+            -- EventHandler("equip", function(inst, data)
+			-- 	local slot = data and data.eslot
+			-- 	if slot and (slot == EQUIPSLOTS.HEAD or slot == EQUIPSLOTS.BODY) then
+			-- 		inst.sg:GoToState("idle")
+			-- 	end
+			-- end),
+            EventHandler("unequip", function(inst, data)
+				local slot = data and data.eslot
+				if slot and (slot == EQUIPSLOTS.HEAD or slot == EQUIPSLOTS.BODY) then
+					inst.sg:GoToState("idle")
+				end
+			end),
+            EventHandler("ontalk", function(inst)
+                inst.AnimState:PushAnimation("hide_idle", false)
+				return OnTalk_Override(inst)
+            end),
+			EventHandler("donetalking", OnDoneTalking_Override),
+        },
+
+		onexit = function (inst,instant)
+            CancelTalk_Override(inst,instant)
+        end,
+    })
+
 AddStategraphState("wilson_client",State{
         name = "shell_roll_start",
         tags = { "moving", "running", "canrotate", "autopredict","gaint_shell" },

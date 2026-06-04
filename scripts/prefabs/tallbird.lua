@@ -99,6 +99,9 @@ local function OnGetItemFromPlayer(inst, giver, item)
         local current = inst.components.inventory:GetEquippedItem(EQUIPSLOTS.HEAD)
         if inst.components.bird_cultivate.playerid==nil and item.prefab=="featherhat" then
             inst.components.bird_cultivate:Trusteeship(giver)
+            inst.components.bird_cultivate.king = true
+            inst.components.bird_cultivate:Updata()
+            inst:PushEvent("emote", {emote="pose"})
         end
         if current ~= nil then
             
@@ -111,6 +114,9 @@ local function OnGetItemFromPlayer(inst, giver, item)
                     return
                 elseif inst.components.bird_cultivate.playerid == giver.userid then
                     inst.components.bird_cultivate:Get_Back(giver)
+                    inst.components.bird_cultivate.king = false
+                    inst.components.bird_cultivate:Updata()
+                    inst:PushEvent("emote", {emote="pose"})
                 end
             end
             inst.components.inventory:DropItem(current)

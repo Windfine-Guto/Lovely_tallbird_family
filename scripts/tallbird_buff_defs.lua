@@ -445,6 +445,36 @@ local buffs = {
             RemoveLunarFx(target)
             target:RemoveEventCallback("onattackother",lunar_buff)
         end
+    },
+    king_tallbird = {
+        duration = 4,
+        priority = 1,
+        nospeech = true,
+        onattachedfn = function (inst,target)
+            local i = 0
+            local followers = target.components.leader and target.components.leader.followers
+            for follower, _ in pairs(followers) do
+                i=i+1
+            end
+            if target.components.combat then
+                target.components.combat.externaldamagemultipliers:SetModifier(inst,1.2+i*0.1,"king_tallbird_damage" )
+            end
+            if target.components.health then
+                i = i<=6 and i or 6
+                target.components.health.externalabsorbmodifiers:SetModifier(inst, 0.3+i*0.1, "king_tallbird_absor")
+            end
+            target.Transform:SetScale(1.1, 1.1, 1.1)
+        end,
+        onextendedfn = nil,
+        ondetachedfn = function (inst,target)
+            if target.components.combat then
+                target.components.combat.externaldamagemultipliers:RemoveModifier(inst,"king_tallbird_damage" )
+            end
+            if target.components.health then
+                target.components.health.externalabsorbmodifiers:RemoveModifier(inst, "king_tallbird_absor")
+            end
+            target.Transform:SetScale(1, 1, 1)
+        end
     }
 }
 

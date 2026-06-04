@@ -169,9 +169,8 @@ local function TryJoust(inst)
                 return true
 			end
 		end
-    else
-        return false
 	end
+    return false
 end
 AddBrainPostInit("smallbirdbrain",function(self)
 local FIND_FOOD_HUNGER_PERCENT = 0.75

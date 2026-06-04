@@ -9,10 +9,6 @@ nil,
 function Bird_leave:Leave(inst,target,doer)
     if target.components.bird_cultivate and target.components.bird_cultivate.wild==false then
         target.components.bird_cultivate:NoLeader(doer)
-        if not target:HasTag("bird_leaver") then
-            target:AddTag("bird_leaver")
-        end
-        target:RemoveTag("bird_follower")
 
         if target.components.sleeper and target.components.sleeper:IsAsleep() then
             target.components.sleeper:WakeUp()
