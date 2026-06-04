@@ -736,6 +736,7 @@ AddPrefabPostInit("tallbirdegg", function(inst)
         LaunchAt(shell1, inst, hammerman, loot_data.SPEED, loot_data.HEIGHT, nil, loot_data.ANGLE)
         LaunchAt(shell2, inst, hammerman, loot_data.SPEED, loot_data.HEIGHT, nil, loot_data.ANGLE)
 
+        local victim = SpawnPrefab("smallbird")
         if inst.components.stackable then
             local current = inst.components.stackable:StackSize()
             if num_worked >= current then
@@ -743,9 +744,12 @@ AddPrefabPostInit("tallbirdegg", function(inst)
             else
                 inst.components.stackable:SetStackSize(current - num_worked)
             end
+            hammerman:PushEvent("killed",{victim = victim,stackmult = 1/6*num_worked })
         else
             inst:Remove()
+            hammerman:PushEvent("killed",{victim = victim,stackmult = 1/6 })
         end
+        victim:Remove()
     end
 
     if inst.components.edible then

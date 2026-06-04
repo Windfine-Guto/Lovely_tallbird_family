@@ -25,6 +25,10 @@ local function onhammered(inst, worker)
     local fx = SpawnPrefab("collapse_small")
     fx.Transform:SetPosition(inst.Transform:GetWorldPosition())
     inst:Remove()
+
+    local victim = SpawnPrefab("smallbird")
+	worker:PushEvent("killed",{victim = victim,stackmult = 7/6 })
+    victim:Remove()
 end
 
 local function onhit(inst, worker)

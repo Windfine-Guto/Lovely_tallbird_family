@@ -35,17 +35,21 @@ local function should_collide(guy, inst)
 	return DiffAngle(inst.Transform:GetRotation(), guy.Transform:GetRotation()) > 44
 end
 
-local function Collided(inst)
+local function Collided(inst, target)
 	inst.components.lootdropper:DropLoot()
     local fx = SpawnPrefab("collapse_small")
     fx.Transform:SetPosition(inst.Transform:GetWorldPosition())
     inst:Remove()
+
+	local victim = SpawnPrefab("smallbird")
+	target:PushEvent("killed",{victim = victim,stackmult = 7/6 })
+	victim:Remove()
 end
 
 local NOTAGS3 = {'INLIMBO','notarget','noattack'
 , "playerghost","DECOR", "FX" ,"structure","wall","waxedplant","ancienttree","tallbird_egg_oversized"}
 local DAMAGE_ONEOF_TAGS = { "pickable", "NPC_workable", "CHOP_workable", "HAMMER_workable", "MINE_workable", "DIG_workable" }
-local function Roll_Trample(inst)
+local function Roll_Trample(inst, target)
     local x,y,z = inst.Transform:GetWorldPosition()
     for _, v in pairs(TheSim:FindEntities(x, y or 0, z, 2.5, nil, NOTAGS3, DAMAGE_ONEOF_TAGS)) do
         if v:IsValid() and
@@ -78,7 +82,7 @@ local function Roll_Trample(inst)
                         v:Remove()
                     end
                 end
-				Collided(inst)
+				Collided(inst,target)
             elseif v.components.pickable ~= nil
                     and v.components.pickable:CanBePicked()
                     and not v:HasTag("intense") and v.prefab~="tallbirdnest" and v.prefab~="new_tallbirdnest" then
@@ -301,7 +305,7 @@ local states=
 					inst.Physics:SetMotorVelOverride(-speed * math.cos(theta), 0, speed * math.sin(theta))
 				end
 				DoJoustAoe(inst, inst.sg.statemem.targets)
-				Roll_Trample(inst)
+				Roll_Trample(inst,inst.sg.statemem.target )
 			end
 		end,
 
