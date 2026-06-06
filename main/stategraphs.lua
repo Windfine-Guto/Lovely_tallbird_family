@@ -2575,7 +2575,9 @@ AddStategraphPostInit("wilson", function(sg)
         if inst:HasTag("tallbird_mount") and inst.rod_tallbird_light_fx then
             inst.rod_tallbird_light_fx.Follower:FollowSymbol(inst.GUID, "swap_object", 0, 0, 0)
         end
-        return old_run_stop_onexit(inst)
+        if old_run_stop_onexit then
+            return old_run_stop_onexit(inst)
+        end
     end
 end)
 

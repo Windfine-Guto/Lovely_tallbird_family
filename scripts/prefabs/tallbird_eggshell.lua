@@ -39,7 +39,7 @@ local function fn(data)
     inst.components.inventoryitem.atlasname = "images/inventoryimages/tallbird_eggshell"..data.number..".xml"
 
     inst:AddComponent("stackable")
-    inst.components.stackable.maxsize = TUNING.STACK_SIZE_LARGEITEM
+    inst.components.stackable.maxsize = TUNING.STACK_SIZE_SMALLITEM
 
     inst:AddComponent("bird_named")
     inst:AddComponent("eggshell_repair")
