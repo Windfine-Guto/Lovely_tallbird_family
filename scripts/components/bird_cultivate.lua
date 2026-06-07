@@ -85,7 +85,7 @@ end
 local RETARGET_MUST_TAGS = { "_combat", "_health" }
 local RETARGET_CANT_TAGS_HOME={"tallbird","teenbird","smallbird","bird_friend"}
 local RETARGET_CANT_TAGS = { "tallbird","teenbird","smallbird","player",
-"glommer","chester","companion","beefalo","hutch","abigail" }
+"glommer","chester","companion","beefalo","hutch","abigail","lureplant" }
 local RETARGET_ONEOF_TAGS = { "monster","hostile" }
 local RETARGET_ANIMAL_ONEOF_TAGS = {  "monster","hostile" }
 local function Retarget(inst)
