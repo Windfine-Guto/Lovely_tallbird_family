@@ -1,7 +1,7 @@
 local modid = 'lovely_tallbird_family'
 local cur = (locale == 'zh' or locale == 'zhr') and 'zh' or 'en'
 
-version = '26.06.05'
+version = '26.06.07'
 author = 'over_dragon、Guto'
 
 forumthread = ''
@@ -92,10 +92,6 @@ local LANGS = {
                 {'1分钟',80},
                 {'10秒',480},
             }},
-            -- {modid..'_smallbirdgrow','小鸟不长大','玩家养的小鸟永远保持幼年，合适当宠物',false,{
-            --     {'开启',true},
-            --     {'关闭',false}
-            -- }},
             {modid..'_smallbirdprotect','小鸟血线保护','血量不会低于10%，且低于20%不参与战斗，血量恢复100%时恢复正常',true,{
                 {'开启',true},
                 {'关闭',false}
@@ -104,10 +100,6 @@ local LANGS = {
                 {'开启',true},
                 {'关闭',false}
             }},
-            -- {modid..'_smallbirdwaterwalk','小鸟水上行走','出海也能跟着你',false,{
-            --     {'开启',true},
-            --     {'关闭',false}
-            -- }},
             {'小高脚鸟'},
             {modid..'_teenbirdhealth','青年高脚鸟生命上限倍率','调整生命上限倍率',1,{
                 {'1.0',1},
@@ -404,10 +396,6 @@ local LANGS = {
                 {'1 Minute',80},
                 {'10 Seconds',480},
             }},
-            -- {modid..'_smallbirdgrow','Smallbird Never Grows Up','Player-raised smallbirds will remain babies forever, suitable as pets.',false,{
-            --     {'Enable',true},
-            --     {'Disable',false}
-            -- }},
             {modid..'_smallbirdprotect','Smallbird Health Threshold Protection','Health never drops below 10%; stops fighting below 20% and resumes when fully healed',true,{
                 {'Enable',true},
                 {'Disable',false}
@@ -416,10 +404,6 @@ local LANGS = {
                 {'Enable',true},
                 {'Disable',false}
             }},
-            -- {modid..'_smallbirdwaterwalk','Smallbird Water Walking','Follows you even across the ocean',false,{
-            --     {'Enable',true},
-            --     {'Disable',false}
-            -- }},
             {'Teenbird'},
             {modid..'_teenbirdhealth','Teenbird Max Health Multiplier','Adjust max health multiplier',1,{
                 {'1.0',1},

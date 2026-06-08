@@ -552,6 +552,8 @@ STRINGS.TALLBIRD_ACTIONS_NAMED = {
     BEAK_ROD_FISHING = "Chum",
     ARMOR_SHELL_THORN = "Launch",
     EGGSHELL_REPAIR = "Repair",
+    BIRD_STORE = "Store",
+    BIRD_SUMMON = "Summon",
 }
 
 STRINGS.TALLBIRD_FAMILY_FAME = "Fame"
@@ -670,7 +672,8 @@ STRINGS.CHARACTERS.WX78.DESCRIBE.ARMOR_EGGSHELL = "CALCIUM WASTE DEFENSE MODULE.
 STRINGS.CHARACTERS.WORTOX.DESCRIBE.ARMOR_EGGSHELL = "A coat of shards—hit 'em and they'll regret it. Now this is mischief I enjoy."
 
 STRINGS.NAMES.TALLBIRD_EGG_OVERSIZED="Giant Tallbird Egg"
-STRINGS.RECIPE_DESC.TALLBIRD_EGG_OVERSIZED= "Seven eggs blended into one on the wheel. Nobody knows why this works."
+STRINGS.NAMES.TALLBIRD_EGG_OVERSIZED_BUILDER="Giant Tallbird Egg"
+STRINGS.RECIPE_DESC.TALLBIRD_EGG_OVERSIZED_BUILDER= "Seven eggs blended into one on the wheel. Nobody knows why this works."
 
 ---威尔逊
 STRINGS.CHARACTERS.GENERIC.DESCRIBE.TALLBIRD_EGG_OVERSIZED = "Seven eggs ground into one giant egg. It defies logic, but here it is."
@@ -783,3 +786,12 @@ STRINGS.CHARACTERS.WX78.DESCRIBE.ARMOR_HALFSHELL = "LOWER HALF CARAPACE MODULE. 
 STRINGS.CHARACTERS.WORTOX.DESCRIBE.ARMOR_HALFSHELL = "Half a shell slung behind me, stuffed full and sealed shut—nobody guesses there's a person in here."
 
 STRINGS.CHARACTERS.GENERIC.ANNOUNCE_NO_SHELL_HALF = "I still need the other half."
+
+STRINGS.CHARACTERS.GENERIC.ANNOUNCE_NOT_MY_BIRDS = "The bird inside is not mine."
+
+---鸟铃铛
+STRINGS.NAMES.TALLBIRD_BELL = ""
+STRINGS.RECIPE_DESC.TALLBIRD_BELL = ""
+
+---威尔逊
+STRINGS.CHARACTERS.GENERIC.DESCRIBE.TALLBIRD_BELL = ""

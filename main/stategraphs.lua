@@ -1829,7 +1829,7 @@ AddStategraphPostInit("smallbird", function(sg)
     local old_walk_onenter = sg.states["walk"].onenter
     sg.states["walk"].onenter = function(inst, ...)
         old_walk_onenter(inst, ...)
-        if inst.components.amphibiouscreature.in_water then
+        if inst.components.amphibiouscreature and inst.components.amphibiouscreature.in_water then
             inst.SoundEmitter:PlaySound(SoundPath("walk_water"))
         end
     end
@@ -1848,7 +1848,7 @@ AddStategraphPostInit("smallbird", function(sg)
       end
       table.insert(old_timeline,pos,
         TimeEvent(1 * FRAMES, function(inst)
-            if inst.components.amphibiouscreature.in_water then
+            if inst.components.amphibiouscreature and inst.components.amphibiouscreature.in_water then
                 inst.SoundEmitter:PlaySound(SoundPath("walk_water"))
             else
               if original_fn then
@@ -1859,7 +1859,7 @@ AddStategraphPostInit("smallbird", function(sg)
       )
       table.insert(old_timeline,
         TimeEvent(5 * FRAMES, function(inst)
-            if inst.components.amphibiouscreature.in_water then
+            if inst.components.amphibiouscreature and inst.components.amphibiouscreature.in_water then
                 inst.SoundEmitter:PlaySound("turnoftides/common/together/water/swim/walk_water_med")
                 local wake = SpawnPrefab("boat_water_fx")
                 local rotation = inst.Transform:GetRotation() - 180

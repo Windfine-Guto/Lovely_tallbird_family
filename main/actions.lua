@@ -964,3 +964,41 @@ AddComponentAction("USEITEM", "eggshell_repair", function(inst, doer, target, ac
         table.insert(actions, ACTIONS.EGGSHELL_REPAIR)
     end
 end)
+
+local BIRD_STORE = Action()
+BIRD_STORE.id = "BIRD_STORE"
+BIRD_STORE.strfn = function (act)
+    local invj = act.invobject
+    if invj:HasTag("bird_store") then
+        return "BIRD_STORE"
+    else
+        return "BIRD_SUMMON"
+    end
+end
+BIRD_STORE.fn = function (act)
+    local invj = act.invobject
+    local doer = act.doer
+    local need_store = invj.components.bird_store
+    if need_store then
+        if need_store.store == false then
+            return need_store:Store(doer)
+        else
+            return need_store:Summon(doer)
+        end
+    end
+    return false
+end
+AddAction(BIRD_STORE)
+STRINGS.ACTIONS.BIRD_STORE = {
+    BIRD_STORE = STRINGS.TALLBIRD_ACTIONS_NAMED.BIRD_STORE,
+    BIRD_SUMMON = STRINGS.TALLBIRD_ACTIONS_NAMED.BIRD_SUMMON
+}
+
+AddStategraphActionHandler("wilson", ActionHandler(ACTIONS.BIRD_STORE, "use_beef_bell"))
+AddStategraphActionHandler("wilson_client", ActionHandler(ACTIONS.BIRD_STORE, "use_beef_bell"))
+
+AddComponentAction("INVENTORY", "bird_store", function(inst, doer, actions)
+    if inst then
+        table.insert(actions, ACTIONS.BIRD_STORE)
+    end
+end)
