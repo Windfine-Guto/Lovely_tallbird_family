@@ -795,3 +795,41 @@ STRINGS.RECIPE_DESC.TALLBIRD_BELL = ""
 
 ---威尔逊
 STRINGS.CHARACTERS.GENERIC.DESCRIBE.TALLBIRD_BELL = ""
+
+---Tallbird Flute
+STRINGS.NAMES.TALLBIRD_FLUTE = "Tallbird Flute"
+STRINGS.RECIPE_DESC.TALLBIRD_FLUTE = "Blow the flute, and the Tallbirds will take to the skies or return to your side."
+---Wilson
+STRINGS.CHARACTERS.GENERIC.DESCRIBE.TALLBIRD_FLUTE = "The opal gem's glow seems to guide the Tallbirds' flight."
+---Wendy
+STRINGS.CHARACTERS.WENDY.DESCRIBE.TALLBIRD_FLUTE = "The melody is a bond between the living and the sky."
+---Willow
+STRINGS.CHARACTERS.WILLOW.DESCRIBE.TALLBIRD_FLUTE = "Hmph, this flute can't play a tune of flames."
+---Wolfgang
+STRINGS.CHARACTERS.WOLFGANG.DESCRIBE.TALLBIRD_FLUTE = "Pretty flute! Wolfgang blow it!"
+---WX-78
+STRINGS.CHARACTERS.WX78.DESCRIBE.TALLBIRD_FLUTE = "REMOTE AVIAN CONTROL DEVICE. STANDBY."
+---Wickerbottom
+STRINGS.CHARACTERS.WICKERBOTTOM.DESCRIBE.TALLBIRD_FLUTE = "The opal gem's prism effect can guide their homing instinct."
+---Woodie
+STRINGS.CHARACTERS.WOODIE.DESCRIBE.TALLBIRD_FLUTE = "This flute is kinda spooky, eh."
+---Maxwell
+STRINGS.CHARACTERS.WAXWELL.DESCRIBE.TALLBIRD_FLUTE = "Yet another tool to control the weak."
+---Wigfrid
+STRINGS.CHARACTERS.WATHGRITHR.DESCRIBE.TALLBIRD_FLUTE = "This flute cömmands the raptors to soar the heavens!"
+---Webber
+STRINGS.CHARACTERS.WEBBER.DESCRIBE.TALLBIRD_FLUTE = "We blow the flute and big birds fly up!"
+---Winona
+STRINGS.CHARACTERS.WINONA.DESCRIBE.TALLBIRD_FLUTE = "Opal gem flute. Nice craftsmanship."
+---Wortox
+STRINGS.CHARACTERS.WORTOX.DESCRIBE.TALLBIRD_FLUTE = "Oh? This melody can summon souls of the sky."
+---Wormwood
+STRINGS.CHARACTERS.WORMWOOD.DESCRIBE.TALLBIRD_FLUTE = "Shiny rock flute. Peep-peep like."
+---Warly
+STRINGS.CHARACTERS.WARLY.DESCRIBE.TALLBIRD_FLUTE = "This melody sounds like an ethereal lullaby."
+---Wurt
+STRINGS.CHARACTERS.WURT.DESCRIBE.TALLBIRD_FLUTE = "Shiny flute! Flurp!"
+---Walter
+STRINGS.CHARACTERS.WALTER.DESCRIBE.TALLBIRD_FLUTE = "Woby, look! This flute commands the flock to fly!"
+---Wanda
+STRINGS.CHARACTERS.WANDA.DESCRIBE.TALLBIRD_FLUTE = "This flute can send the birds elsewhere for a time."
