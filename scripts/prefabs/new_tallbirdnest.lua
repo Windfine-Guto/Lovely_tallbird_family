@@ -291,8 +291,8 @@ local function fn()
     inst:AddComponent("childspawner")
     inst.components.childspawner.childname = "tallbird"
     inst.components.childspawner.spawnoffscreen = true
-    inst.components.childspawner:SetRegenPeriod(2*16*TUNING.SEG_TIME)
-    inst.components.childspawner:SetSpawnPeriod(2*16*TUNING.SEG_TIME)
+    inst.components.childspawner:SetRegenPeriod(4*16*TUNING.SEG_TIME)
+    inst.components.childspawner:SetSpawnPeriod(4*16*TUNING.SEG_TIME)
     inst.components.childspawner:SetSpawnedFn(onvacate)
     inst.components.childspawner:SetMaxChildren(0)
     inst.components.childspawner:SetOnChildKilledFn(OnChildKilled)

@@ -26,22 +26,16 @@ function Bird_Store:Store(owner)
             if follower.components.health then
                 follower.components.health:SetInvincible(true)
             end
-            follower:DoTaskInTime(math.random() * 0.2, function(follower)
-            local fx = SpawnPrefab("spawn_fx_small")
-                fx.Transform:SetPosition(follower.Transform:GetWorldPosition())
-                if not follower.components.colourtweener then
-                    follower:AddComponent("colourtweener")
-                end
-                follower.components.colourtweener:StartTween(
-                    {0, 0, 0, 1},
-                    13 * FRAMES,
-                    follower.Remove)
-            end)
+            follower.components.follower:SetLeader(nil)
+            follower:PushEvent("flyaway")
         end
     end
     if self.inst.components.inventoryitem then
-        self.inst.components.inventoryitem.atlasname = "images/inventoryimages/tallbird_bell_linked.xml"
-        self.inst.components.inventoryitem:ChangeImageName("tallbird_bell_linked")
+        self.inst.components.inventoryitem.atlasname = "images/inventoryimages/tallbird_flute_work.xml"
+        self.inst.components.inventoryitem:ChangeImageName("tallbird_flute_work")
+    end
+    if self.inst.components.instrument then
+        self.inst.components.instrument:Play(owner)
     end
     return true
 end
@@ -62,21 +56,22 @@ function Bird_Store:Summon(owner)
         local bird = SpawnSaveRecord(savedata)
             owner.components.leader:AddFollower(bird)
             bird:DoTaskInTime(0, function(bird)
-                if owner:IsValid() and not bird:IsNear(owner, 8) then
-                    bird.Transform:SetPosition(owner.Transform:GetWorldPosition())
-                    bird.sg:GoToState("idle")
+                if owner:IsValid()  then
+                    local x,y,z = owner.Transform:GetWorldPosition()
+                    bird.Transform:SetPosition(x+math.random(-3,3),20,z+math.random(-3,3))
+                    bird.sg:GoToState("flyback")
                 end
-                
             end)
-        local fx = SpawnPrefab("spawn_fx_small")
-        fx.Transform:SetPosition(bird.Transform:GetWorldPosition())
         end)
     end
     if self.inst.components.inventoryitem then
-        self.inst.components.inventoryitem.atlasname = "images/inventoryimages/tallbird_bell.xml"
-        self.inst.components.inventoryitem:ChangeImageName("tallbird_bell")
+        self.inst.components.inventoryitem.atlasname = "images/inventoryimages/tallbird_flute.xml"
+        self.inst.components.inventoryitem:ChangeImageName("tallbird_flute")
     end
     self.playerid = nil
+    if self.inst.components.instrument then
+        self.inst.components.instrument:Play(owner)
+    end
     return true
 end
 
@@ -97,15 +92,15 @@ function Bird_Store:OnLoad(data)
         self.inst:RemoveTag("bird_summon")
         self.inst:AddTag("bird_store")
         if self.inst.components.inventoryitem then
-            self.inst.components.inventoryitem.atlasname = "images/inventoryimages/tallbird_bell.xml"
-            self.inst.components.inventoryitem:ChangeImageName("tallbird_bell")
+            self.inst.components.inventoryitem.atlasname = "images/inventoryimages/tallbird_flute.xml"
+            self.inst.components.inventoryitem:ChangeImageName("tallbird_flute")
         end
     else
         self.inst:RemoveTag("bird_store")
         self.inst:AddTag("bird_summon")
         if self.inst.components.inventoryitem then
-            self.inst.components.inventoryitem.atlasname = "images/inventoryimages/tallbird_bell_linked.xml"
-            self.inst.components.inventoryitem:ChangeImageName("tallbird_bell_linked")
+            self.inst.components.inventoryitem.atlasname = "images/inventoryimages/tallbird_flute_work.xml"
+            self.inst.components.inventoryitem:ChangeImageName("tallbird_flute_work")
         end
     end
 end

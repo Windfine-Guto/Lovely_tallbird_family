@@ -1,7 +1,7 @@
 local modid = 'lovely_tallbird_family'
 local cur = (locale == 'zh' or locale == 'zhr') and 'zh' or 'en'
 
-version = '26.06.07'
+version = '26.06.17'
 author = 'over_dragon、Guto'
 
 forumthread = ''
@@ -162,10 +162,6 @@ local LANGS = {
                 {'开启',true},
                 {'关闭',false}
             }},
-            {modid..'_teenbirdwaterwalk','青年高脚鸟水上行走','出海也能跟着你',false,{
-                {'开启',true},
-                {'关闭',false}
-            }},
             {'高脚鸟'},
             {modid..'_tallbirdhealth','高脚鸟生命上限倍率','调整生命上限倍率',1,{
                 {'1.0',1},
@@ -199,9 +195,14 @@ local LANGS = {
                 {'开启',true},
                 {'关闭',false}
             }},
-            {modid..'_tallbirdwaterwalk','高脚鸟水上行走','出海也能跟着你',false,{
+            {modid..'_tallbirdwaterwalk','骑乘高脚鸟水上行走','没有水下骑乘动画，只能放这里了',false,{
                 {'开启',true},
                 {'关闭',false}
+            }},
+            {modid..'_tallbird_retaiget','非野生鸟主动仇恨的目标','',1,{
+                {'敌对和怪物',1},
+                {'对友方有仇恨',2},
+                {'完全被动',3},
             }},
             {"位面化高脚鸟"},
             {modid..'_planar_damage','位面伤害','',20,{
@@ -466,10 +467,6 @@ local LANGS = {
                 {'Enable',true},
                 {'Disable',false}
             }},
-            {modid..'_teenbirdwaterwalk','Teenbird Water Walking','Follows you even across the ocean',false,{
-                {'Enable',true},
-                {'Disable',false}
-            }},
             {'Tallbird'},
             {modid..'_tallbirdhealth','Tallbird Health Multiplier','Adjust health multiplier',1,{
                 {'1.0',1},
@@ -503,9 +500,14 @@ local LANGS = {
                 {'Enable',true},
                 {'Disable',false}
             }},
-            {modid..'_tallbirdwaterwalk','Tallbird Water Walking','Can follow you on water',false,{
-                {'Enable',true},
-                {'Disable',false}
+            {modid..'_tallbirdwaterwalk', 'Tallbird Water Walking', 'No underwater riding animation, so placed here.', false, {
+                {'Enable', true},
+                {'Disable', false}
+            }},
+            {modid..'_tallbird_retaiget', 'Non-wild Tallbird aggression targets', '', 1, {
+                {'Hostile and Monsters', 1},
+                {'Hostile to friendlies', 2},
+                {'Completely passive', 3},
             }},
             {"Planar Tallbird"},
             {modid..'_planar_damage', 'Planar Damage', '', 20, {

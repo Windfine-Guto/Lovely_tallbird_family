@@ -244,14 +244,11 @@ end
     if inst.components.locomotor then
         inst.components.locomotor.runspeed = 6
         inst.components.locomotor.pathcaps = {
-            ignorecreep = true,
             allowocean = true,
         }
         inst.components.locomotor:SetAllowPlatformHopping(true)
         inst:AddComponent("embarker")
         inst.components.embarker.embark_speed = 6
-
-        inst:AddComponent("drownable")
 
         inst:AddComponent("amphibiouscreature")
         inst.components.amphibiouscreature:SetBanks("smallbird", "smallbird_water")
@@ -414,12 +411,24 @@ end
     if inst.components.locomotor then
         inst.components.locomotor.walkspeed = 8
         inst.components.locomotor.runspeed = 8
+        inst.components.locomotor.pathcaps = {
+            allowocean = true,
+        }
         inst.components.locomotor:SetAllowPlatformHopping(true)
+        inst:AddComponent("embarker")
+        inst.components.embarker.embark_speed = 8
+
+        inst:AddComponent("amphibiouscreature")
+        inst.components.amphibiouscreature:SetBanks("tallbird", "tallbird_water")
+        inst.components.amphibiouscreature:SetEnterWaterFn(function(inst)
+            inst.AnimState:SetBuild("tallbird_teen_build")
+        end)
+        inst.components.amphibiouscreature:SetExitWaterFn(function(inst)
+            inst.AnimState:SetBuild("tallbird_teen_build")
+        end)
     end
-    inst:AddComponent("embarker")
+
     inst:AddComponent("bird_cultivate")
-    inst:AddComponent("drownable")
-    inst.components.drownable.enabled = true
     inst:AddComponent("sanityaura")
     inst.components.sanityaura.aurafn = CalcSanityAura
     if inst.components.eater then
@@ -501,22 +510,6 @@ else
     inst.components.bird_cultivate.nodeath = false
 end
 
-if GetModConfigData(modid..'_teenbirdwaterwalk') then
-        inst.Physics:SetCollisionMask(
-		COLLISION.GROUND,
-		COLLISION.OBSTACLES,
-		COLLISION.CHARACTERS)
-        inst.Physics:Teleport(inst.Transform:GetWorldPosition())
-        if inst.components.drownable then
-            inst.components.drownable.enabled = false
-        end
-        if inst.components.locomotor then
-            inst.components.locomotor.pathcaps = {
-                ignorecreep = true,
-                allowocean = true,
-            }
-        end
-end
 if inst.components.hunger then
     inst.components.hunger:SetRate(teenbird_hunger_speed/TUNING.TEENBIRD_STARVE_TIME)
 end
@@ -570,22 +563,6 @@ else
     end
 end
 
-if GetModConfigData(modid..'_tallbirdwaterwalk') then
-    inst.Physics:SetCollisionMask(
-		COLLISION.GROUND,
-		COLLISION.OBSTACLES,
-		COLLISION.CHARACTERS)
-    inst.Physics:Teleport(inst.Transform:GetWorldPosition())
-    if inst.components.drownable then
-        inst.components.drownable.enabled = false
-    end
-    if inst.components.locomotor then
-        inst.components.locomotor.pathcaps = {
-            ignorecreep = true,
-            allowocean = true,
-        }
-    end
-end
 local bird_health
 if inst.components.health then
     bird_health=inst.components.health.currenthealth/inst.components.health.maxhealth

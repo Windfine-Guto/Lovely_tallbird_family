@@ -4,6 +4,7 @@ Assets = {
 	Asset("ANIM", "anim/spell_icons_tallbird.zip"),
     Asset("ANIM","anim/tallbird_health.zip"),
     Asset("ANIM","anim/smallbird_basic_water.zip"),
+    Asset("ANIM","anim/tallbird_teen_build_water.zip"),
     Asset("ANIM","anim/player_gaint_roll.zip"),
     Asset("SOUNDPACKAGE", "sound/tallbird_egg_oversized.fev"),
     Asset("SOUND", "sound/tallbird_egg_oversized.fsb"),
@@ -29,7 +30,8 @@ PrefabFiles = GetModConfigData('lovely_tallbird_family'..'skins') and {
     "armor_halfshell",
     "tallbird_egg_oversized",
     "tallbird_egg_oversized_builder",
-    "tallbird_bell",
+    "tallbird_flute",
+    "egg_box",
 }
 or {
     "tallbird",
@@ -48,5 +50,6 @@ or {
     "armor_halfshell",
     "tallbird_egg_oversized",
     "tallbird_egg_oversized_builder",
-    "tallbird_bell",
+    "tallbird_flute",
+    "egg_box",
 }

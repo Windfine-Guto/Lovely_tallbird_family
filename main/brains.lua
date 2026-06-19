@@ -179,7 +179,7 @@ local MIN_FOLLOW_TARGET_DIST     = 5
 local DEFAULT_FOLLOW_TARGET_DIST = 8
 local MAX_FOLLOW_TARGET_DIST     = 15
 local MAX_CHASE_TIME = 10
-local EATFOOD_CANT_TAGS = { "INLIMBO", "outofreach" }
+local EATFOOD_CANT_TAGS = { "INLIMBO", "outofreach" ,"tallbirdegg","deerclops_eyeball",}
 local function IsStarving(inst)
     return inst.components.hunger and inst.components.hunger:IsStarving()
 end
@@ -189,7 +189,7 @@ end
 local function CanSeeFood(inst)
 	local target = FindEntity(inst, SEE_FOOD_DIST,
 		function(item)
-			return inst.components.eater:CanEat(item) and item:IsOnValidGround() and not item:HasTag("tallbirdegg")
+			return inst.components.eater:CanEat(item) and item.prefab~="minotaurhorn" and not item.prefab:find("spoiled")
 		end,
 		nil,
 		EATFOOD_CANT_TAGS)
@@ -216,7 +216,7 @@ local function GetWaitTarget(inst)
 end
 local function ShouldWaitForHelp(inst)
     local leader = inst.components.follower:GetLeader()
-    return leader ~= nil and inst.components.health:GetPercent() <= 0.3
+    return leader ~= nil and inst.components.health:GetPercent() <= 0.3 and GetWaitTarget(inst)
 end
 
 local function WaitTargetDist(inst)

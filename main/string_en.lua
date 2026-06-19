@@ -789,13 +789,6 @@ STRINGS.CHARACTERS.GENERIC.ANNOUNCE_NO_SHELL_HALF = "I still need the other half
 
 STRINGS.CHARACTERS.GENERIC.ANNOUNCE_NOT_MY_BIRDS = "The bird inside is not mine."
 
----鸟铃铛
-STRINGS.NAMES.TALLBIRD_BELL = ""
-STRINGS.RECIPE_DESC.TALLBIRD_BELL = ""
-
----威尔逊
-STRINGS.CHARACTERS.GENERIC.DESCRIBE.TALLBIRD_BELL = ""
-
 ---Tallbird Flute
 STRINGS.NAMES.TALLBIRD_FLUTE = "Tallbird Flute"
 STRINGS.RECIPE_DESC.TALLBIRD_FLUTE = "Blow the flute, and the Tallbirds will take to the skies or return to your side."

@@ -48,7 +48,7 @@ AddComponentPostInit("playercontroller", function(self)
 
         if self.inst.replica.rider and self.inst.replica.rider:IsRiding() then
             local mount = self.inst.replica.rider:GetMount()
-            if mount:HasTag("tallbird") then
+            if mount and mount:HasTag("tallbird") then
                 local pickup_tags = { "CHOP_workable", "MINE_workable" }
                 local x, y, z = self.inst.Transform:GetWorldPosition()
                 local ents = TheSim:FindEntities(x, y, z, self.directwalking and 3 or 6, nil, PICKUP_TARGET_EXCLUDE_TAGS, pickup_tags)

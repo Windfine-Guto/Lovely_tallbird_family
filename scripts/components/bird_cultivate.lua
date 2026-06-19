@@ -12,6 +12,50 @@ nil,
 {
     
 })
+
+local RETARGET_MUST_TAGS = { "_combat", "_health" }
+local RETARGET_CANT_TAGS_HOME={"tallbird","teenbird","smallbird","bird_friend"}
+local RETARGET_CANT_TAGS = { "tallbird","teenbird","smallbird","player",
+"glommer","chester","companion","beefalo","hutch","abigail","lureplant" }
+local RETARGET_ONEOF_TAGS = { "monster","hostile" }
+local RETARGET_ANIMAL_ONEOF_TAGS = {  "monster","hostile" }
+
+local target = {
+    [1] = function (inst)
+        local function IsValidTarget(guy)
+            return not guy.components.health:IsDead()
+                and inst.components.combat:CanTarget(guy)
+                and (not inst:HasTag("smallbird") or inst:HasTag("companion"))
+        end
+        return --Threat to nest
+        inst.components.homeseeker ~= nil and
+        inst.components.homeseeker:HasHome() and
+        FindEntity(
+            inst.components.homeseeker.home,
+            SpringCombatMod(TUNING.TALLBIRD_DEFEND_DIST/2),
+            IsValidTarget,
+            RETARGET_MUST_TAGS,
+            RETARGET_CANT_TAGS,
+            RETARGET_ANIMAL_ONEOF_TAGS)
+        or
+        FindEntity(
+            inst,
+            SpringCombatMod(TUNING.TALLBIRD_TARGET_DIST*3),
+            IsValidTarget,
+            RETARGET_MUST_TAGS,
+            RETARGET_CANT_TAGS,
+            RETARGET_ONEOF_TAGS)
+    end,
+    [2] = function (inst)
+        return FindEntity(inst, 16, function(ent)
+        local t = ent.components.combat.target
+        return inst.components.combat:CanTarget(ent) and t and (t == inst or t:HasTag("player")
+        or (t:HasTag("companion") and (not t.components.combat or t.components.combat.target ~= inst)))
+        end, { "_combat" }, { "player" })
+    end,
+    [3] = nil
+}
+
 local seed={"seeds","carrot_seeds","corn_seeds","potato_seeds","tomato_seeds",
             "asparagus_seeds","eggplant_seeds","pumpkin_seeds","watermelon_seeds",
             "dragonfruit_seeds","durian_seeds","garlic_seeds","onion_seeds","pepper_seeds",
@@ -82,38 +126,6 @@ local function OnHealthDelta(inst, oldpercent, newpercent)
     end
 end
 
-local RETARGET_MUST_TAGS = { "_combat", "_health" }
-local RETARGET_CANT_TAGS_HOME={"tallbird","teenbird","smallbird","bird_friend"}
-local RETARGET_CANT_TAGS = { "tallbird","teenbird","smallbird","player",
-"glommer","chester","companion","beefalo","hutch","abigail","lureplant" }
-local RETARGET_ONEOF_TAGS = { "monster","hostile" }
-local RETARGET_ANIMAL_ONEOF_TAGS = {  "monster","hostile" }
-local function Retarget(inst)
-    local function IsValidTarget(guy)
-        return not guy.components.health:IsDead()
-            and inst.components.combat:CanTarget(guy)
-            and (not inst:HasTag("smallbird") or inst:HasTag("companion"))
-    end
-    return --Threat to nest
-        inst.components.homeseeker ~= nil and
-        inst.components.homeseeker:HasHome() and
-        FindEntity(
-            inst.components.homeseeker.home,
-            SpringCombatMod(TUNING.TALLBIRD_DEFEND_DIST/2),
-            IsValidTarget,
-            RETARGET_MUST_TAGS,
-            RETARGET_CANT_TAGS,
-            RETARGET_ANIMAL_ONEOF_TAGS)
-        or
-        FindEntity(
-            inst,
-            SpringCombatMod(TUNING.TALLBIRD_TARGET_DIST*3),
-            IsValidTarget,
-            RETARGET_MUST_TAGS,
-            RETARGET_CANT_TAGS,
-            RETARGET_ONEOF_TAGS)
-end
-
 local function King_Buff(inst)
     if inst.components.debuffable then
         if inst.components.debuffable:HasDebuff("king_tallbird") then
@@ -125,6 +137,10 @@ end
 
 function Bird_cultivate:Updata()
     if self.king==true then
+        if self.inst.King_Buff then
+            self.inst.King_Buff:Cancel()
+            self.inst.King_Buff = nil
+        end
         self.inst.King_Buff = self.inst:DoPeriodicTask(3,function()
             King_Buff(self.inst)
         end)
@@ -160,13 +176,23 @@ function Bird_cultivate:Updata()
         if not self.inst:HasTag("nogrow") then
             self.inst:AddTag("nogrow")
         end
+        if self.inst.components.hunger then
+            if self.inst.prefab=="smallbird" then
+                self.inst.components.hunger:SetRate(5/TUNING.TEENBIRD_STARVE_TIME)
+            else
+                self.inst.components.hunger:SetRate(15/TUNING.TEENBIRD_STARVE_TIME)
+            end
+        end
     end
 
     if self.wild==true then
         return
     end
     if self.inst:HasTag("tallbird") and self.inst.components.combat then
-        self.inst.components.combat:SetRetargetFunction(1.5, Retarget)
+        self.inst.components.combat:SetRetargetFunction(1.5, target[TUNING.TALLBIRD_RETARGET])
+    end
+    if not self.inst:HasTag("companion") then
+        self.inst:AddTag("companion")
     end
     if not self.inst:HasTag("lovely_bird") then
         self.inst:AddTag("lovely_bird")

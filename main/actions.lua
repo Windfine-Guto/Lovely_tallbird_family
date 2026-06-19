@@ -994,8 +994,8 @@ STRINGS.ACTIONS.BIRD_STORE = {
     BIRD_SUMMON = STRINGS.TALLBIRD_ACTIONS_NAMED.BIRD_SUMMON
 }
 
-AddStategraphActionHandler("wilson", ActionHandler(ACTIONS.BIRD_STORE, "use_beef_bell"))
-AddStategraphActionHandler("wilson_client", ActionHandler(ACTIONS.BIRD_STORE, "use_beef_bell"))
+AddStategraphActionHandler("wilson", ActionHandler(ACTIONS.BIRD_STORE, "play_flute_long"))
+AddStategraphActionHandler("wilson_client", ActionHandler(ACTIONS.BIRD_STORE, "play_flute_long"))
 
 AddComponentAction("INVENTORY", "bird_store", function(inst, doer, actions)
     if inst then

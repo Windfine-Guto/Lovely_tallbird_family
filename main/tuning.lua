@@ -20,6 +20,7 @@ TUNING.TALLBIRD_PLANAR_TIME = GetModConfigData(modid..'buff_time')
 TUNING.TALLBIRD_LASER_DAMAGE = GetModConfigData(modid..'laser_damage')
 TUNING.TALLBIRD_TENTACLE_NUM = GetModConfigData(modid..'tentacle_num')
 TUNING.TALLBIRD_ROD_SPEED_LIMIT = GetModConfigData(modid..'rod_speed') or 5
+TUNING.TALLBIRD_RETARGET = GetModConfigData(modid..'_tallbird_retaiget') or 1
 
 TUNING.LOVELY_BIRD = {
     TAG = GetModConfigData(modid..'_tallbird_follow') and {"tallbird"} or { "lovely_bird","smallbird","teenbird","tallbird" }

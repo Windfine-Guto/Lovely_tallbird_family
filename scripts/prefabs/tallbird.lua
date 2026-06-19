@@ -3,6 +3,7 @@ local brain = require "brains/tallbirdbrain"
 local assets =
 {
     Asset("ANIM", "anim/ds_tallbird_basic.zip"),
+    Asset("ANIM", "anim/ds_tallbird_basic_water.zip"),
     Asset("ANIM", "anim/wilsontallbird.zip"),
     Asset("SOUND", "sound/tallbird.fsb"),
 }
@@ -206,7 +207,8 @@ local function CanMakeNewHome(inst)
 	if inst.components.homeseeker == nil and not inst.components.combat:HasTarget() then
 		local x, y, z = inst.Transform:GetWorldPosition()
 		local tile = TheWorld.Map:GetTileAtPoint(x, y, z)
-		return (tile == WORLD_TILES.ROCKY or tile == WORLD_TILES.DIRT) and TheSim:CountEntities(x, y, z, TUNING.TALLBIRD_MAKE_NEST_RADIUS, nil, MAKE_NEXT_EXCLUDE_TAGS) == 0
+        local nowild = inst:HasTag("lovely_bird")
+		return not nowild and (tile == WORLD_TILES.ROCKY or tile == WORLD_TILES.DIRT) and TheSim:CountEntities(x, y, z, TUNING.TALLBIRD_MAKE_NEST_RADIUS, nil, MAKE_NEXT_EXCLUDE_TAGS) == 0
 	end
 end
 
@@ -357,7 +359,7 @@ local function fn()
     inst:AddTag("tallbird")
     inst:AddTag("animal")
     inst:AddTag("largecreature")
-    inst:AddTag("companion")
+    -- inst:AddTag("companion")
     inst:AddTag("character")
     inst:AddTag("notraptrigger")
     inst:AddTag("trader")
@@ -383,12 +385,28 @@ local function fn()
     inst:AddComponent("locomotor")
     inst.components.locomotor.walkspeed = 10
     inst.components.locomotor.runspeed = 8
+    inst.components.locomotor.pathcaps = {
+            allowocean = true,
+        }
     inst.components.locomotor:SetAllowPlatformHopping(true)
 
     inst:AddComponent("embarker")
+    inst.components.embarker.embark_speed = 10
 
-    inst:AddComponent("drownable")
-    inst.components.drownable.enabled = true
+    inst:AddComponent("amphibiouscreature")
+    inst.components.amphibiouscreature:SetBanks("tallbird", "tallbird_water")
+    inst.components.amphibiouscreature:SetEnterWaterFn(function(inst)
+        inst.AnimState:SetBuild("ds_tallbird_basic_water")
+        if inst.components.locomotor then
+            inst.components.locomotor:SetExternalSpeedMultiplier(inst,"enter_water",0.6)
+        end
+    end)
+    inst.components.amphibiouscreature:SetExitWaterFn(function(inst)
+        inst.AnimState:SetBuild("ds_tallbird_basic")
+        if inst.components.locomotor then
+            inst.components.locomotor:RemoveExternalSpeedMultiplier(inst,"enter_water")
+        end
+    end)
 
     inst:SetStateGraph("SGtallbird")
 
@@ -398,7 +416,7 @@ local function fn()
     ------------------
     inst:AddComponent("health")
     inst.components.health:SetMaxHealth(TUNING.TALLBIRD_HEALTH)
-    inst.components.health:StartRegen(10, 10)
+    inst.components.health:StartRegen(8, 10)
     ------------------
 
     inst:AddComponent("combat")
