@@ -43,10 +43,15 @@ TECH.SCULPTING_ONE,
 atlas = "images/inventoryimages/tallbird_egg_oversized.xml",
 image = "tallbird_egg_oversized.tex"},
 {"CRAFTING_STATION"})
-AddRecipe2("tallbird_flute",{Ingredient("opalpreciousgem", 1),Ingredient("beef_bell", 1)},
+AddRecipe2("tallbird_flute",{Ingredient("opalpreciousgem", 1),Ingredient("panflute", 1),Ingredient("cutreeds",1)},
 TECH.MAGIC_THREE,
 {atlas = "images/inventoryimages/tallbird_flute_work.xml",
 image = "tallbird_flute_work.tex"},
 {"MAGIC"})
+AddRecipe2("egg_box",{Ingredient("papyrus", 3),Ingredient("beeswax", 1)},
+TECH.SCIENCE_TWO,
+{atlas = "images/inventoryimages/egg_box.xml",
+image = "egg_box.tex"},
+{"CONTAINERS"})
 AddDeconstructRecipe("armor_halfshell", {Ingredient("tallbird_eggshell1", 6,"images/inventoryimages/tallbird_eggshell1.xml", "tallbird_eggshell1.tex")})
 AddDeconstructRecipe("hat_eggshell", {Ingredient("tallbird_eggshell1", 8,"images/inventoryimages/tallbird_eggshell1.xml", "tallbird_eggshell1.tex")})

@@ -129,21 +129,25 @@ end
 local function ShowRackItem(inst,data)
     if inst.components.equippable and inst.components.equippable:IsEquipped() then
         local owner = inst.components.inventoryitem and inst.components.inventoryitem.owner
-        onequip(inst,owner)
-        inst:AddTag("beak_rod_fishing")
-        owner:AddTag("beak_carrot_bird_rod_joust")
+        if owner then
+            onequip(inst,owner)
+            inst:AddTag("beak_rod_fishing")
+            owner:AddTag("beak_carrot_bird_rod_joust")
+        end
     end
 end
 
 local function HideRackItem(inst,data)
     local owner = inst.components.inventoryitem and inst.components.inventoryitem.owner
-    if inst.components.equippable and inst.components.equippable:IsEquipped() then
-        onequip(inst,owner)
-        inst:RemoveTag("beak_rod_fishing")
-        owner:RemoveTag("beak_carrot_bird_rod_joust")
-    end
-    if owner.rod_tallbird_light_fx then
-        owner.rod_tallbird_light_fx:Remove()
+    if owner then
+        if inst.components.equippable and inst.components.equippable:IsEquipped() then
+            onequip(inst,owner)
+            inst:RemoveTag("beak_rod_fishing")
+            owner:RemoveTag("beak_carrot_bird_rod_joust")
+        end
+        if owner.rod_tallbird_light_fx then
+            owner.rod_tallbird_light_fx:Remove()
+        end
     end
 end
 

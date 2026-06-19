@@ -1606,14 +1606,144 @@ local function ClosePocketRummageMem(inst, item)
 	end
 end
 
+local function SetPocketRummageMem(inst, item)
+	inst.sg.mem.pocket_rummage_item = item
+end
+
+local function IsHoldingPocketRummageActionItem(holder, item)
+	local owner = item.components.inventoryitem and item.components.inventoryitem.owner or nil
+    if owner then
+        return owner == holder
+		or (	--Allow linked containers like woby's rack	
+				owner.components.inventoryitem == nil and
+				owner.entity:GetParent() == holder
+			)
+    end
+end
+
+local function CheckPocketRummageMem(inst)
+	local item = inst.sg.mem.pocket_rummage_item
+	if item then
+		if not (item.components.container and
+				item.components.container:IsOpenedBy(inst) and
+				OwnsPocketRummageContainer(inst, item))
+		then
+			SetPocketRummageMem(inst, nil)
+		else
+			local stayopen = inst.sg.statemem.keep_pocket_rummage_mem_onexit
+			if not stayopen and inst.sg.statemem.is_going_to_action_state then
+				local buffaction = inst:GetBufferedAction()
+				if buffaction and
+					(	buffaction.action == ACTIONS.BUILD or
+						(buffaction.action == ACTIONS.DROP and buffaction.invobject ~= item) or
+						(buffaction.invobject and IsHoldingPocketRummageActionItem(item, buffaction.invobject))
+					)
+				then
+					stayopen = true
+				end
+			end
+			if not stayopen then
+				ClosePocketRummageMem(inst)
+			end
+		end
+	end
+end
 
 AddStategraphState("wilson",State{
-		name = "stop_pocket_rummage",
+		name = "start_pocket_rummage_eggbox",
+		tags = { "doing", "busy", "nodangle", "keep_pocket_rummage" },
+
+		onenter = function(inst, resume_item)
+			inst.components.locomotor:Stop()
+			-- inst.SoundEmitter:PlaySound("dontstarve/wilson/make_trap", "make")
+			inst.AnimState:PlayAnimation("handout_eggbox_pre")
+			inst.AnimState:PushAnimation("handout_eggbox_loop")
+
+			if resume_item then
+				if resume_item ~= inst.sg.mem.pocket_rummage_item then
+					ClosePocketRummageMem(inst)
+				end
+				inst.sg.statemem.item = resume_item
+				inst.sg:RemoveStateTag("busy")
+			else
+				ClosePocketRummageMem(inst)
+				inst.sg.statemem.action = inst:GetBufferedAction()
+				if inst.sg.statemem.action then
+					if inst.sg.statemem.action.invobject then
+						inst.sg.statemem.item = inst.sg.statemem.action.invobject
+					elseif inst.sg.statemem.action.target == inst then
+						inst.sg.statemem.item = inst.components.rider:GetMount()
+					end
+					inst.components.inventory:ReturnActiveActionItem(inst.sg.statemem.item)
+				end
+			end
+		end,
+
+		onupdate = function(inst)
+			local item = inst.sg.mem.pocket_rummage_item
+			if item and
+				not (item.components.container and
+					item.components.container:IsOpenedBy(inst) and
+					OwnsPocketRummageContainer(inst, item))
+			then
+				SetPocketRummageMem(inst, nil)
+				inst.sg:GoToState("stop_pocket_rummage_eggbox", true)
+			end
+		end,
+
+		timeline =
+		{
+			FrameEvent(7, function(inst)
+				inst.sg:RemoveStateTag("busy")
+				inst:PerformBufferedAction()
+
+				local item = inst.sg.statemem.item
+				if item and
+					item.components.container and
+					item.components.container:IsOpenedBy(inst) and
+					OwnsPocketRummageContainer(inst, item)
+				then
+					SetPocketRummageMem(inst, item)
+				else
+					SetPocketRummageMem(inst, nil)
+					inst.sg:GoToState("stop_pocket_rummage_eggbox", true)
+				end
+			end),
+		},
+
+		events =
+		{
+			EventHandler("ontalk", OnTalk_Override),
+			EventHandler("donetalking", OnDoneTalking_Override),
+			EventHandler("equip", function(inst) inst.sg:GoToState("idle") end),
+			EventHandler("unequip", function(inst) inst.sg:GoToState("idle") end),
+            EventHandler("itemgetorlose", function (inst)
+                inst.AnimState:PlayAnimation("handout_eggbox_pickup")
+			    inst.AnimState:PushAnimation("handout_eggbox_loop")
+            end)
+		},
+
+		onexit = function(inst)
+			-- inst.SoundEmitter:KillSound("make")
+			CancelTalk_Override(inst)
+
+			CheckPocketRummageMem(inst)
+
+			if inst.bufferedaction == inst.sg.statemem.action and
+				not (inst.components.playercontroller and inst.components.playercontroller.lastheldaction == inst.bufferedaction)
+			then
+				inst:ClearBufferedAction()
+			end
+		end,
+	})
+
+AddStategraphState("wilson",State{
+		name = "stop_pocket_rummage_eggbox",
 		tags = { "doing", "nodangle" },
 
 		onenter = function(inst, ignoreaction)
 			inst.components.locomotor:Stop()
-			inst.AnimState:PlayAnimation("build_pst")
+			inst.AnimState:PlayAnimation("handout_eggbox_pst")
 
 			ClosePocketRummageMem(inst)
 
@@ -2962,7 +3092,93 @@ AddStategraphState("wilson_client",State{
         end,
     })
 
+AddStategraphState("wilson_client",State{
+		name = "start_pocket_rummage_eggbox",
+		server_states = { "start_pocket_rummage_eggbox" },
+		forward_server_states = true,
+		onenter = function(inst)
+			inst.components.locomotor:Stop()
+			-- inst.SoundEmitter:PlaySound("dontstarve/wilson/make_trap", "make_preview")
+			inst.AnimState:PlayAnimation("handout_eggbox_pre")
+			inst.AnimState:PushAnimation("handout_eggbox_loop")
+
+			inst:PerformPreviewBufferedAction()
+			inst.sg:SetTimeout(2)
+		end,
+
+		timeline =
+		{
+			FrameEvent(7, function(inst)
+				inst.sg:RemoveStateTag("busy")
+			end),
+		},
+
+		onupdate = function(inst)
+			if inst.sg:ServerStateMatches() then
+				if inst.entity:FlattenMovementPrediction() then
+					inst.sg:GoToState("idle", "noanim")
+				end
+			elseif inst.bufferedaction == nil then
+				inst.AnimState:PlayAnimation("handout_eggbox_pst")
+				inst.sg:GoToState("idle", true)
+			end
+		end,
+
+		ontimeout = function(inst)
+			inst:ClearBufferedAction()
+			inst.AnimState:PlayAnimation("handout_eggbox_pst")
+			inst.sg:GoToState("idle", true)
+		end,
+
+		onexit = function(inst)
+			-- inst.SoundEmitter:KillSound("make_preview")
+		end,
+	})
+
+AddStategraphState("wilson_client",State{
+		name = "stop_pocket_rummage_eggbox",
+		tags = { "doing" },
+		server_states = { "stop_pocket_rummage_eggbox" },
+
+		onenter = function(inst)
+			inst.components.locomotor:Stop()
+			inst.AnimState:PlayAnimation("handout_eggbox_pst")
+			inst.AnimState:PushAnimation("idle_loop")
+			inst:PerformPreviewBufferedAction()
+			inst.sg:SetTimeout(2)
+		end,
+
+		onupdate = function(inst)
+			if inst.sg:ServerStateMatches() then
+				if inst.entity:FlattenMovementPrediction() then
+					inst.sg:GoToState("idle", "noanim")
+				end
+			elseif inst.bufferedaction == nil then
+				inst.AnimState:PlayAnimation("handout_eggbox_pre")
+				inst.AnimState:PushAnimation("handout_eggbox_loop")
+				inst.sg:GoToState("idle", "noanim")
+			end
+		end,
+
+		ontimeout = function(inst)
+			inst:ClearBufferedAction()
+			inst.AnimState:PlayAnimation("handout_eggbox_pre")
+			inst.AnimState:PushAnimation("handout_eggbox_loop")
+			inst.sg:GoToState("idle", "noanim")
+		end,
+	})
+
 AddStategraphPostInit("wilson_client", function(sg)
+
+    local old_RUMMAGE_deststate = sg.actionhandlers[ACTIONS.RUMMAGE].deststate
+    sg.actionhandlers[ACTIONS.RUMMAGE].deststate = function (inst,action)
+        if action.invobject and action.invobject:HasTag("egg_box")
+        and action.invobject.replica.container and inst.replica.rider and not inst.replica.rider:IsRiding() then
+            return action.invobject.replica.container:IsOpenedBy(inst) and "stop_pocket_rummage_eggbox" or "start_pocket_rummage_eggbox"
+        else
+            return old_RUMMAGE_deststate(inst,action)
+        end
+    end
 ---events
 
 ---locomote

@@ -86,6 +86,33 @@ local function OnArmorBroken(inst)
     end
 end
 
+local function CanNotGoinContainer(inst,data)
+    if inst.components.inventoryitem then
+        inst.components.inventoryitem.cangoincontainer = false
+    end
+    local owner = inst.components.inventoryitem:GetGrandOwner()
+    if owner and owner.components.inventory then
+        owner.components.inventory:DropItem(inst)
+    end
+end
+
+local function CanGoinContainer(inst,data)
+    local container = inst.components.container
+    local num_slot = 0
+    if container then
+        num_slot = container:GetNumSlots()
+        for i = 1, num_slot do
+            local item = container:GetItemInSlot(i)
+            if item then
+                return
+            end
+        end
+        if inst.components.inventoryitem then
+            inst.components.inventoryitem.cangoincontainer = true
+        end
+    end
+end
+
 local function fn()
     local inst = CreateEntity()
 
@@ -144,6 +171,9 @@ local function fn()
     inst.components.equippable:SetOnUnequip(onunequip)
 
     MakeHauntableLaunch(inst)
+
+    inst:ListenForEvent("itemget", CanNotGoinContainer)
+    inst:ListenForEvent("itemlose", CanGoinContainer)
 
     return inst
 end

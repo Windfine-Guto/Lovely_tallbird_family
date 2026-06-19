@@ -6,6 +6,7 @@ Assets = {
     Asset("ANIM","anim/smallbird_basic_water.zip"),
     Asset("ANIM","anim/tallbird_teen_build_water.zip"),
     Asset("ANIM","anim/player_gaint_roll.zip"),
+    Asset("ANIM","anim/player_actions_handout_eggbox.zip"),
     Asset("SOUNDPACKAGE", "sound/tallbird_egg_oversized.fev"),
     Asset("SOUND", "sound/tallbird_egg_oversized.fsb"),
 }
