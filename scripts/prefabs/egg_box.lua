@@ -2,6 +2,7 @@ local assets =
 {
     Asset("ANIM", "anim/egg_box_ui.zip"),
     Asset("ANIM", "anim/egg_box.zip"),
+    Asset("ANIM", "anim/egg_box_item.zip"),
     Asset("IMAGE","images/inventoryimages/egg_box.tex"),
 	Asset("ATLAS", "images/inventoryimages/egg_box.xml"),
 }
@@ -28,10 +29,7 @@ for y = 2.5, -0.5, -1 do
     end
 end
 
-local food_item = {
-    ["tallbirdegg"] = true,
-    ["bird_egg"] = true,
-}
+local egg_box_item = require("egg_box_item")
 
 local SOUNDS =
 {
@@ -40,7 +38,7 @@ local SOUNDS =
 }
 
 function params.egg_box.itemtestfn(container, item, slot)
-    return food_item[item.prefab]
+    return egg_box_item[item.prefab]
 end
 -----------------------------------------------------------------------------------------------
 
@@ -63,7 +61,7 @@ local function OnOpen(inst)
                 for i = 1, num_slot do
                     local item = container:GetItemInSlot(i)
                     if item then
-                        animstate:OverrideSymbol("egg"..i,"egg_box",item.prefab)
+                        animstate:OverrideSymbol("egg"..i,"egg_box_item",item.prefab)
                     else
                         animstate:Hide("egg"..i)
                     end
@@ -95,7 +93,7 @@ local function ShowRackItem(inst,data)
     local slot = data.slot
     local item = data.item
     if slot and item then
-        inst.AnimState:OverrideSymbol("egg"..slot, "egg_box",item.prefab)
+        inst.AnimState:OverrideSymbol("egg"..slot, "egg_box_item",item.prefab)
         inst.AnimState:Show("egg"..slot)
         local grand_owner = inst.components.inventoryitem:GetGrandOwner()
         if grand_owner then
@@ -103,7 +101,7 @@ local function ShowRackItem(inst,data)
             local animstate = grand_owner.AnimState
             if animstate then
                 grand_owner:DoTaskInTime(0.2,function ()
-                    animstate:OverrideSymbol("egg"..slot, "egg_box",item.prefab)
+                    animstate:OverrideSymbol("egg"..slot, "egg_box_item",item.prefab)
                     animstate:Show("egg"..slot)
                 end)
             end
@@ -145,10 +143,16 @@ local function OnBurnt(inst)
         for i = 1, num_slot do
             local item = container:GetItemInSlot(i)
             if item and item.components.cookable then
+                local stack_size = item.components.stackable
+                and item.components.stackable:StackSize() or 1
                 local cooked = item.components.cookable:Cook()
-                item:Remove()
                 if cooked then
+                    if cooked.components.stackable and stack_size > 1 then
+                        cooked.components.stackable:SetStackSize(stack_size)
+                    end
+                    item:Remove()
                     container:GiveItem(cooked, i)
+                    container:DropItemBySlot(i)
                 end
             else
                 container:DropItemBySlot(i)

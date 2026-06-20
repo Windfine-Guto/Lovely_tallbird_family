@@ -29,11 +29,90 @@ AddStategraphEvent("smallbird", EventHandler("wave", function(inst)
     end
 end))
 
+AddStategraphEvent("smallbird", EventHandler("flyaway", function(inst)
+    if not inst.components.health:IsDead() then
+		inst.sg:GoToState("flyaway")
+	end
+end))
+
 AddStategraphActionHandler("smallbird", ActionHandler(ACTIONS.DIG, "till_or_dig"))
 AddStategraphActionHandler("smallbird", ActionHandler(ACTIONS.TILL, "till_or_dig"))
 AddStategraphActionHandler("smallbird", ActionHandler(ACTIONS.CHOP, "chop"))
 AddStategraphActionHandler("smallbird", ActionHandler(ACTIONS.MINE, "mine"))
 AddStategraphActionHandler("smallbird", ActionHandler(ACTIONS.INTERACT_WITH, "plant_peep"))
+
+AddStategraphState("smallbird",State{
+		name = "flyaway",
+		tags = { "flight", "busy", "noelectrocute" },
+		onenter = function(inst)
+			inst.Physics:Stop()
+			inst.DynamicShadow:Enable(false)
+			inst.AnimState:PlayAnimation("boat_jump_pre")
+            inst.AnimState:PushAnimation("boat_jump", true)
+			inst.sg.statemem.flapSound = 9*FRAMES
+		end,
+
+		onupdate = function(inst, dt)
+			inst.sg.statemem.flapSound = inst.sg.statemem.flapSound - dt
+			if inst.sg.statemem.flapSound <= 0 then
+				inst.sg.statemem.flapSound = 3*FRAMES
+				inst.SoundEmitter:PlaySound("dontstarve_DLC001/creatures/mossling/flap")
+			end
+		end,
+
+		timeline =
+		{
+			TimeEvent(20*FRAMES, function(inst)
+				inst.Physics:SetMotorVel(-2 + math.random()*4,2*(6+math.random()*2),-2 + math.random()*4)
+			end),
+            TimeEvent(30*FRAMES, function(inst)
+				inst.Physics:SetMotorVel(-2 + math.random()*4,2*(6+math.random()*2),-2 + math.random()*4)
+			end),
+            TimeEvent(40*FRAMES, function(inst)
+				inst.Physics:SetMotorVel(-2 + math.random()*4,2*(6+math.random()*2),-2 + math.random()*4)
+			end),
+            TimeEvent(50*FRAMES, function(inst)
+				inst.Physics:SetMotorVel(-2 + math.random()*4,2*(6+math.random()*2),-2 + math.random()*4)
+			end),
+			TimeEvent(78*FRAMES, function(inst) inst:Remove() end)
+		}
+	})
+
+AddStategraphState("smallbird",State{
+        name = "flyback",
+		tags = { "flight", "busy", "noelectrocute" },
+
+        onenter = function(inst)
+            inst.AnimState:PlayAnimation("boat_jump",true)
+            inst.Physics:SetMotorVelOverride(0, -5.5, 0)
+        end,
+
+        onupdate = function(inst)
+            inst.Physics:SetMotorVelOverride(0, -7.5, 0)
+        end,
+
+        timeline =
+		{
+            TimeEvent(74*FRAMES, function(inst)
+                inst.AnimState:PlayAnimation("boat_jump_pst")
+            end),
+			TimeEvent(78*FRAMES, function(inst)
+                local x, y, z = inst.Transform:GetWorldPosition()
+                inst.Physics:ClearMotorVelOverride()
+                inst.Physics:Stop()
+                inst.Physics:Teleport(x, 0, z)
+                inst.sg:GoToState("idle")
+            end)
+		},
+
+        onexit = function(inst)
+            local x, y, z = inst.Transform:GetWorldPosition()
+            if y > 0 then
+                inst.Transform:SetPosition(x, 0, z)
+            end
+            inst.Physics:ClearMotorVelOverride()
+        end,
+    })
 
 AddStategraphState("smallbird",State{
         name = "wave",
@@ -543,7 +622,6 @@ AddStategraphState("tallbird",State{
 
         onenter = function(inst)
             inst.AnimState:PlayAnimation("takeoff_loop")
-            inst.AnimState:PushAnimation("takeoff_pst")
             inst.Physics:SetMotorVelOverride(0, -5.5, 0)
         end,
 
@@ -553,15 +631,16 @@ AddStategraphState("tallbird",State{
 
         timeline =
 		{
+            TimeEvent(60*FRAMES, function(inst)
+                inst.AnimState:PlayAnimation("takeoff_pst")
+            end),
 			TimeEvent(78*FRAMES, function(inst)
                 local x, y, z = inst.Transform:GetWorldPosition()
-                if y < 1 or inst:IsAsleep() then
-                    inst.Physics:ClearMotorVelOverride()
-                    inst.Physics:Stop()
-                    inst.Physics:Teleport(x, 0, z)
-                    inst.sg:GoToState("idle")
-                end
-            end)
+                inst.Physics:ClearMotorVelOverride()
+                inst.Physics:Stop()
+                inst.Physics:Teleport(x, 0, z)
+                inst.sg:GoToState("idle")
+            end),
 		},
 
         onexit = function(inst)
