@@ -578,6 +578,7 @@ AddStategraphActionHandler("tallbird", ActionHandler(ACTIONS.TILL, "till_or_dig"
 AddStategraphActionHandler("tallbird", ActionHandler(ACTIONS.CHOP, "chop"))
 AddStategraphActionHandler("tallbird", ActionHandler(ACTIONS.MINE, "mine"))
 AddStategraphActionHandler("tallbird", ActionHandler(ACTIONS.INTERACT_WITH, "plant_peep"))
+-- AddStategraphActionHandler("tallbird", ActionHandler(ACTIONS.PICKUP, "eat"))
 
 AddStategraphState("tallbird",State{
 		name = "flyaway",
@@ -1291,8 +1292,7 @@ AddStategraphState("tallbird",State{
     })
 
 local config = {swimming_clear_collision_frame = 5*FRAMES,}
-local anims = {}
--- {pre="jump_pre", loop="jump_loop", pst="jump_pst",antic="jump_antic"}
+local anims = {pre="jump_pre", loop="jump_loop", pst="jump_pst",antic="jump_antic"}
 local timelines = {
         hop_pre = {
             TimeEvent(0, function(inst)
@@ -2289,6 +2289,36 @@ AddStategraphPostInit("tallbird", function(sg)
     --         inst.sg:GoToState("idle")
     --     end
     -- end
+
+    local walk_state = sg.states["walk"]
+    for i, ev in ipairs(walk_state.timeline) do
+        if ev.frame == 0 then
+            local old_fn = ev.fn
+            ev.fn = function(inst)
+                if inst.components.amphibiouscreature and inst.components.amphibiouscreature.in_water then
+                    inst.SoundEmitter:PlaySound("waterlogged1/creatures/spider_water/walk_water")
+                else
+                    if old_fn then
+                        old_fn(inst)
+                    end
+                end
+            end
+        end
+        if ev.frame == 12 then
+            local old_fn = ev.fn
+            ev.fn = function(inst)
+                if inst.components.amphibiouscreature and inst.components.amphibiouscreature.in_water then
+                    inst.SoundEmitter:PlaySound("waterlogged1/creatures/spider_water/walk_water")
+                else
+                    if old_fn then
+                        old_fn(inst)
+                    end
+                end
+            end
+            break
+        end
+    end
+
 end)
 
 AddStategraphPostInit("wilson", function(sg)

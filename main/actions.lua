@@ -1002,3 +1002,49 @@ AddComponentAction("INVENTORY", "bird_store", function(inst, doer, actions)
         table.insert(actions, ACTIONS.BIRD_STORE)
     end
 end)
+
+---下次更新完善
+
+-- local function CommandBird(owner,target,action)
+--     local birds = owner.components.leader and owner.components.leader.followers
+--     if birds then
+--         for bird,_ in pairs(birds) do
+--             if bird:HasTag("tallbird") then
+--                 local ba = BufferedAction(bird, target, action)
+--                 bird.components.locomotor:PushAction(ba, true)
+--                 break
+--             end
+--         end
+--     end
+    
+-- end
+
+-- local COMMAND_BIRD_PICKUP = Action()
+-- COMMAND_BIRD_PICKUP.id = "COMMAND_BIRD_PICKUP"
+-- COMMAND_BIRD_PICKUP.priority = 1
+-- COMMAND_BIRD_PICKUP.instant = true
+-- COMMAND_BIRD_PICKUP.mount_valid = true
+-- COMMAND_BIRD_PICKUP.distance = 20
+-- COMMAND_BIRD_PICKUP.strfn = function (act)
+--     return "COMMAND_BIRD_PICKUP"
+-- end
+-- COMMAND_BIRD_PICKUP.fn = function (act)
+--     local doer = act.doer
+--     local target = act.target
+--     CommandBird(doer,target,ACTIONS.PICKUP)
+--     return true
+-- end
+-- AddAction(COMMAND_BIRD_PICKUP)
+-- STRINGS.ACTIONS.COMMAND_BIRD_PICKUP = {
+--     COMMAND_BIRD_PICKUP = STRINGS.TALLBIRD_ACTIONS_NAMED.COMMAND_BIRD_PICKUP,
+-- }
+
+-- -- AddStategraphActionHandler("wilson", ActionHandler(ACTIONS.COMMAND_BIRD_PICKUP, "play_flute_long"))
+-- -- AddStategraphActionHandler("wilson_client", ActionHandler(ACTIONS.COMMAND_BIRD_PICKUP, "play_flute_long"))
+
+-- AddComponentAction("SCENE", "inspectable", function(inst, doer, actions, right)
+--     if right then
+--         table.insert(actions, ACTIONS.COMMAND_BIRD_PICKUP)
+--     end
+-- end)
+
