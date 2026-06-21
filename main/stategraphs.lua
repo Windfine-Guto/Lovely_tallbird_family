@@ -881,7 +881,13 @@ AddStategraphState("tallbird",State{
 				local speed = TUNING.YOTH_KNIGHT_JOUST_SPEED * inst.components.locomotor:GetSpeedMultiplier()
 				inst.Physics:SetMotorVelOverride(speed * math.cos(theta), 0, -speed * math.sin(theta))
 			end),
-			FrameEvent(21, function(inst) inst.SoundEmitter:PlaySound("dontstarve/movement/run_horseshoes") end),
+			FrameEvent(21, function(inst)
+                if inst.components.amphibiouscreature and inst.components.amphibiouscreature.in_water then
+                    inst.SoundEmitter:PlaySound("waterlogged1/creatures/spider_water/walk_water")
+                else
+                    inst.SoundEmitter:PlaySound("dontstarve/movement/run_horseshoes")
+                end
+            end),
 		},
 
 		events =
@@ -962,11 +968,19 @@ AddStategraphState("tallbird",State{
 		timeline =
 		{
 			FrameEvent(0, function(inst)
-				if not (inst.sg.laststate and inst.sg.laststate.name == "joust_pre") then
+                if inst.components.amphibiouscreature and inst.components.amphibiouscreature.in_water then
+                    inst.SoundEmitter:PlaySound("waterlogged1/creatures/spider_water/walk_water")
+                elseif not (inst.sg.laststate and inst.sg.laststate.name == "joust_pre") then
 					inst.SoundEmitter:PlaySound("dontstarve/movement/run_horseshoes")
 				end
 			end),
-			FrameEvent(15, function(inst) inst.SoundEmitter:PlaySound("dontstarve/movement/run_horseshoes") end),
+			FrameEvent(15, function(inst)
+                if inst.components.amphibiouscreature and inst.components.amphibiouscreature.in_water then
+                    inst.SoundEmitter:PlaySound("waterlogged1/creatures/spider_water/walk_water")
+                else
+                    inst.SoundEmitter:PlaySound("dontstarve/movement/run_horseshoes")
+                end
+            end),
 		},
 
 		ontimeout = function(inst)
