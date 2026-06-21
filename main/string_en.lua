@@ -826,3 +826,41 @@ STRINGS.CHARACTERS.WURT.DESCRIBE.TALLBIRD_FLUTE = "Shiny flute! Flurp!"
 STRINGS.CHARACTERS.WALTER.DESCRIBE.TALLBIRD_FLUTE = "Woby, look! This flute commands the flock to fly!"
 ---Wanda
 STRINGS.CHARACTERS.WANDA.DESCRIBE.TALLBIRD_FLUTE = "This flute can send the birds elsewhere for a time."
+
+---Egg Box
+STRINGS.NAMES.EGG_BOX = "Egg Box"
+STRINGS.RECIPE_DESC.EGG_BOX = "A storage box for eggs and ingredients. Ignite it to cook the contents."
+---Wilson
+STRINGS.CHARACTERS.GENERIC.DESCRIBE.EGG_BOX = "An exquisite egg box, fancier than a backpack."
+---Wendy
+STRINGS.CHARACTERS.WENDY.DESCRIBE.EGG_BOX = "An ornate prison, where even eggs find no peace."
+---Willow
+STRINGS.CHARACTERS.WILLOW.DESCRIBE.EGG_BOX = "Made of beeswax? Bet it smells great burning."
+---Wolfgang
+STRINGS.CHARACTERS.WOLFGANG.DESCRIBE.EGG_BOX = "Pretty box! Wolfgang likes it!"
+---WX-78
+STRINGS.CHARACTERS.WX78.DESCRIBE.EGG_BOX = "OVER-ENGINEERED ORGANIC STORAGE UNIT."
+---Wickerbottom
+STRINGS.CHARACTERS.WICKERBOTTOM.DESCRIBE.EGG_BOX = "Such meticulous craft for an egg box seems rather backwards."
+---Woodie
+STRINGS.CHARACTERS.WOODIE.DESCRIBE.EGG_BOX = "This box is fancier than my backpack, eh."
+---Maxwell
+STRINGS.CHARACTERS.WAXWELL.DESCRIBE.EGG_BOX = "So much effort for an egg box. How absurd."
+---Wigfrid
+STRINGS.CHARACTERS.WATHGRITHR.DESCRIBE.EGG_BOX = "Gaudy indeed, yet it cöoks a fine meal when set ablaze!"
+---Webber
+STRINGS.CHARACTERS.WEBBER.DESCRIBE.EGG_BOX = "What a pretty box! We can fit lots of eggs!"
+---Winona
+STRINGS.CHARACTERS.WINONA.DESCRIBE.EGG_BOX = "Beeswax storage box. That ain't cheap."
+---Wortox
+STRINGS.CHARACTERS.WORTOX.DESCRIBE.EGG_BOX = "Such a fine box, just for eggs?"
+---Wormwood
+STRINGS.CHARACTERS.WORMWOOD.DESCRIBE.EGG_BOX = "Pretty box. Egg egg. Many slots."
+---Warly
+STRINGS.CHARACTERS.WARLY.DESCRIBE.EGG_BOX = "Set it alight and it cooks the ingredients inside. Magnifique!"
+---Wurt
+STRINGS.CHARACTERS.WURT.DESCRIBE.EGG_BOX = "Pretty box! Fit lots of eggs! Flurp!"
+---Walter
+STRINGS.CHARACTERS.WALTER.DESCRIBE.EGG_BOX = "It even has an opening animation! So cool!"
+---Wanda
+STRINGS.CHARACTERS.WANDA.DESCRIBE.EGG_BOX = "Wasting beeswax on an egg box. What a waste of time."
