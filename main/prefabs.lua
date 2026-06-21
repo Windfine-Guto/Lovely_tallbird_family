@@ -252,11 +252,11 @@ end
 
         inst:AddComponent("amphibiouscreature")
         inst.components.amphibiouscreature:SetBanks("smallbird", "smallbird_water")
-        inst.components.amphibiouscreature:SetEnterWaterFn(function(inst)
-            inst.AnimState:SetBuild("smallbird_basic_water")
+        inst.components.amphibiouscreature:SetEnterWaterFn(function(inst) 
+            inst.AnimState:AddOverrideBuild("smallbird_basic_water_fx")
         end)
         inst.components.amphibiouscreature:SetExitWaterFn(function(inst)
-            inst.AnimState:SetBuild("smallbird_basic")
+            inst.AnimState:ClearOverrideBuild("smallbird_basic_water_fx")
         end)
     end
 
@@ -421,10 +421,10 @@ end
         inst:AddComponent("amphibiouscreature")
         inst.components.amphibiouscreature:SetBanks("tallbird", "tallbird_water")
         inst.components.amphibiouscreature:SetEnterWaterFn(function(inst)
-            inst.AnimState:SetBuild("tallbird_teen_build")
+            inst.AnimState:AddOverrideBuild("ds_tallbird_basic_water_fx")
         end)
         inst.components.amphibiouscreature:SetExitWaterFn(function(inst)
-            inst.AnimState:SetBuild("tallbird_teen_build")
+            inst.AnimState:ClearOverrideBuild("ds_tallbird_basic_water_fx")
         end)
     end
 

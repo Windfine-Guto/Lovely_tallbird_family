@@ -1,8 +1,5 @@
 local function init_fn(inst)
     GlassicAPI.BasicInitFn(inst)
-    if inst and inst.AnimState then
-        inst.AnimState:AddOverrideBuild("smallbird_basic_water_fx")
-    end
 end
 ---清理皮肤
 local function clear_fn(inst)

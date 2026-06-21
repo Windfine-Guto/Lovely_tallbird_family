@@ -5,6 +5,7 @@ local assets =
     Asset("ANIM", "anim/ds_tallbird_basic.zip"),
     Asset("ANIM", "anim/ds_tallbird_basic_water.zip"),
     Asset("ANIM", "anim/wilsontallbird.zip"),
+    Asset("ANIM","anim/tallbird_teen_basic_water.zip"),
     Asset("SOUND", "sound/tallbird.fsb"),
 }
 
@@ -396,13 +397,13 @@ local function fn()
     inst:AddComponent("amphibiouscreature")
     inst.components.amphibiouscreature:SetBanks("tallbird", "tallbird_water")
     inst.components.amphibiouscreature:SetEnterWaterFn(function(inst)
-        inst.AnimState:SetBuild("ds_tallbird_basic_water")
+        inst.AnimState:AddOverrideBuild("ds_tallbird_basic_water_fx")
         if inst.components.locomotor then
             inst.components.locomotor:SetExternalSpeedMultiplier(inst,"enter_water",0.6)
         end
     end)
     inst.components.amphibiouscreature:SetExitWaterFn(function(inst)
-        inst.AnimState:SetBuild("ds_tallbird_basic")
+        inst.AnimState:ClearOverrideBuild("ds_tallbird_basic_water_fx")
         if inst.components.locomotor then
             inst.components.locomotor:RemoveExternalSpeedMultiplier(inst,"enter_water")
         end

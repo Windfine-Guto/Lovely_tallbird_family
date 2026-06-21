@@ -30,9 +30,6 @@ local function ReplaceAttackAnim(inst, anim)
             return "atkleg"
         end
     end
-    if inst and inst:HasTag("tallbird") then
-        print(anim)
-    end
     return anim
 end
 
