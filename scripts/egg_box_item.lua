@@ -137,6 +137,7 @@ local egg_box_item = {
     ["stinger"] = true,
     ["succulent_picked"] = true,
     ["tallbirdegg"] = true,
+    ["tallbirdegg_cooked"] = true,
     ["thulecite"] = true,
     ["thulecite_pieces"] = true,
     ["tillweedsalve"] = true,
@@ -155,6 +156,7 @@ local egg_box_item = {
     ["wetgoop"] = true,
     ["wormlight"] = true,
     ["wormlight_lesser"] = true,
+    ["yellowgem"] = true,
 }
 
 return egg_box_item
