@@ -864,3 +864,5 @@ STRINGS.CHARACTERS.WURT.DESCRIBE.EGG_BOX = "Pretty box! Fit lots of eggs! Flurp!
 STRINGS.CHARACTERS.WALTER.DESCRIBE.EGG_BOX = "It even has an opening animation! So cool!"
 ---Wanda
 STRINGS.CHARACTERS.WANDA.DESCRIBE.EGG_BOX = "Wasting beeswax on an egg box. What a waste of time."
+
+STRINGS.CHARACTERS.GENERIC.ANNOUNCE_INWATER_CANNOTRIDE = "We'll both drown if I get on."

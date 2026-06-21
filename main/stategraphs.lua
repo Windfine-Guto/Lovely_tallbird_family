@@ -85,10 +85,16 @@ AddStategraphState("smallbird",State{
         onenter = function(inst)
             inst.AnimState:PlayAnimation("boat_jump",true)
             inst.Physics:SetMotorVelOverride(0, -5.5, 0)
+            inst.sg.statemem.flapSound = 9*FRAMES
         end,
 
-        onupdate = function(inst)
+        onupdate = function(inst,dt)
             inst.Physics:SetMotorVelOverride(0, -7.5, 0)
+            inst.sg.statemem.flapSound = inst.sg.statemem.flapSound - dt
+			if inst.sg.statemem.flapSound <= 0 then
+				inst.sg.statemem.flapSound = 3*FRAMES
+				inst.SoundEmitter:PlaySound("dontstarve_DLC001/creatures/mossling/flap")
+			end
         end,
 
         timeline =
@@ -624,10 +630,16 @@ AddStategraphState("tallbird",State{
         onenter = function(inst)
             inst.AnimState:PlayAnimation("takeoff_loop")
             inst.Physics:SetMotorVelOverride(0, -5.5, 0)
+            inst.sg.statemem.flapSound = 9*FRAMES
         end,
 
-        onupdate = function(inst)
+        onupdate = function(inst,dt)
             inst.Physics:SetMotorVelOverride(0, -7.5, 0)
+            inst.sg.statemem.flapSound = inst.sg.statemem.flapSound - dt
+			if inst.sg.statemem.flapSound <= 0 then
+				inst.sg.statemem.flapSound = 3*FRAMES
+				inst.SoundEmitter:PlaySound("dontstarve_DLC001/creatures/mossling/flap")
+			end
         end,
 
         timeline =
@@ -1879,7 +1891,7 @@ AddStategraphState("wilson",State{
         timeline =
         {
             TimeEvent(30 * FRAMES, function(inst)
-                inst.SoundEmitter:PlaySound(inst.sg.statemem.sound or "dontstarve/wilson/flute_LP", "flute")
+                inst.SoundEmitter:PlaySound(inst.sg.statemem.sound or "tallbird_flute/tallbird_flute/tallbird_flute", "flute")
             end),
 			TimeEvent(80 * FRAMES, function(inst)
 				if inst.sg.statemem.action_failed then

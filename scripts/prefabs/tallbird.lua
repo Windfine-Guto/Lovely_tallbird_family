@@ -399,7 +399,7 @@ local function fn()
     inst.components.amphibiouscreature:SetEnterWaterFn(function(inst)
         inst.AnimState:AddOverrideBuild("ds_tallbird_basic_water_fx")
         if inst.components.locomotor then
-            inst.components.locomotor:SetExternalSpeedMultiplier(inst,"enter_water",0.6)
+            inst.components.locomotor:SetExternalSpeedMultiplier(inst,"enter_water",0.7)
         end
     end)
     inst.components.amphibiouscreature:SetExitWaterFn(function(inst)

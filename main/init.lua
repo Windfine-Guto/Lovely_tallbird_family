@@ -11,6 +11,8 @@ Assets = {
     Asset("ANIM","anim/smallbird_basic_water_fx.zip"),
     Asset("SOUNDPACKAGE", "sound/tallbird_egg_oversized.fev"),
     Asset("SOUND", "sound/tallbird_egg_oversized.fsb"),
+    Asset("SOUNDPACKAGE", "sound/tallbird_flute.fev"),
+    Asset("SOUND", "sound/tallbird_flute.fsb"),
 }
 
 PrefabFiles = GetModConfigData('lovely_tallbird_family'..'skins') and {

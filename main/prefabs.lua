@@ -252,7 +252,7 @@ end
 
         inst:AddComponent("amphibiouscreature")
         inst.components.amphibiouscreature:SetBanks("smallbird", "smallbird_water")
-        inst.components.amphibiouscreature:SetEnterWaterFn(function(inst) 
+        inst.components.amphibiouscreature:SetEnterWaterFn(function(inst)
             inst.AnimState:AddOverrideBuild("smallbird_basic_water_fx")
         end)
         inst.components.amphibiouscreature:SetExitWaterFn(function(inst)

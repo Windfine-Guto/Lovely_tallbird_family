@@ -16,16 +16,35 @@ local DrownCheckClientSafe = function(inst)
     end
 end
 if GetModConfigData(modid..'_tallbirdwaterwalk') then
-local DISMOUNT_fn = ACTIONS.DISMOUNT.fn
-ACTIONS.DISMOUNT.fn = function(act)
-    local rider = act.doer.components.rider
-    local mount = rider and rider:GetMount()
-    if mount and mount:HasTag("tallbird") and DrownCheckClientSafe(act.doer) then
-        return false
+    local DISMOUNT_fn = ACTIONS.DISMOUNT.fn
+    ACTIONS.DISMOUNT.fn = function(act)
+        local rider = act.doer.components.rider
+        local mount = rider and rider:GetMount()
+        if mount and mount:HasTag("tallbird") and DrownCheckClientSafe(act.doer) then
+            return false
+        end
+        return DISMOUNT_fn(act)
     end
-    return DISMOUNT_fn(act)
+else
+    local MOUNT_fn = ACTIONS.MOUNT.fn
+    ACTIONS.MOUNT.fn = function (act)
+        local target = act.target
+        local doer = act.doer
+        local talker = doer and doer.components.talker
+        if target:HasTag("tallbird") and target.components.amphibiouscreature and target.components.amphibiouscreature.in_water then
+            if talker then
+                doer:DoTaskInTime(0,function ()
+                    talker:Say(GetString(doer,"ANNOUNCE_INWATER_CANNOTRIDE"))
+                end)
+            end
+            return false
+        else
+            return MOUNT_fn(act)
+        end
+    end
 end
-end
+
+
 
 local SADDLE_fn = ACTIONS.SADDLE.fn
 ACTIONS.SADDLE.fn = function(act)
