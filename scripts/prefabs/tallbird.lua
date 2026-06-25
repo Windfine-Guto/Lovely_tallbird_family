@@ -391,6 +391,8 @@ local function fn()
         }
     inst.components.locomotor:SetAllowPlatformHopping(true)
 
+    inst:AddComponent("drownable")
+
     inst:AddComponent("embarker")
     inst.components.embarker.embark_speed = 10
 

@@ -585,6 +585,28 @@ AddStategraphActionHandler("tallbird", ActionHandler(ACTIONS.CHOP, "chop"))
 AddStategraphActionHandler("tallbird", ActionHandler(ACTIONS.MINE, "mine"))
 AddStategraphActionHandler("tallbird", ActionHandler(ACTIONS.INTERACT_WITH, "plant_peep"))
 -- AddStategraphActionHandler("tallbird", ActionHandler(ACTIONS.PICKUP, "eat"))
+-- AddStategraphActionHandler("tallbird", ActionHandler(ACTIONS.GIVEALLTOPLAYER, "give"))
+
+-- AddStategraphState("tallbird",State{
+--         name = "give",
+--         tags = {"busy"},
+
+--         onenter = function(inst)
+--             inst.Physics:Stop()
+--             inst.AnimState:PlayAnimation("teenatk_pre")
+--             inst.AnimState:PushAnimation("teenatk", false)
+--         end,
+
+--         timeline=
+--         {
+--             TimeEvent(11*FRAMES, function(inst) inst:PerformBufferedAction() end),
+--         },
+
+--         events=
+--         {
+--             EventHandler("animover", function(inst) inst.sg:GoToState("idle") end ),
+--         },
+--     })
 
 AddStategraphState("tallbird",State{
 		name = "flyaway",

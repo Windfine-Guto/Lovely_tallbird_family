@@ -1022,20 +1022,21 @@ AddComponentAction("INVENTORY", "bird_store", function(inst, doer, actions)
     end
 end)
 
----下次更新完善
 
 -- local function CommandBird(owner,target,action)
 --     local birds = owner.components.leader and owner.components.leader.followers
 --     if birds then
 --         for bird,_ in pairs(birds) do
---             if bird:HasTag("tallbird") then
---                 local ba = BufferedAction(bird, target, action)
+--             if bird:HasTag("tallbird") or bird:HasTag("teenbird") then
+--                 local item = action==ACTIONS.GIVEALLTOPLAYER and bird.components.inventory:GetFirstItemInAnySlot() or nil
+--                 if item==nil and action==ACTIONS.GIVEALLTOPLAYER then
+--                     break
+--                 end
+--                 local ba = BufferedAction(bird, target, action,item)
 --                 bird.components.locomotor:PushAction(ba, true)
---                 break
 --             end
 --         end
 --     end
-    
 -- end
 
 -- local COMMAND_BIRD_PICKUP = Action()
@@ -1058,12 +1059,33 @@ end)
 --     COMMAND_BIRD_PICKUP = STRINGS.TALLBIRD_ACTIONS_NAMED.COMMAND_BIRD_PICKUP,
 -- }
 
--- -- AddStategraphActionHandler("wilson", ActionHandler(ACTIONS.COMMAND_BIRD_PICKUP, "play_flute_long"))
--- -- AddStategraphActionHandler("wilson_client", ActionHandler(ACTIONS.COMMAND_BIRD_PICKUP, "play_flute_long"))
+-- local COMMAND_BIRD_GIVE = Action()
+-- COMMAND_BIRD_GIVE.id = "COMMAND_BIRD_GIVE"
+-- COMMAND_BIRD_GIVE.priority = 1
+-- COMMAND_BIRD_GIVE.instant = true
+-- COMMAND_BIRD_GIVE.mount_valid = true
+-- COMMAND_BIRD_GIVE.distance = 20
+-- COMMAND_BIRD_GIVE.strfn = function (act)
+--     return "COMMAND_BIRD_GIVE"
+-- end
+-- COMMAND_BIRD_GIVE.fn = function (act)
+--     local doer = act.doer
+--     local target = act.target
+--     CommandBird(doer,target,ACTIONS.GIVEALLTOPLAYER)
+--     return true
+-- end
+-- AddAction(COMMAND_BIRD_GIVE)
+-- STRINGS.ACTIONS.COMMAND_BIRD_GIVE = {
+--     COMMAND_BIRD_GIVE = STRINGS.TALLBIRD_ACTIONS_NAMED.COMMAND_BIRD_GIVE,
+-- }
+-- -- AddStategraphActionHandler("wilson", ActionHandler(ACTIONS.COMMAND_BIRD_GIVE, "play_flute_long"))
+-- -- AddStategraphActionHandler("wilson_client", ActionHandler(ACTIONS.COMMAND_BIRD_GIVE, "play_flute_long"))
 
 -- AddComponentAction("SCENE", "inspectable", function(inst, doer, actions, right)
---     if right then
+--     if right and not inst:HasTag("player") then
 --         table.insert(actions, ACTIONS.COMMAND_BIRD_PICKUP)
+--     else
+--         table.insert(actions, ACTIONS.COMMAND_BIRD_GIVE)
 --     end
 -- end)
 

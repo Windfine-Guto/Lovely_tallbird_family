@@ -123,6 +123,9 @@ AddComponentPostInit("rider", function(self)
                     COLLISION.OBSTACLES,
                     COLLISION.CHARACTERS)
                 self.inst.Physics:Teleport(self.inst.Transform:GetWorldPosition())
+                if self.inst.components.drownable then
+                    self.inst.components.drownable.enabled = false
+                end
             end
             local inst = self.inst
             if inst.components.worker == nil then
@@ -151,6 +154,9 @@ AddComponentPostInit("rider", function(self)
 					COLLISION.GIANTS
 				)
                 self.inst.Physics:Teleport(self.inst.Transform:GetWorldPosition())
+                if self.inst.components.drownable then
+                    self.inst.components.drownable.enabled = true
+                end
             end
             if self.inst.components.worker ~= nil then
                 self.inst:RemoveComponent("worker")
