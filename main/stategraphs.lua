@@ -1844,9 +1844,16 @@ AddStategraphState("wilson",State{
 			EventHandler("donetalking", OnDoneTalking_Override),
 			EventHandler("equip", function(inst) inst.sg:GoToState("idle") end),
 			EventHandler("unequip", function(inst) inst.sg:GoToState("idle") end),
-            EventHandler("itemgetorlose", function (inst)
-                inst.AnimState:PlayAnimation("handout_eggbox_pickup")
-			    inst.AnimState:PushAnimation("handout_eggbox_loop")
+            EventHandler("itemgetorlose", function (inst,data)
+                if data and data.itemprefab then
+                    inst.AnimState:OverrideSymbol("egg13", "egg_box_item",data.itemprefab)
+                    inst.AnimState:PlayAnimation("handout_eggbox_dance_pre")
+			        inst.AnimState:PushAnimation("handout_eggbox_dance_loop",true)
+                else
+                    inst.AnimState:ClearOverrideSymbol("egg13")
+                    inst.AnimState:PlayAnimation("handout_eggbox_pickup")
+			        inst.AnimState:PushAnimation("handout_eggbox_loop")
+                end
             end)
 		},
 

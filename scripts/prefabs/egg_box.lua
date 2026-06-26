@@ -111,12 +111,24 @@ end
 
 local function HideRackItem(inst,data)
     local slot = data.slot
+    local item = data.prev_item
+    local prefab = item and item.prefab or nil
+    local total_slots = inst.components.container:GetNumSlots() or 12
+    local empty_slots = 0
+    for i = 1, total_slots do
+        if inst.components.container:GetItemInSlot(i) == nil then
+            empty_slots = empty_slots + 1
+        end
+    end
+    if empty_slots~=1 then
+        prefab = nil
+    end
     if slot then
         inst.AnimState:Hide("egg"..slot)
         inst.AnimState:ClearOverrideSymbol("egg"..slot)
         local grand_owner = inst.components.inventoryitem:GetGrandOwner()
         if grand_owner then
-            grand_owner:PushEvent("itemgetorlose")
+            grand_owner:PushEvent("itemgetorlose",{itemprefab = prefab})
             local animstate = grand_owner.AnimState
             if animstate then
                 grand_owner:DoTaskInTime(0.2,function ()
