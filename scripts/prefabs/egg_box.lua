@@ -62,6 +62,7 @@ local function OnOpen(inst)
                     local item = container:GetItemInSlot(i)
                     if item then
                         animstate:OverrideSymbol("egg"..i,"egg_box_item",item.prefab)
+                        animstate:Show("egg"..i)
                     else
                         animstate:Hide("egg"..i)
                     end

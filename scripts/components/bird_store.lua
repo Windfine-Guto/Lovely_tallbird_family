@@ -8,6 +8,8 @@ nil,
 {
     
 })
+local AddCreator = require("restore_follower_with_equips").AddCreator
+local SpawnSaveCreator = require("restore_follower_with_equips").SpawnSaveCreator
 
 function Bird_Store:Store(owner)
     self.playerid = owner.userid or nil
@@ -19,6 +21,7 @@ function Bird_Store:Store(owner)
     for follower, _ in pairs(followers) do
         if follower:HasTag("lovely_bird") then
             local savedata = follower:GetSaveRecord()
+            AddCreator(savedata)
             table.insert(self.all_followers, savedata)
             follower:AddTag("notarget")
             follower:AddTag("NOCLICK")
@@ -53,15 +56,26 @@ function Bird_Store:Summon(owner)
     self.store = false
     for _, savedata in pairs(self.all_followers) do
         owner:DoTaskInTime(0.2 * math.random(), function(owner)
-        local bird = SpawnSaveRecord(savedata)
+            local creator = nil
+            if savedata.creator and savedata.creator.sessionid ~= TheWorld.meta.session_identifier then
+                creator = savedata.creator
+            end
+            local bird
+            if creator then
+                bird = SpawnSaveCreator(savedata)
+            else
+                bird = SpawnSaveRecord(savedata)
+            end
             owner.components.leader:AddFollower(bird)
-            bird:DoTaskInTime(0, function(bird)
+            if bird then
+                bird:DoTaskInTime(0, function(bird)
                 if owner:IsValid()  then
                     local x,y,z = owner.Transform:GetWorldPosition()
                     bird.Transform:SetPosition(x+math.random(-3,3),20,z+math.random(-3,3))
                     bird.sg:GoToState("flyback")
                 end
-            end)
+                end)
+            end
         end)
     end
     if self.inst.components.inventoryitem then

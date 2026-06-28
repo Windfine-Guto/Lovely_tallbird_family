@@ -1,7 +1,7 @@
 local modid = 'lovely_tallbird_family'
 local cur = (locale == 'zh' or locale == 'zhr') and 'zh' or 'en'
 
-version = '26.06.26'
+version = '26.06.28'
 author = 'over_dragon、Guto'
 
 forumthread = ''
@@ -305,7 +305,7 @@ local LANGS = {
                 {'6倍',20}
             }},
             {'全部鸟'},
-            {modid..'_birdfollow','鸟跟随上下洞穴','但是换角色时鸟会消失',true,{
+            {modid..'_birdfollow','鸟跟随上下洞穴','',true,{
                 {'开启',true},
                 {'关闭',false}
             }},
@@ -610,7 +610,7 @@ local LANGS = {
                 {'6x',20}
             }},
             {'All Bird'},
-            {modid..'_birdfollow','Bird Cave Transition Follow','Disappears when switching characters',true,{
+            {modid..'_birdfollow','Bird Cave Transition Follow','',true,{
                 {'Enable',true},
                 {'Disable',false}
             }},

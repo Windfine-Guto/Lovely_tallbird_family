@@ -61,7 +61,7 @@ local function StartNesting(inst, time)
     inst.nesttask = inst:DoTaskInTime(time, DoNesting)
 end
 
-local function onpicked(inst, picker)
+local function onpicked(inst, picker,loot)
     inst.thief = picker
     if inst.AnimState:IsCurrentAnimation("eggnest_signed1") then
         inst.AnimState:PlayAnimation("nest_signed1")
@@ -73,7 +73,7 @@ local function onpicked(inst, picker)
     end
     if inst.components.childspawner and picker then
         for k,v in pairs(inst.components.childspawner.childrenoutside) do
-            if v.components.combat then
+            if v.components.combat and not (picker:HasTag("bird_friend") or picker:HasTag("bird_family")) then
                 v.components.combat:SuggestTarget(picker)
             end
         end
@@ -174,7 +174,17 @@ local function ondeploy(inst, pt)--, deployer)
     ent.SoundEmitter:PlaySound("dontstarve/wilson/pickup_reeds")
 end
 
-local function dig_up(inst)--, worker)
+local function dig_up(inst,worker)
+    if inst.components.childspawner and worker then
+        for k,v in pairs(inst.components.childspawner.childrenoutside) do
+            if v.components.combat and not (worker:HasTag("bird_friend") or worker:HasTag("bird_family")) then
+                v.components.combat:SuggestTarget(worker)
+            end
+        end
+    end
+    if inst.components.pickable and inst.components.pickable:CanBePicked() then
+        inst.components.lootdropper:SpawnLootPrefab("tallbirdegg")
+    end
     inst.components.lootdropper:SpawnLootPrefab("new_tallbirdnest_item", nil, inst.linked_skinname, inst.skin_id )
     inst:Remove()
 end

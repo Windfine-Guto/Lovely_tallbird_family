@@ -1,5 +1,5 @@
 local FARM_PLANT_TAGS = {"tendable_farmplant"}
-local NOTAGS = {'INLIMBO','notarget','noattack','player','companion','abigail','glommer','friendlyfruitfly','wall'}
+local NOTAGS = {'INLIMBO','notarget','noattack','player','companion','abigail','glommer','friendlyfruitfly','wall','smallbird','tallbird'}
 local function song_update(inst)
     local ix, iy, iz = inst.Transform:GetWorldPosition()
     local nearby_tendable_plants = TheSim:FindEntities(ix, iy, iz, TUNING.PHONOGRAPH_TEND_RANGE, FARM_PLANT_TAGS)
@@ -688,7 +688,7 @@ AddStategraphState("tallbird",State{
     })
 
 local NOTAGS3 = {'INLIMBO','notarget','noattack','player','companion','abigail','glommer','friendlyfruitfly'
-,"chester","hutch", "playerghost","DECOR", "FX" ,"structure","wall","waxedplant","ancienttree","tallbird_egg_oversized"}
+,"chester","hutch", "playerghost","DECOR", "FX" ,"structure","wall","waxedplant","ancienttree","tallbird_egg_oversized","tallbirdegg"}
 local DAMAGE_ONEOF_TAGS = { "pickable", "NPC_workable", "CHOP_workable", "HAMMER_workable", "MINE_workable", "DIG_workable" }
 local function Tallbird_Trample(inst)
     local x,y,z = inst.Transform:GetWorldPosition()
@@ -1776,6 +1776,18 @@ local function CheckPocketRummageMem(inst)
 	end
 end
 
+local function DoEmoteSound(inst, soundoverride, loop)
+    --NOTE: loop only applies to soundoverride
+    loop = loop and soundoverride ~= nil and "emotesoundloop" or nil
+    local soundname = soundoverride or "emote"
+    local emotesoundoverride = soundname.."soundoverride"
+    if inst[emotesoundoverride] ~= nil then
+        inst.SoundEmitter:PlaySound(inst[emotesoundoverride], loop)
+    elseif not inst:HasTag("mime") then
+        inst.SoundEmitter:PlaySound((inst.talker_path_override or "dontstarve/characters/")..(inst.soundsname or inst.prefab).."/"..soundname, loop)
+    end
+end
+
 AddStategraphState("wilson",State{
 		name = "start_pocket_rummage_eggbox",
 		tags = { "doing", "busy", "nodangle", "keep_pocket_rummage" },
@@ -1849,10 +1861,13 @@ AddStategraphState("wilson",State{
                     inst.AnimState:OverrideSymbol("egg13", "egg_box_item",data.itemprefab)
                     inst.AnimState:PlayAnimation("handout_eggbox_dance_pre")
 			        inst.AnimState:PushAnimation("handout_eggbox_dance_loop",true)
+                    inst.sg:AddStateTag("dancing")
+                    DoEmoteSound(inst)
                 else
                     inst.AnimState:ClearOverrideSymbol("egg13")
                     inst.AnimState:PlayAnimation("handout_eggbox_pickup")
 			        inst.AnimState:PushAnimation("handout_eggbox_loop")
+                    inst.sg:RemoveStateTag("dancing")
                 end
             end)
 		},
