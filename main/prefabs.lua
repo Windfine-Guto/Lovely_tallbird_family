@@ -11,6 +11,8 @@ local function is_bird_follower(inst)
     GLOBAL.assert(inst ~= nil);
     return inst:HasAnyTag(TUNING.LOVELY_BIRD.TAG)
 end
+local AddCreator = require("restore_follower_with_equips").AddCreator
+local SpawnSaveCreator = require("restore_follower_with_equips").SpawnSaveCreator
 ---玩家
 AddPlayerPostInit(function(inst)
 
@@ -24,6 +26,7 @@ inst.OnDespawn = function(inst, migrationdata, ...)
     for follower, _ in pairs(followers) do
         if is_bird_follower(follower) then
             local savedata = follower:GetSaveRecord()
+            AddCreator(savedata)
             table.insert(inst.all_followers, savedata)
             follower:AddTag("notarget")
             follower:AddTag("NOCLICK")
@@ -59,16 +62,28 @@ inst.OnLoad = function(inst, data, ...)
     if data and data.all_followers then
         for _, savedata in pairs(data.all_followers) do
             inst:DoTaskInTime(0.2 * math.random(), function(inst)
-            local bird = SpawnSaveRecord(savedata)
+                local creator = nil
+                if savedata.creator and savedata.creator.sessionid ~= TheWorld.meta.session_identifier then
+                    creator = savedata.creator
+                end
+                local bird
+                if creator then
+                    bird = SpawnSaveCreator(savedata)
+                else
+                    bird = SpawnSaveRecord(savedata)
+                end
+
                 inst.components.leader:AddFollower(bird)
-                bird:DoTaskInTime(0, function(bird)
-                    if inst:IsValid() and not bird:IsNear(inst, 8) then
-                        bird.Transform:SetPosition(inst.Transform:GetWorldPosition())
-                        bird.sg:GoToState("idle")
-                    end
-                end)
-            local fx = SpawnPrefab("spawn_fx_small")
-                fx.Transform:SetPosition(bird.Transform:GetWorldPosition())
+                if bird then
+                    bird:DoTaskInTime(0, function(bird)
+                        if inst:IsValid() and not bird:IsNear(inst, 8) then
+                            bird.Transform:SetPosition(inst.Transform:GetWorldPosition())
+                            bird.sg:GoToState("idle")
+                        end
+                    end)
+                    local fx = SpawnPrefab("spawn_fx_small")
+                    fx.Transform:SetPosition(bird.Transform:GetWorldPosition())
+                end
             end)
         end
     end

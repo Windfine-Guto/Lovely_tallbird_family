@@ -273,18 +273,18 @@ end
 
 function Bird_cultivate:Trusteeship(giver)
     self.playerid = giver.userid or nil
+    self:NoLeader(giver)
     local targets = giver.components.leader and giver.components.leader.followers or {}
     for follower,_ in pairs(targets) do
         if follower:IsValid() and (follower:HasTag("smallbird") or follower:HasTag("tallbird") ) then
-            follower.components.follower:SetLeader(self.inst)
+            if not (follower.components.debuffable and follower.components.debuffable:HasDebuff("king_tallbird")) then
+                follower.components.follower:SetLeader(self.inst)
+            end
 
             if not follower.sg:HasStateTag("busy") then
                 follower.sg:GoToState("idle_blink")
             end
         end
-    end
-    if self.inst.components.follower and self.inst.components.follower.leader==giver then
-        self.inst.components.follower:SetLeader(nil)
     end
 end
 
@@ -302,15 +302,11 @@ function Bird_cultivate:Get_Back(giver)
                         follower.sg:GoToState("idle_blink")
                     end
                 end
-                
             end
         end
-        -- if self.inst.components.follower and self.inst.components.follower.leader==nil then
-        --     self.inst.components.follower:SetLeader(giver)
-        -- end
+        self:SetLeader(giver)
         self.playerid = nil
     end
-    
 end
 
 function Bird_cultivate:OnSave()
