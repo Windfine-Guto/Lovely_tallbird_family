@@ -243,11 +243,11 @@ end)
 
 AddComponentPostInit("sleeper", function(self)
     local old_gotosleep = self.GoToSleep
-    self.GoToSleep = function(sleeptime)
+    function self:GoToSleep(sleeptime)
         if self.inst:HasTag("planar_buff_nosleep") then
             return self:WakeUp()
         end
-        return old_gotosleep(sleeptime)
+        return old_gotosleep(self,sleeptime)
     end
 end)
 

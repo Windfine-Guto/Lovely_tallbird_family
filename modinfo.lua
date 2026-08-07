@@ -1,7 +1,7 @@
 local modid = 'lovely_tallbird_family'
 local cur = (locale == 'zh' or locale == 'zhr') and 'zh' or 'en'
 
-version = '26.06.28'
+version = '26.08.07'
 author = 'over_dragon、Guto'
 
 forumthread = ''
@@ -203,6 +203,10 @@ local LANGS = {
                 {'敌对和怪物',1},
                 {'对友方有仇恨',2},
                 {'完全被动',3},
+            }},
+            {modid..'_breed','春季繁殖','由于完全禁止原版鸟巢繁殖需要覆盖原鸟巢，这不好，所以禁止后野生鸟仍有小概率繁殖',0,{
+                {'开启',1},
+                {'关闭',0},
             }},
             {"位面化高脚鸟"},
             {modid..'_planar_damage','位面伤害','',20,{
@@ -508,6 +512,10 @@ local LANGS = {
                 {'Hostile and Monsters', 1},
                 {'Hostile to friendlies', 2},
                 {'Completely passive', 3},
+            }},
+            {modid..'_breed','Spring Nesting','Completely disabling vanilla bird nesting requires overwriting the original nests, which is not ideal. So, when disabled, wild birds still have a small chance to breed.',0,{
+                {'Enabled',1},
+                {'Disabled',0},
             }},
             {"Planar Tallbird"},
             {modid..'_planar_damage', 'Planar Damage', '', 20, {

@@ -29,7 +29,8 @@ for y = 2.5, -0.5, -1 do
     end
 end
 
-local egg_box_item = require("egg_box_item")
+local egg_box_item = require("egg_box_item").item
+local dynamic_item = require("egg_box_item").dynamic_item
 
 local SOUNDS =
 {
@@ -38,7 +39,7 @@ local SOUNDS =
 }
 
 function params.egg_box.itemtestfn(container, item, slot)
-    return egg_box_item[item.prefab]
+    return egg_box_item[item.prefab] or dynamic_item[item.prefab]
 end
 -----------------------------------------------------------------------------------------------
 
@@ -61,10 +62,27 @@ local function OnOpen(inst)
                 for i = 1, num_slot do
                     local item = container:GetItemInSlot(i)
                     if item then
-                        animstate:OverrideSymbol("egg"..i,"egg_box_item",item.prefab)
-                        animstate:Show("egg"..i)
+                        if dynamic_item[item.prefab] then
+                            local fx = SpawnPrefab("egg_box_dynamic_fx")
+                            local scale = dynamic_item[item.prefab].scale
+                            fx.AnimState:SetBank(dynamic_item[item.prefab].bank)
+                            fx.AnimState:SetBuild(dynamic_item[item.prefab].build)
+                            fx.AnimState:PlayAnimation(dynamic_item[item.prefab].anim,true)
+                            fx.entity:SetParent(grand_owner.entity)
+                            fx.entity:AddFollower()
+                            fx.Follower:FollowSymbol(grand_owner.GUID, "egg"..i, 0, 40, 0,true, true)
+                            fx.Transform:SetScale(scale, scale, scale)
+                            grand_owner._tallbird_egg_box_dynamic_item[i] = fx
+                        else
+                            animstate:OverrideSymbol("egg"..i,"egg_box_item",item.prefab)
+                        end
                     else
-                        animstate:Hide("egg"..i)
+                        if grand_owner._tallbird_egg_box_dynamic_item[i] then
+                            grand_owner._tallbird_egg_box_dynamic_item[i]:Remove()
+                            grand_owner._tallbird_egg_box_dynamic_item[i] = nil
+                        else
+                            animstate:ClearOverrideSymbol("egg"..i)
+                        end
                     end
                 end
             end
@@ -82,9 +100,18 @@ local function OnClose(inst)
     local grand_owner = inst.components.inventoryitem:GetGrandOwner()
     if grand_owner then
         grand_owner:DoTaskInTime(0.2,function()
+            local dynamicitem = grand_owner._tallbird_egg_box_dynamic_item
             local animstate = grand_owner.AnimState
             if animstate then
                 animstate:ClearOverrideBuild(inst.AnimState:GetBuild())
+            end
+            if dynamicitem then
+                for k, v in pairs(dynamicitem) do
+                    if v and v:IsValid() then
+                        v:Remove()
+                        dynamicitem[k] = nil
+                    end
+                end
             end
         end)
     end
@@ -94,16 +121,40 @@ local function ShowRackItem(inst,data)
     local slot = data.slot
     local item = data.item
     if slot and item then
-        inst.AnimState:OverrideSymbol("egg"..slot, "egg_box_item",item.prefab)
-        inst.AnimState:Show("egg"..slot)
+        if dynamic_item[item.prefab] then
+            local fx = SpawnPrefab("egg_box_dynamic_fx")
+            local scale = dynamic_item[item.prefab].scale
+            fx.AnimState:SetBank(dynamic_item[item.prefab].bank)
+            fx.AnimState:SetBuild(dynamic_item[item.prefab].build)
+            fx.AnimState:PlayAnimation(dynamic_item[item.prefab].anim,true)
+            fx.entity:SetParent(inst.entity)
+            fx.entity:AddFollower()
+            fx.Follower:FollowSymbol(inst.GUID, "egg"..slot, 0, 40, 0,true, true)
+            fx.Transform:SetScale(scale, scale, scale)
+            inst._dynamic_item[slot] = fx
+        else
+            inst.AnimState:OverrideSymbol("egg"..slot, "egg_box_item",item.prefab)
+        end
         local grand_owner = inst.components.inventoryitem:GetGrandOwner()
         if grand_owner then
             grand_owner:PushEvent("itemgetorlose")
             local animstate = grand_owner.AnimState
             if animstate then
                 grand_owner:DoTaskInTime(0.2,function ()
-                    animstate:OverrideSymbol("egg"..slot, "egg_box_item",item.prefab)
-                    animstate:Show("egg"..slot)
+                    if dynamic_item[item.prefab] then
+                        local fx = SpawnPrefab("egg_box_dynamic_fx")
+                        local scale = dynamic_item[item.prefab].scale
+                        fx.AnimState:SetBank(dynamic_item[item.prefab].bank)
+                        fx.AnimState:SetBuild(dynamic_item[item.prefab].build)
+                        fx.AnimState:PlayAnimation(dynamic_item[item.prefab].anim,true)
+                        fx.entity:SetParent(grand_owner.entity)
+                        fx.entity:AddFollower()
+                        fx.Follower:FollowSymbol(grand_owner.GUID, "egg"..slot, 0, 40, 0,true, true)
+                        fx.Transform:SetScale(scale, scale, scale)
+                        grand_owner._tallbird_egg_box_dynamic_item[slot] = fx
+                    else
+                        animstate:OverrideSymbol("egg"..slot, "egg_box_item",item.prefab)
+                    end
                 end)
             end
         end
@@ -125,16 +176,27 @@ local function HideRackItem(inst,data)
         prefab = nil
     end
     if slot then
-        inst.AnimState:Hide("egg"..slot)
-        inst.AnimState:ClearOverrideSymbol("egg"..slot)
+        if inst._dynamic_item[slot] then
+            inst._dynamic_item[slot]:Remove()
+            inst._dynamic_item[slot] = nil
+        else
+            inst.AnimState:ClearOverrideSymbol("egg"..slot)
+        end
         local grand_owner = inst.components.inventoryitem:GetGrandOwner()
         if grand_owner then
             grand_owner:PushEvent("itemgetorlose",{itemprefab = prefab})
             local animstate = grand_owner.AnimState
             if animstate then
                 grand_owner:DoTaskInTime(0.2,function ()
-                    animstate:ClearOverrideSymbol("egg"..slot)
-                    animstate:Hide("egg"..slot)
+                    if dynamic_item[item.prefab] then
+                        local dynamicitem = grand_owner._tallbird_egg_box_dynamic_item[slot]
+                        if dynamicitem and dynamicitem:IsValid() then
+                            dynamicitem:Remove()
+                            dynamicitem = nil
+                        end
+                    else
+                        animstate:ClearOverrideSymbol("egg"..slot)
+                    end
                 end)
             end
         end
@@ -205,9 +267,6 @@ local function fn()
     inst.AnimState:SetBank("egg_box")
     inst.AnimState:SetBuild("egg_box")
     inst.AnimState:PlayAnimation("closed")
-    for i = 1, 12 do
-        inst.AnimState:Hide("egg"..i)
-    end
 
     MakeInventoryPhysics(inst)
 
@@ -248,6 +307,9 @@ local function fn()
     MakeSmallBurnable(inst)
 
     inst.components.burnable:SetOnBurntFn(OnBurnt)
+
+    inst._dynamic_item = {}
+    inst._owner_dynamic_item = {}
 
     inst.OnSave = OnSave
     inst.OnLoad = OnLoad

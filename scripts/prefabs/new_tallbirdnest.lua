@@ -316,8 +316,10 @@ local function fn()
     inst.OnSave = OnSave
     inst.OnLoad = OnLoad
 
-    SeasonalSpawnChanges(inst)
-    inst:WatchWorldState("isspring", SeasonalSpawnChanges)
+    if TUNING.TALLBIRD_BREED==1 then
+        SeasonalSpawnChanges(inst)
+        inst:WatchWorldState("isspring", SeasonalSpawnChanges)
+    end
 
 	inst.StartNesting = StartNesting
 

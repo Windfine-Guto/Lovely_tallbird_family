@@ -1787,7 +1787,7 @@ local function DoEmoteSound(inst, soundoverride, loop)
         inst.SoundEmitter:PlaySound((inst.talker_path_override or "dontstarve/characters/")..(inst.soundsname or inst.prefab).."/"..soundname, loop)
     end
 end
-
+local dynamic_item = require("egg_box_item").dynamic_item
 AddStategraphState("wilson",State{
 		name = "start_pocket_rummage_eggbox",
 		tags = { "doing", "busy", "nodangle", "keep_pocket_rummage" },
@@ -1858,12 +1858,30 @@ AddStategraphState("wilson",State{
 			EventHandler("unequip", function(inst) inst.sg:GoToState("idle") end),
             EventHandler("itemgetorlose", function (inst,data)
                 if data and data.itemprefab then
-                    inst.AnimState:OverrideSymbol("egg13", "egg_box_item",data.itemprefab)
+                    local prefabname = data.itemprefab
+                    if dynamic_item[prefabname] then
+                        local fx = SpawnPrefab("egg_box_dynamic_fx")
+                        local scale = dynamic_item[prefabname].scale
+                        fx.AnimState:SetBank(dynamic_item[prefabname].bank)
+                        fx.AnimState:SetBuild(dynamic_item[prefabname].build)
+                        fx.AnimState:PlayAnimation(dynamic_item[prefabname].anim,true)
+                        fx.entity:SetParent(inst.entity)
+                        fx.entity:AddFollower()
+                        fx.Follower:FollowSymbol(inst.GUID, "egg13", 0, 40, 0,true, true)
+                        fx.Transform:SetScale(scale, scale, scale)
+                        inst._tallbird_egg_box_dynamic_item[13] = fx
+                    else
+                        inst.AnimState:OverrideSymbol("egg13", "egg_box_item",data.itemprefab)
+                    end
                     inst.AnimState:PlayAnimation("handout_eggbox_dance_pre")
-			        inst.AnimState:PushAnimation("handout_eggbox_dance_loop",true)
+                    inst.AnimState:PushAnimation("handout_eggbox_dance_loop",true)
                     inst.sg:AddStateTag("dancing")
                     DoEmoteSound(inst)
                 else
+                    if inst._tallbird_egg_box_dynamic_item[13] and inst._tallbird_egg_box_dynamic_item[13]:IsValid() then
+                        inst._tallbird_egg_box_dynamic_item[13]:Remove()
+                        inst._tallbird_egg_box_dynamic_item[13] = nil
+                    end
                     inst.AnimState:ClearOverrideSymbol("egg13")
                     inst.AnimState:PlayAnimation("handout_eggbox_pickup")
 			        inst.AnimState:PushAnimation("handout_eggbox_loop")

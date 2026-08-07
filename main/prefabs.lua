@@ -132,6 +132,7 @@ inst.LoadForReroll = function (inst, data, ...)
 end
 
 inst._tallbird_mount_aoe_leg = true
+inst._tallbird_egg_box_dynamic_item = {}
 
 
 local old_doubleclickactionsfn
@@ -167,6 +168,7 @@ inst:ListenForEvent("temperaturedelta",function (inst,data)
     local is_winter = TheWorld.state.season=="winter"
     if data.new<5 and is_winter or data.new>65 and is_summer then
         if inst.components.timer then
+            inst.components.timer:StopTimer("tallbird_temp_protect")
             inst.components.timer:StartTimer("tallbird_temp_protect", 20)
         end
     end
@@ -818,6 +820,43 @@ AddPrefabPostInit("dreadstonehat", function(inst)
         end)
     end
 end)
+
+-- local function GetUpvalue(fn, name)
+--     local i = 1
+--     while true do
+--         local n, v = debug.getupvalue(fn, i)
+--         if n == name then return v, i
+--         elseif n == nil then return end
+--         i = i + 1
+--     end
+-- end
+if TUNING.TALLBIRD_BREED~=1 then
+--     local prefab_fn = Prefabs["tallbirdnest"] and Prefabs["tallbirdnest"].fn or nil
+
+--     local function new_SeasonalSpawnChanges(inst)
+
+--     end
+-- if prefab_fn then
+--     local old_SeasonalSpawnChanges, idx = GetUpvalue(prefab_fn, "SeasonalSpawnChanges")
+--     if old_SeasonalSpawnChanges and idx then
+--         print("找到SeasonalSpawnChanges函数")
+--         debug.setupvalue(prefab_fn, idx, new_SeasonalSpawnChanges)
+--     else
+--         print("未找到SeasonalSpawnChanges函数，禁止繁殖失败")
+--     end
+-- end
+    AddPrefabPostInit("tallbirdnest", function(inst)
+        if not TheWorld.ismastersim then
+            return inst
+        end
+        inst.spawnedsmallbirdthisseason = true
+        local old_OnLoad = inst.OnLoad
+        inst.OnLoad = function (inst,data)
+            old_OnLoad(inst,data)
+            inst.spawnedsmallbirdthisseason = true
+        end
+    end)
+end
 
 AddPrefabPostInit("sculptingtable", function(inst)
 if inst.components.trader then

@@ -182,4 +182,16 @@ local egg_box_item = {
     ["yellowgem"] = true,
 }
 
-return egg_box_item
+local egg_box_dynamic_item = {
+    purebrilliance = {
+        build = "purebrilliance",
+        bank = "purebrilliance",
+        anim = "idle",
+        scale = 0.3
+    }
+}
+
+return {
+    item = egg_box_item,
+    dynamic_item = egg_box_dynamic_item
+}
