@@ -558,6 +558,8 @@ STRINGS.TALLBIRD_ACTIONS_NAMED = {
 
 STRINGS.TALLBIRD_FAMILY_FAME = "Fame"
 
+STRINGS.UI.CRAFTING_FILTERS["LOVELY_TALLBIRD_FAMILY"] = "Lovely Tallbird Family"
+
 STRINGS.NAMES.BEAK_CARROT_BIRD_ROD="Beakroot Tamer Rod"
 STRINGS.RECIPE_DESC.BEAK_CARROT_BIRD_ROD= "A bird's final wish usually isn't to run into a wall, but your rod says otherwise."
 

@@ -1,7 +1,7 @@
 local modid = 'lovely_tallbird_family'
 local cur = (locale == 'zh' or locale == 'zhr') and 'zh' or 'en'
 
-version = '26.08.07'
+version = '26.08.08.2'
 author = 'over_dragon、Guto'
 
 forumthread = ''
@@ -96,7 +96,7 @@ local LANGS = {
                 {'开启',true},
                 {'关闭',false}
             }},
-            {modid..'_smallbirdgifts','小鸟的礼物','每1.5天随机带点种子给你，每7天有10%概率带个特殊种子',true,{
+            {modid..'_smallbirdgifts','小鸟的礼物','每1.5天随机带点种子给你，每7天有10%概率带个特殊种子',false,{
                 {'开启',true},
                 {'关闭',false}
             }},
@@ -158,7 +158,7 @@ local LANGS = {
                 {'开启',true},
                 {'关闭',false}
             }},
-            {modid..'_teenbirdgifts','青年高脚鸟的礼物','每3天带个高脚鸟蛋给你，每5天有10%概率带个特殊种子',true,{
+            {modid..'_teenbirdgifts','青年高脚鸟的礼物','每3天带个高脚鸟蛋给你，每5天有10%概率带个特殊种子',false,{
                 {'开启',true},
                 {'关闭',false}
             }},
@@ -191,7 +191,7 @@ local LANGS = {
                 {'开启',true},
                 {'关闭',false}
             }},
-            {modid..'_tallbirdgifts','高脚鸟的礼物','每2天带个高脚鸟蛋给你，每3天有20%概率带个特殊种子',true,{
+            {modid..'_tallbirdgifts','高脚鸟的礼物','每2天带个高脚鸟蛋给你，每3天有20%概率带个特殊种子',false,{
                 {'开启',true},
                 {'关闭',false}
             }},
@@ -205,6 +205,10 @@ local LANGS = {
                 {'完全被动',3},
             }},
             {modid..'_breed','春季繁殖','由于完全禁止原版鸟巢繁殖需要覆盖原鸟巢，这不好，所以禁止后野生鸟仍有小概率繁殖',0,{
+                {'开启',1},
+                {'关闭',0},
+            }},
+            {modid..'_joust_destroy','冲锋破坏','青年鸟同样生效，关闭后破坏性只有挖树根和采集',1,{
                 {'开启',1},
                 {'关闭',0},
             }},
@@ -405,7 +409,7 @@ local LANGS = {
                 {'Enable',true},
                 {'Disable',false}
             }},
-            {modid..'_smallbirdgifts','Smallbird Gift Giving','Randomly brings seeds every 1.5 days; 10% chance for a special seed every 7 days',true,{
+            {modid..'_smallbirdgifts','Smallbird Gift Giving','Randomly brings seeds every 1.5 days; 10% chance for a special seed every 7 days',false,{
                 {'Enable',true},
                 {'Disable',false}
             }},
@@ -467,7 +471,7 @@ local LANGS = {
                 {'Enable',true},
                 {'Disable',false}
             }},
-            {modid..'_teenbirdgifts','Teenbird Gift Giving','Brings a Morsel Egg every 3 days; 10% chance for a special seed every 5 days',true,{
+            {modid..'_teenbirdgifts','Teenbird Gift Giving','Brings a Morsel Egg every 3 days; 10% chance for a special seed every 5 days',false,{
                 {'Enable',true},
                 {'Disable',false}
             }},
@@ -500,7 +504,7 @@ local LANGS = {
                 {'Enable',true},
                 {'Disable',false}
             }},
-            {modid..'_tallbirdgifts','Tallbird Gifts','Brings a tallbird egg every 2 days, and has a 20% chance to bring a special seed every 3 days',true,{
+            {modid..'_tallbirdgifts','Tallbird Gifts','Brings a tallbird egg every 2 days, and has a 20% chance to bring a special seed every 3 days',false,{
                 {'Enable',true},
                 {'Disable',false}
             }},
@@ -514,6 +518,10 @@ local LANGS = {
                 {'Completely passive', 3},
             }},
             {modid..'_breed','Spring Nesting','Completely disabling vanilla bird nesting requires overwriting the original nests, which is not ideal. So, when disabled, wild birds still have a small chance to breed.',0,{
+                {'Enabled',1},
+                {'Disabled',0},
+            }},
+            {modid..'_joust_destroy','Charge Destruction','Also applies to juvenile birds. When disabled, destructive actions are limited to digging tree stumps and gathering.',1,{
                 {'Enabled',1},
                 {'Disabled',0},
             }},

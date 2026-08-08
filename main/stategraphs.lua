@@ -712,9 +712,11 @@ local function Tallbird_Trample(inst)
                     )
             end
             if isworkable then
-                local x1, y1, z1 = v.Transform:GetWorldPosition()
-                SpawnPrefab("collapse_small").Transform:SetPosition(x1, y1, z1)
-                v.components.workable:Destroy(inst)
+                if TUNING.TALLBIRD_JOUST_DESTROY==1 then
+                    local x1, y1, z1 = v.Transform:GetWorldPosition()
+                    SpawnPrefab("collapse_small").Transform:SetPosition(x1, y1, z1)
+                    v.components.workable:Destroy(inst)
+                end
 
                 if v:HasTag("stump") then
                     if v.components.workable then
@@ -1865,6 +1867,9 @@ AddStategraphState("wilson",State{
                         fx.AnimState:SetBank(dynamic_item[prefabname].bank)
                         fx.AnimState:SetBuild(dynamic_item[prefabname].build)
                         fx.AnimState:PlayAnimation(dynamic_item[prefabname].anim,true)
+                        if dynamic_item[item.prefab].multcolor then
+                            fx.AnimState:SetMultColour(1, 1, 1, 0.5)
+                        end
                         fx.entity:SetParent(inst.entity)
                         fx.entity:AddFollower()
                         fx.Follower:FollowSymbol(inst.GUID, "egg13", 0, 40, 0,true, true)

@@ -10,6 +10,14 @@ if tallbirdeggs then
     end
 end
 
+AddRecipeFilter({
+    name = "LOVELY_TALLBIRD_FAMILY",
+    atlas = "images/tallbird_researchlab_filter.xml",
+    image = "tallbird_researchlab_filter.tex",
+    -- image_size = 256,
+    -- custom_pos = false
+},#CRAFTING_FILTER_DEFS+1)
+
 ---配方
 AddRecipe2("tallbird_saddle",{Ingredient("rope", 3),Ingredient("beardhair", 10),Ingredient("driftwood_log", 3)},
 TECH.SCIENCE_TWO,
@@ -55,3 +63,12 @@ image = "egg_box.tex"},
 {"CONTAINERS"})
 AddDeconstructRecipe("armor_halfshell", {Ingredient("tallbird_eggshell1", 6,"images/inventoryimages/tallbird_eggshell1.xml", "tallbird_eggshell1.tex")})
 AddDeconstructRecipe("hat_eggshell", {Ingredient("tallbird_eggshell1", 8,"images/inventoryimages/tallbird_eggshell1.xml", "tallbird_eggshell1.tex")})
+
+AddRecipeToFilter("tallbird_saddle","LOVELY_TALLBIRD_FAMILY")
+AddRecipeToFilter("tallbird_comb_follow","LOVELY_TALLBIRD_FAMILY")
+AddRecipeToFilter("new_tallbirdnest_item","LOVELY_TALLBIRD_FAMILY")
+AddRecipeToFilter("beak_carrot_bird_rod","LOVELY_TALLBIRD_FAMILY")
+AddRecipeToFilter("armor_eggshell","LOVELY_TALLBIRD_FAMILY")
+AddRecipeToFilter("tallbird_egg_oversized_builder","LOVELY_TALLBIRD_FAMILY")
+AddRecipeToFilter("tallbird_flute","LOVELY_TALLBIRD_FAMILY")
+AddRecipeToFilter("egg_box","LOVELY_TALLBIRD_FAMILY")

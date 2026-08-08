@@ -22,6 +22,7 @@ TUNING.TALLBIRD_TENTACLE_NUM = GetModConfigData(modid..'tentacle_num')
 TUNING.TALLBIRD_ROD_SPEED_LIMIT = GetModConfigData(modid..'rod_speed') or 5
 TUNING.TALLBIRD_RETARGET = GetModConfigData(modid..'_tallbird_retaiget') or 1
 TUNING.TALLBIRD_BREED = GetModConfigData(modid..'_breed') or 1
+TUNING.TALLBIRD_JOUST_DESTROY = GetModConfigData(modid..'_joust_destroy') or 1
 
 TUNING.LOVELY_BIRD = {
     TAG = GetModConfigData(modid..'_tallbird_follow') and {"tallbird"} or { "lovely_bird","smallbird","teenbird","tallbird" }

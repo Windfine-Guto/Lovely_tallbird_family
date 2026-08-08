@@ -68,6 +68,9 @@ local function OnOpen(inst)
                             fx.AnimState:SetBank(dynamic_item[item.prefab].bank)
                             fx.AnimState:SetBuild(dynamic_item[item.prefab].build)
                             fx.AnimState:PlayAnimation(dynamic_item[item.prefab].anim,true)
+                            if dynamic_item[item.prefab].multcolor then
+                                fx.AnimState:SetMultColour(1, 1, 1, 0.5)
+                            end
                             fx.entity:SetParent(grand_owner.entity)
                             fx.entity:AddFollower()
                             fx.Follower:FollowSymbol(grand_owner.GUID, "egg"..i, 0, 40, 0,true, true)
@@ -127,6 +130,9 @@ local function ShowRackItem(inst,data)
             fx.AnimState:SetBank(dynamic_item[item.prefab].bank)
             fx.AnimState:SetBuild(dynamic_item[item.prefab].build)
             fx.AnimState:PlayAnimation(dynamic_item[item.prefab].anim,true)
+            if dynamic_item[item.prefab].multcolor then
+                fx.AnimState:SetMultColour(1, 1, 1, 0.5)
+            end
             fx.entity:SetParent(inst.entity)
             fx.entity:AddFollower()
             fx.Follower:FollowSymbol(inst.GUID, "egg"..slot, 0, 40, 0,true, true)
@@ -147,6 +153,9 @@ local function ShowRackItem(inst,data)
                         fx.AnimState:SetBank(dynamic_item[item.prefab].bank)
                         fx.AnimState:SetBuild(dynamic_item[item.prefab].build)
                         fx.AnimState:PlayAnimation(dynamic_item[item.prefab].anim,true)
+                        if dynamic_item[item.prefab].multcolor then
+                            fx.AnimState:SetMultColour(1, 1, 1, 0.5)
+                        end
                         fx.entity:SetParent(grand_owner.entity)
                         fx.entity:AddFollower()
                         fx.Follower:FollowSymbol(grand_owner.GUID, "egg"..slot, 0, 40, 0,true, true)

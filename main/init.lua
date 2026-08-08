@@ -13,6 +13,8 @@ Assets = {
     Asset("SOUND", "sound/tallbird_egg_oversized.fsb"),
     Asset("SOUNDPACKAGE", "sound/tallbird_flute.fev"),
     Asset("SOUND", "sound/tallbird_flute.fsb"),
+    Asset("IMAGE","images/tallbird_researchlab_filter.tex"),
+	Asset("ATLAS", "images/tallbird_researchlab_filter.xml"),
 }
 
 PrefabFiles = GetModConfigData('lovely_tallbird_family'..'skins') and {

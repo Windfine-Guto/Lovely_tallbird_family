@@ -221,6 +221,44 @@ local egg_box_dynamic_item = {
         bank = "purebrilliance",
         anim = "idle",
         scale = 0.3
+    },
+    horrorfuel = {
+        build = "horrorfuel",
+        bank = "horrorfuel",
+        anim = "idle_loop",
+        scale = 0.3,
+        multcolor = 0.5,
+    },
+    nightmarefuel = {
+        build = "nightmarefuel",
+        bank = "nightmarefuel",
+        anim = "idle_loop",
+        scale = 0.3,
+        multcolor = 0.5,
+    },
+    shadowheart_infused = {
+        build = "shadowheart_infused",
+        bank = "shadowheart_infused",
+        anim = "idle",
+        scale = 0.3
+    },
+    security_pulse_cage_full = {
+        build = "security_pulse_cage",
+        bank = "security_pulse_cage",
+        anim = "idle_full2",
+        scale = 0.3
+    },
+    wintersfeastfuel = {
+        build = "wintersfeastfuel",
+        bank = "wintersfeastfuel",
+        anim = "idle_loop",
+        scale = 0.3
+    },
+    ancientfruit_nightvision = {
+        build = "ancienttree_nightvision_fruit",
+        bank = "ancienttree_nightvision_fruit",
+        anim = "idle",
+        scale = 0.8
     }
 }
 
