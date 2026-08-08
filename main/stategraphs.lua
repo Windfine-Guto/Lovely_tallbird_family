@@ -1867,7 +1867,7 @@ AddStategraphState("wilson",State{
                         fx.AnimState:SetBank(dynamic_item[prefabname].bank)
                         fx.AnimState:SetBuild(dynamic_item[prefabname].build)
                         fx.AnimState:PlayAnimation(dynamic_item[prefabname].anim,true)
-                        if dynamic_item[item.prefab].multcolor then
+                        if dynamic_item[prefabname].multcolor then
                             fx.AnimState:SetMultColour(1, 1, 1, 0.5)
                         end
                         fx.entity:SetParent(inst.entity)
