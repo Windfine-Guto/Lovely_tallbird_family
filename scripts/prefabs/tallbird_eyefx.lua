@@ -81,6 +81,10 @@ local FX = {
     {
         name = "egg_box_dynamic_fx",
         master_postinit = function (inst)
+            inst.entity:AddLight()
+            inst.Light:SetFalloff(0.7)
+            inst.Light:SetIntensity(.5)
+            inst.Light:SetRadius(0.5)
         end
     }
 }

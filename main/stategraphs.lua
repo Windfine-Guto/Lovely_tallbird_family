@@ -1790,6 +1790,13 @@ local function DoEmoteSound(inst, soundoverride, loop)
     end
 end
 local dynamic_item = require("egg_box_item").dynamic_item
+local LIGHT_DATA =
+{
+    { colour = Vector3(1, .1, .1) },
+    { colour = Vector3(.1, 1, .1) },
+    { colour = Vector3(.5, .5, 1) },
+    { colour = Vector3(1, 1, 1) },
+}
 AddStategraphState("wilson",State{
 		name = "start_pocket_rummage_eggbox",
 		tags = { "doing", "busy", "nodangle", "keep_pocket_rummage" },
@@ -1863,13 +1870,39 @@ AddStategraphState("wilson",State{
                     local prefabname = data.itemprefab
                     if dynamic_item[prefabname] then
                         local fx = SpawnPrefab("egg_box_dynamic_fx")
-                        local scale = dynamic_item[prefabname].scale
-                        fx.AnimState:SetBank(dynamic_item[prefabname].bank)
-                        fx.AnimState:SetBuild(dynamic_item[prefabname].build)
-                        fx.AnimState:PlayAnimation(dynamic_item[prefabname].anim,true)
-                        if dynamic_item[prefabname].multcolor then
-                            fx.AnimState:SetMultColour(1, 1, 1, 0.5)
+                        local scale = 1
+                        if data.winter_ornamentid then
+                            fx.AnimState:SetBank("winter_ornaments")
+                            fx.AnimState:SetBuild("winter_ornaments")
+                            local num = tonumber(string.match(data.winter_ornamentid, "%d+"))
+                            if num and LIGHT_DATA[num] then
+                                local col = LIGHT_DATA[num].colour
+                                fx.Light:SetColour(col.x, col.y, col.z)
+                            end
+                            fx.AnimState:PlayAnimation(data.winter_ornamentid.."_on")
+                            fx._light_colour = data.winter_ornamentid
+                            fx.Light:Enable(true)
+                            fx:DoPeriodicTask(1,function()
+                                if fx and fx:IsValid() then
+                                    if fx.AnimState:IsCurrentAnimation(fx._light_colour.."_on") then
+                                        fx.AnimState:PlayAnimation(fx._light_colour.."_off")
+                                        fx.Light:Enable(false)
+                                    else
+                                        fx.AnimState:PlayAnimation(fx._light_colour.."_on")
+                                        fx.Light:Enable(true)
+                                    end
+                                end
+                            end)
+                        else
+                            scale = dynamic_item[prefabname].scale
+                            fx.AnimState:SetBank(dynamic_item[prefabname].bank)
+                            fx.AnimState:SetBuild(dynamic_item[prefabname].build)
+                            fx.AnimState:PlayAnimation(dynamic_item[prefabname].anim,true)
+                            if dynamic_item[prefabname].multcolor then
+                                fx.AnimState:SetMultColour(1, 1, 1, 0.5)
+                            end
                         end
+
                         fx.entity:SetParent(inst.entity)
                         fx.entity:AddFollower()
                         fx.Follower:FollowSymbol(inst.GUID, "egg13", 0, 40, 0,true, true)

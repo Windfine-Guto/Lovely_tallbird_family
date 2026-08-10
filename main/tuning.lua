@@ -2,7 +2,7 @@ local modid = 'lovely_tallbird_family'
 
 TUNING.TEENBIRD_DAMAGE=37.5*GetModConfigData(modid..'_teenbirddamage')
 TUNING.TALLBIRD_DAMAGE=50*GetModConfigData(modid..'_tallbirddamage')
-TUNING.SMALLBIRD_HATCH_TIME=TUNING.SMALLBIRD_HATCH_TIME*GetModConfigData(modid..'_egghatch')
+TUNING.SMALLBIRD_HATCH_TIME=TUNING.SMALLBIRD_HATCH_TIME*GetModConfigData(modid..'_egghatch')/24
 TUNING.SMALLBIRD_HUNGER=TUNING.SMALLBIRD_HUNGER*GetModConfigData(modid..'_smallbirdhunger')
 TUNING.TEENBIRD_HUNGER=TUNING.TEENBIRD_HUNGER*GetModConfigData(modid..'_teenbirdhunger')
 TUNING.SMALLBIRD_GROW_TIME=TUNING.SMALLBIRD_GROW_TIME/GetModConfigData(modid..'_smallbirdgrowtime')

@@ -1,7 +1,7 @@
 local modid = 'lovely_tallbird_family'
 local cur = (locale == 'zh' or locale == 'zhr') and 'zh' or 'en'
 
-version = '26.08.08.9'
+version = '26.08.10'
 author = 'over_dragon、Guto'
 
 forumthread = ''
@@ -32,11 +32,11 @@ local LANGS = {
         description = '·完全重写高脚鸟的机制！高脚鸟将不再会做出违背伦理的行为！\n·孵化高脚鸟蛋，养大高脚鸟，提升在高脚鸟族群的声望。\n·雇佣并骑乘高脚鸟，让它们为你干活！战斗！\n·可使用扫把为高脚鸟换皮肤。\n󰀀!!!兼容性!!!：\n·模组目前使用了Glassic API来实现皮肤，无法兼容使用了Modded API的皮肤模组，如果你想兼容它们，可以在模组配置中关闭皮肤功能。\n·会堆叠高鸟蛋的模组会覆盖官方的孵化代码，会导致无法正常孵化高鸟蛋，请不要开启。\n·本模组重构了高脚鸟的动画系统，其它的高脚鸟皮肤模组无法兼容，可能后续会联动这些皮肤模组。', 
         config = {
             {'高脚鸟蛋'},
-            {modid..'_egghatch','高脚鸟蛋孵化时间','原版是3天',1,{
-                {'1分钟',1/24},
-                {'1天',1/3},
-                {'2天',2/3},
-                {'3天',1}
+            {modid..'_egghatch','高脚鸟蛋孵化时间','原版是3天',24,{
+                {'1分钟',1},
+                {'1天',8},
+                {'2天',16},
+                {'3天',24}
             }},
             {'小鸟'},
             {modid..'_smallbirdhealth','小鸟生命上限倍率','调整生命上限倍率',1,{
@@ -345,11 +345,11 @@ local LANGS = {
         description = "·Completely rewritten Tallbird mechanics!Tallbirds will no longer act unethically!\n·Hatch Tallbird Eggs, raise Tallbirds, and increase your reputation among the Tallbird flock.\n·Hire and ride Tallbirds to make them work and fight for you!·\nUse a broom to change your Tallbird's skin.\n󰀀!!!Compatibility!!!\n-This mod uses the Glassic API for skins and is incompatible with Modded API skin mods. Disable the skin feature in mod settings if you need cross-compatibility.\n-Mods that stack Tallbird Eggs will overwrite the official hatching code, which will result in failure to hatch Tallbird Eggs properly. Please do not enable such mods.\n-This mod has rebuilt the Tallbird animation system, making it incompatible with other Tallbird skin mods. Compatibility with these skin mods may be added in future updates.",
         config = {
             {'Tallbird Egg'},
-            {modid..'_egghatch','Morsel Egg Incubation Time','Vanilla: 3 days',1,{
-                {'1 minute',1/24},
-                {'1 Day',1/3},
-                {'2 Days',2/3},
-                {'3 Days',1}
+            {modid..'_egghatch','Morsel Egg Incubation Time','Vanilla: 3 days',24,{
+                {'1 minute',1},
+                {'1 Day',8},
+                {'2 Days',16},
+                {'3 Days',24}
             }},
             {'Smallbird'},
             {modid..'_smallbirdhealth','Smallbird Max Health Multiplier','Adjust max health multiplier',1,{

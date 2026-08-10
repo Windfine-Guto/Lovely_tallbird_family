@@ -258,8 +258,16 @@ local egg_box_dynamic_item = {
         build = "ancienttree_nightvision_fruit",
         bank = "ancienttree_nightvision_fruit",
         anim = "idle",
-        scale = 0.8
-    }
+        scale = 1.2
+    },
+    winter_ornament_light1 = true,
+    winter_ornament_light2 = true,
+    winter_ornament_light3 = true,
+    winter_ornament_light4 = true,
+    winter_ornament_light5 = true,
+    winter_ornament_light6 = true,
+    winter_ornament_light7 = true,
+    winter_ornament_light8 = true,
 }
 
 return {
