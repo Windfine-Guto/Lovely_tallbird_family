@@ -868,3 +868,167 @@ STRINGS.CHARACTERS.WALTER.DESCRIBE.EGG_BOX = "It even has an opening animation! 
 STRINGS.CHARACTERS.WANDA.DESCRIBE.EGG_BOX = "Wasting beeswax on an egg box. What a waste of time."
 
 STRINGS.CHARACTERS.GENERIC.ANNOUNCE_INWATER_CANNOTRIDE = "We'll both drown if I get on."
+
+---Egg Dispenser
+STRINGS.NAMES.EGG_DISPENSER = "Egg Dispenser"
+STRINGS.RECIPE_DESC.EGG_DISPENSER = "A silly machine focused on launching Tallbird eggs, or whatever else..."
+---Wilson
+STRINGS.CHARACTERS.GENERIC.DESCRIBE.EGG_DISPENSER = "A catapult made of eggshells and a fork?"
+---Wendy
+STRINGS.CHARACTERS.WENDY.DESCRIBE.EGG_DISPENSER = "It sends eggs skyward, and toward destruction."
+---Willow
+STRINGS.CHARACTERS.WILLOW.DESCRIBE.EGG_DISPENSER = "A fork and an eggshell. What if I light it?"
+---Wolfgang
+STRINGS.CHARACTERS.WOLFGANG.DESCRIBE.EGG_DISPENSER = "Big machine! Wolfgang will launch big egg!"
+---WX-78
+STRINGS.CHARACTERS.WX78.DESCRIBE.EGG_DISPENSER = "REMOTE ORGANIC PROJECTILE AND FEEDING DEVICE DETECTED."
+---Wickerbottom
+STRINGS.CHARACTERS.WICKERBOTTOM.DESCRIBE.EGG_DISPENSER = "An eggshell base hardly meets rigorous engineering standards."
+---Woodie
+STRINGS.CHARACTERS.WOODIE.DESCRIBE.EGG_DISPENSER = "That fork arm don't look like proper siege gear, eh."
+---Maxwell
+STRINGS.CHARACTERS.WAXWELL.DESCRIBE.EGG_DISPENSER = "Thanks to Winona, even nonsense can be open-source."
+---Wigfrid
+STRINGS.CHARACTERS.WATHGRITHR.DESCRIBE.EGG_DISPENSER = "Eggs as ammunition, hurled toward glory and chaos!"
+---Webber
+STRINGS.CHARACTERS.WEBBER.DESCRIBE.EGG_DISPENSER = "Launching Tallbird eggs is so much fun!"
+---Winona
+STRINGS.CHARACTERS.WINONA.DESCRIBE.EGG_DISPENSER = "Someone made my catapult technology downright silly."
+---Wortox
+STRINGS.CHARACTERS.WORTOX.DESCRIBE.EGG_DISPENSER = "Eggs fly, forks swing, and chaos comes by!"
+---Wormwood
+STRINGS.CHARACTERS.WORMWOOD.DESCRIBE.EGG_DISPENSER = "Eggshell base. Fork arm. Egg go far."
+---Warly
+STRINGS.CHARACTERS.WARLY.DESCRIBE.EGG_DISPENSER = "If it feeds mouths from afar, it makes a fine feast."
+---Wurt
+STRINGS.CHARACTERS.WURT.DESCRIBE.EGG_DISPENSER = "Egg launcher! Feed friends too! Flurp!"
+---Walter
+STRINGS.CHARACTERS.WALTER.DESCRIBE.EGG_DISPENSER = "This thing looks like it could launch an egg to the moon!"
+---Wanda
+STRINGS.CHARACTERS.WANDA.DESCRIBE.EGG_DISPENSER = "What an absurd way to spend one's time."
+
+---Pot Lid Cog Kit
+STRINGS.NAMES.COG_POT_LID = "Pot Lid Cog Kit"
+STRINGS.RECIPE_DESC.COG_POT_LID = "Launch food to feed creatures, or let it fall."
+STRINGS.CHARACTERS.GENERIC.DESCRIBE.COG_POT_LID = "Pot lids as wheels? Now it can feed from afar."
+STRINGS.CHARACTERS.WENDY.DESCRIBE.COG_POT_LID = "Sending food into a mouth is almost tender."
+STRINGS.CHARACTERS.WILLOW.DESCRIBE.COG_POT_LID = "Pot lids for wheels? At least food flies funny."
+STRINGS.CHARACTERS.WOLFGANG.DESCRIBE.COG_POT_LID = "Pot lid wheels! Wolfgang feeds friends!"
+STRINGS.CHARACTERS.WX78.DESCRIBE.COG_POT_LID = "REMOTE ORGANIC FEEDING MODULE INSTALLED."
+STRINGS.CHARACTERS.WICKERBOTTOM.DESCRIBE.COG_POT_LID = "Pot-lid wheels somehow enable remote feeding."
+STRINGS.CHARACTERS.WOODIE.DESCRIBE.COG_POT_LID = "Pot lids make handy wheels for feeding, eh."
+STRINGS.CHARACTERS.WAXWELL.DESCRIBE.COG_POT_LID = "A set of pot-lid wheels, delivering meals to order."
+STRINGS.CHARACTERS.WATHGRITHR.DESCRIBE.COG_POT_LID = "Let the feast fly into the warrior's mouth!"
+STRINGS.CHARACTERS.WEBBER.DESCRIBE.COG_POT_LID = "The food flies right into our friends' mouths!"
+STRINGS.CHARACTERS.WINONA.DESCRIBE.COG_POT_LID = "Simple pot-lid cogs. Pretty useful for remote feeding."
+STRINGS.CHARACTERS.WORTOX.DESCRIBE.COG_POT_LID = "Food flies, mouths open, and naught goes to waste!"
+STRINGS.CHARACTERS.WORMWOOD.DESCRIBE.COG_POT_LID = "Pot lid wheel. Food fly. Mouth eat."
+STRINGS.CHARACTERS.WARLY.DESCRIBE.COG_POT_LID = "Delivering a dish straight to the mouth. Très elegant."
+STRINGS.CHARACTERS.WURT.DESCRIBE.COG_POT_LID = "Pot lid wheels! Throw food! Feed friends! Flurp!"
+STRINGS.CHARACTERS.WALTER.DESCRIBE.COG_POT_LID = "These wheels can launch dinner right into a mouth!"
+STRINGS.CHARACTERS.WANDA.DESCRIBE.COG_POT_LID = "Fewer steps to walk is still time saved."
+
+---Pan Cog Kit
+STRINGS.NAMES.COG_PAN = "Pan Cog Kit"
+STRINGS.RECIPE_DESC.COG_PAN = "Feed creatures and roast any ammunition that can be cooked."
+STRINGS.CHARACTERS.GENERIC.DESCRIBE.COG_PAN = "Pan wheels? It can cook food before launching it."
+STRINGS.CHARACTERS.WENDY.DESCRIBE.COG_PAN = "The food is cooked, then sent where it belongs."
+STRINGS.CHARACTERS.WILLOW.DESCRIBE.COG_PAN = "Wheels that cook things? I like this direction."
+STRINGS.CHARACTERS.WOLFGANG.DESCRIBE.COG_PAN = "Pan wheels! Cook egg, launch feast!"
+STRINGS.CHARACTERS.WX78.DESCRIBE.COG_PAN = "HIGH-TEMPERATURE FEEDING AND AMMUNITION PROCESSOR."
+STRINGS.CHARACTERS.WICKERBOTTOM.DESCRIBE.COG_PAN = "A convenient combination of cooking and remote feeding."
+STRINGS.CHARACTERS.WOODIE.DESCRIBE.COG_PAN = "A frying pan for wheels, and it cooks eggs, eh."
+STRINGS.CHARACTERS.WAXWELL.DESCRIBE.COG_PAN = "A catapult transformed into a mobile kitchen. Absurd."
+STRINGS.CHARACTERS.WATHGRITHR.DESCRIBE.COG_PAN = "Fried eggs as ammunition! A hot strike for the foe!"
+STRINGS.CHARACTERS.WEBBER.DESCRIBE.COG_PAN = "Tallbird eggs turn into fried eggs! So cool!"
+STRINGS.CHARACTERS.WINONA.DESCRIBE.COG_PAN = "Pan cogs heat ammunition. Weird, but creative."
+STRINGS.CHARACTERS.WORTOX.DESCRIBE.COG_PAN = "Hot food flying toward whose mouth, I wonder?"
+STRINGS.CHARACTERS.WORMWOOD.DESCRIBE.COG_PAN = "Pan wheel. Egg become fried egg. Smells nice."
+STRINGS.CHARACTERS.WARLY.DESCRIBE.COG_PAN = "Letting hot cuisine take flight. How romantic."
+STRINGS.CHARACTERS.WURT.DESCRIBE.COG_PAN = "Pan pan wheels! Egg tasty! Flurp!"
+STRINGS.CHARACTERS.WALTER.DESCRIBE.COG_PAN = "It can launch a fried egg for someone to eat!"
+STRINGS.CHARACTERS.WANDA.DESCRIBE.COG_PAN = "Cook it before launching it. At least there is no waiting."
+
+---Eggshell Cog Kit
+STRINGS.NAMES.COG_EGGSHELL = "Eggshell Cog Kit"
+STRINGS.RECIPE_DESC.COG_EGGSHELL = "Smash eggs skyward and see if science can stop egg salad."
+STRINGS.CHARACTERS.GENERIC.DESCRIBE.COG_EGGSHELL = "Smash an egg, maybe hatch a bird. Science caught up with nonsense."
+STRINGS.CHARACTERS.WENDY.DESCRIBE.COG_EGGSHELL = "Destroy the shell first, then hope for new life."
+STRINGS.CHARACTERS.WILLOW.DESCRIBE.COG_EGGSHELL = "Smash an egg to hatch a bird? Should've tried that sooner."
+STRINGS.CHARACTERS.WOLFGANG.DESCRIBE.COG_EGGSHELL = "Smash egg, hatch smallbird! Wolfgang likes violent gardening!"
+STRINGS.CHARACTERS.WX78.DESCRIBE.COG_EGGSHELL = "DETECTED: BIRTH PROMOTED THROUGH SHELL DESTRUCTION."
+STRINGS.CHARACTERS.WICKERBOTTOM.DESCRIBE.COG_EGGSHELL = "A remarkably aggressive method of embryonic acceleration."
+STRINGS.CHARACTERS.WOODIE.DESCRIBE.COG_EGGSHELL = "Smashing an egg and hoping it hatches is pretty rotten, eh."
+STRINGS.CHARACTERS.WAXWELL.DESCRIBE.COG_EGGSHELL = "A way to forge life while skipping the inconvenience of waiting."
+STRINGS.CHARACTERS.WATHGRITHR.DESCRIBE.COG_EGGSHELL = "Break the shell, birth anew! Let destruction bring rebirth!"
+STRINGS.CHARACTERS.WEBBER.DESCRIBE.COG_EGGSHELL = "Smash the egg and a smallbird might jump out!"
+STRINGS.CHARACTERS.WINONA.DESCRIBE.COG_EGGSHELL = "The entire hatching process reduced to one precise egg smash."
+STRINGS.CHARACTERS.WORTOX.DESCRIBE.COG_EGGSHELL = "With one bonk, egg gone, birdie comes along!"
+STRINGS.CHARACTERS.WORMWOOD.DESCRIBE.COG_EGGSHELL = "Egg smash. Smallbird come out. Very fast."
+STRINGS.CHARACTERS.WARLY.DESCRIBE.COG_EGGSHELL = "Smashing an egg before hatching it. A truly backwards breakfast."
+STRINGS.CHARACTERS.WURT.DESCRIBE.COG_EGGSHELL = "Smash egg, bird come out! Egg not happy! Flurp!"
+STRINGS.CHARACTERS.WALTER.DESCRIBE.COG_EGGSHELL = "It's like pulling a bird out by the egg instead of the roots!"
+STRINGS.CHARACTERS.WANDA.DESCRIBE.COG_EGGSHELL = "Skip development and go straight from shattering to adulthood."
+
+---Tall Wooden Clamp Cog Kit
+STRINGS.NAMES.COG_TALL_WOODEN_CLAMP = "Tall Wooden Clamp Cog Kit"
+STRINGS.RECIPE_DESC.COG_TALL_WOODEN_CLAMP = "Reinforce the dispenser and greatly increase durability."
+STRINGS.CHARACTERS.GENERIC.DESCRIBE.COG_TALL_WOODEN_CLAMP = "A sturdy wooden clamp makes the dispenser tougher."
+STRINGS.CHARACTERS.WENDY.DESCRIBE.COG_TALL_WOODEN_CLAMP = "It holds the fragile machine tightly together."
+STRINGS.CHARACTERS.WILLOW.DESCRIBE.COG_TALL_WOODEN_CLAMP = "Hardwood clamps. More durable than burning them."
+STRINGS.CHARACTERS.WOLFGANG.DESCRIBE.COG_TALL_WOODEN_CLAMP = "Tall clamp strong! Machine does not break!"
+STRINGS.CHARACTERS.WX78.DESCRIBE.COG_TALL_WOODEN_CLAMP = "STRUCTURAL DURABILITY INCREASED BY ONE HUNDRED PERCENT."
+STRINGS.CHARACTERS.WICKERBOTTOM.DESCRIBE.COG_TALL_WOODEN_CLAMP = "A robust clamp considerably strengthens the structure."
+STRINGS.CHARACTERS.WOODIE.DESCRIBE.COG_TALL_WOODEN_CLAMP = "Hardwood clamps. Tough as can be, eh."
+STRINGS.CHARACTERS.WAXWELL.DESCRIBE.COG_TALL_WOODEN_CLAMP = "At last, someone remembered to protect the poor machine."
+STRINGS.CHARACTERS.WATHGRITHR.DESCRIBE.COG_TALL_WOODEN_CLAMP = "Stout as a warrior's arm, making the machine immortal!"
+STRINGS.CHARACTERS.WEBBER.DESCRIBE.COG_TALL_WOODEN_CLAMP = "It clamps the dispenser nice and tight!"
+STRINGS.CHARACTERS.WINONA.DESCRIBE.COG_TALL_WOODEN_CLAMP = "Hardwood and marble. A durable combination."
+STRINGS.CHARACTERS.WORTOX.DESCRIBE.COG_TALL_WOODEN_CLAMP = "Clamp it tight! The machine won't tumble!"
+STRINGS.CHARACTERS.WORMWOOD.DESCRIBE.COG_TALL_WOODEN_CLAMP = "Hardwood clamp. Machine strong."
+STRINGS.CHARACTERS.WARLY.DESCRIBE.COG_TALL_WOODEN_CLAMP = "Reliable reinforcement puts any kitchen machine at ease."
+STRINGS.CHARACTERS.WURT.DESCRIBE.COG_TALL_WOODEN_CLAMP = "Hard clamp! No break! Flurp!"
+STRINGS.CHARACTERS.WALTER.DESCRIBE.COG_TALL_WOODEN_CLAMP = "Now the dispenser can take more bumps!"
+STRINGS.CHARACTERS.WANDA.DESCRIBE.COG_TALL_WOODEN_CLAMP = "Double the durability is worth the materials."
+
+---Short Wooden Clamp Cog Kit
+STRINGS.NAMES.COG_SHORT_WOODEN_CLAMP = "Short Wooden Clamp Cog Kit"
+STRINGS.RECIPE_DESC.COG_SHORT_WOODEN_CLAMP = "Make the dispenser launch eggs and food twice as fast."
+STRINGS.CHARACTERS.GENERIC.DESCRIBE.COG_SHORT_WOODEN_CLAMP = "A light clamp lets the dispenser act faster."
+STRINGS.CHARACTERS.WENDY.DESCRIBE.COG_SHORT_WOODEN_CLAMP = "Sending things farther, faster."
+STRINGS.CHARACTERS.WILLOW.DESCRIBE.COG_SHORT_WOODEN_CLAMP = "Softwood clamps, fast as a little fire."
+STRINGS.CHARACTERS.WOLFGANG.DESCRIBE.COG_SHORT_WOODEN_CLAMP = "Short clamp fast! Egg fly fast!"
+STRINGS.CHARACTERS.WX78.DESCRIBE.COG_SHORT_WOODEN_CLAMP = "PROJECTILE OPERATION SPEED INCREASED BY ONE HUNDRED PERCENT."
+STRINGS.CHARACTERS.WICKERBOTTOM.DESCRIBE.COG_SHORT_WOODEN_CLAMP = "Lightweight clamps increase the launching frequency."
+STRINGS.CHARACTERS.WOODIE.DESCRIBE.COG_SHORT_WOODEN_CLAMP = "Driftwood stakes for clamps. Quick work, eh."
+STRINGS.CHARACTERS.WAXWELL.DESCRIBE.COG_SHORT_WOODEN_CLAMP = "Very fast. At least no one can complain about waiting."
+STRINGS.CHARACTERS.WATHGRITHR.DESCRIBE.COG_SHORT_WOODEN_CLAMP = "Swift as a battle song! Let it fly!"
+STRINGS.CHARACTERS.WEBBER.DESCRIBE.COG_SHORT_WOODEN_CLAMP = "The egg flies out in no time!"
+STRINGS.CHARACTERS.WINONA.DESCRIBE.COG_SHORT_WOODEN_CLAMP = "Lightweight clamps can double launch speed."
+STRINGS.CHARACTERS.WORTOX.DESCRIBE.COG_SHORT_WOODEN_CLAMP = "Zip! The egg has vanished!"
+STRINGS.CHARACTERS.WORMWOOD.DESCRIBE.COG_SHORT_WOODEN_CLAMP = "Softwood clamp. Launch fast."
+STRINGS.CHARACTERS.WARLY.DESCRIBE.COG_SHORT_WOODEN_CLAMP = "Rapid launching for a feast in a hurry."
+STRINGS.CHARACTERS.WURT.DESCRIBE.COG_SHORT_WOODEN_CLAMP = "Short clamp fast! Egg fly-fly! Flurp!"
+STRINGS.CHARACTERS.WALTER.DESCRIBE.COG_SHORT_WOODEN_CLAMP = "It makes the dispenser launch much faster!"
+STRINGS.CHARACTERS.WANDA.DESCRIBE.COG_SHORT_WOODEN_CLAMP = "Double speed means time saved."
+
+---Beak Storage Cog
+STRINGS.NAMES.COG_BEAK = "Beak Storage Cog"
+STRINGS.RECIPE_DESC.COG_BEAK = "Open six storage slots, each holding one non-stackable item."
+STRINGS.CHARACTERS.GENERIC.DESCRIBE.COG_BEAK = "Six slots, and the beaks display what's inside."
+STRINGS.CHARACTERS.WENDY.DESCRIBE.COG_BEAK = "Six storage slots. Six mouths waiting to be fed."
+STRINGS.CHARACTERS.WILLOW.DESCRIBE.COG_BEAK = "A beak storage? At least it won't burn my stuff."
+STRINGS.CHARACTERS.WOLFGANG.DESCRIBE.COG_BEAK = "Six slots! One big thing in each!"
+STRINGS.CHARACTERS.WX78.DESCRIBE.COG_BEAK = "SIX-SLOT NON-STACKING ITEM STORAGE MODULE."
+STRINGS.CHARACTERS.WICKERBOTTOM.DESCRIBE.COG_BEAK = "Six separate slots with real-time item displays."
+STRINGS.CHARACTERS.WOODIE.DESCRIBE.COG_BEAK = "The beaks hold things up for you to see, eh."
+STRINGS.CHARACTERS.WAXWELL.DESCRIBE.COG_BEAK = "At last, somewhere to keep all those unstackable odds and ends."
+STRINGS.CHARACTERS.WATHGRITHR.DESCRIBE.COG_BEAK = "Six beaks displaying the spoils of battle! Magnificent!"
+STRINGS.CHARACTERS.WEBBER.DESCRIBE.COG_BEAK = "Each beak can show off one item!"
+STRINGS.CHARACTERS.WINONA.DESCRIBE.COG_BEAK = "Six single-item slots, with beaks as status indicators."
+STRINGS.CHARACTERS.WORTOX.DESCRIBE.COG_BEAK = "Six mouths that don't eat, only show off the loot!"
+STRINGS.CHARACTERS.WORMWOOD.DESCRIBE.COG_BEAK = "Six slots. One thing each. Beaks shiny."
+STRINGS.CHARACTERS.WARLY.DESCRIBE.COG_BEAK = "Six display spots, perfect for a refined ingredient collection."
+STRINGS.CHARACTERS.WURT.DESCRIBE.COG_BEAK = "Beak storage! Six slots! No stack-stack! Flurp!"
+STRINGS.CHARACTERS.WALTER.DESCRIBE.COG_BEAK = "Click it to open six storage slots! So cool!"
+STRINGS.CHARACTERS.WANDA.DESCRIBE.COG_BEAK = "Six items, six places. At least I won't forget where they are."
